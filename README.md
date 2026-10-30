@@ -10,6 +10,7 @@ DeepSeek-V4.1-Flash-1017 模型卡上 **11 个基准**的自测资料包：每�
 
 | 路径 | 说明 |
 | :-- | :-- |
+| [`AGENTS.md`](AGENTS.md) | 仓库协作说明：数据流、重建命令、事实与证据规则、完成标准（给 AI Agent 与维护者） |
 | [`report/benchmark-guide.md`](report/benchmark-guide.md) | **主报告**：11 项逐条详解、横向对比、口径警告、三档自测路线、成本与避坑 |
 | [`report/benchmarks.xlsx`](report/benchmarks.xlsx) | 对比表：总览（11 行×24 列）、Harness 工具链、三档自测方案、数据来源 |
 | [`report/runbook.md`](report/runbook.md) | 每个基准的复现命令清单（可直接复制） |
