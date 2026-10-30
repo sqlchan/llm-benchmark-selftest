@@ -1,0 +1,14 @@
+{
+  "startPro": [
+    {
+      "moduleName": "your-model-name",
+      "baseUrl": "https://your-gateway.example.com/v1",
+      "sk": "your-api-key",
+      "proNameList": [
+        "aiofiles",
+        "math-verify"
+      ]
+    }
+  ],
+  "max_pool_size": 2
+}

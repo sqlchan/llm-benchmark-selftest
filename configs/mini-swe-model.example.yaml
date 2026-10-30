@@ -1,0 +1,12 @@
+# 让 mini-swe-agent / mini-extra / Pier(mini-swe) 走任意 OpenAI 兼容端点。
+# 用法：作为 agent config 的 model 段（各 harness 的 -c/--config 或 config_yaml 引用）。
+# 官方依据：https://mini-swe-agent.com/latest/models/local_models/
+model:
+  model_name: your-model-name          # 与网关的模型名一致
+  model_kwargs:
+    custom_llm_provider: openai
+    api_base: https://your-gateway.example.com/v1
+  # 未在 LiteLLM registry 注册时避免 cost 计算报错；成本请自行按 token 统计
+  cost_tracking: ignore_errors
+  # 需要轨迹内成本统计时，改用 registry（见下方示例）并去掉 cost_tracking
+  # litellm_model_registry: /path/to/model_registry.json
