@@ -1,13 +1,15 @@
 # 离线评测包（示例模板）
 
 > 配套方案：[`report/offline-airgap-plan.md`](../report/offline-airgap-plan.md)。脚本是模板，标注 `TODO verify` 的位置需按实际环境确认后再放量。
+> 环境已确认：**家里 Windows（构建）→ 公司 Linux（运行，Docker 可用）**；公司内网模型同时支持 OpenAI 兼容与 Anthropic 协议。
 
 ## 目录
 
 ```
 offline/
-├─ build_bundle.ps1      # 有外网的机器：拉镜像/数据 → 导出 tar → 生成校验和
-├─ load_bundle.ps1       # 公司机器：校验 → docker load → 写配置
+├─ build_bundle.ps1      # 有外网的 Windows 机器：拉镜像/数据 → 导出 tar → 生成校验和
+├─ load_bundle.ps1       # Windows 机器加载（家里自测用）
+├─ load_bundle.sh        # 公司 Linux 机器加载：校验 → docker load → 写配置
 ├─ Dockerfile.runner     # 评测 runner 镜像（harness + 数据）
 ├─ docker-compose.yml    # runner 服务（挂载宿主机 docker.sock）
 ├─ images.manifest.txt   # 需要打包的镜像清单（MVP 先填少量）
@@ -32,14 +34,23 @@ docker save -o D:\bench-bundle\images\bench-eval-runner.tar bench-eval-runner:lo
 2. 只验证「任务能启动、判分能出、数据能读」，模型调用可临时指到 mock；
 3. 把可离线题号写入 `env/offline-ok.txt`，到公司只用这批题。
 
-### 3. 公司机器（加载 + 运行）
+### 3. 公司 Linux 机器（加载 + 运行）
 
-```powershell
-.\load_bundle.ps1 -Bundle E:\bench-bundle
-copy .\env\example.env .\env\company.env   # 填内网端点（不提交 git）
-docker compose --env-file .\env\company.env up -d
-docker compose exec runner bash /workspace/run_stage1.sh
+```bash
+# 校验 + docker load + 生成配置
+./offline/load_bundle.sh /mnt/ssd/bench-bundle
+
+# 可选自检：验证 docker.sock 挂载是否被允许
+docker run --rm -v /var/run/docker.sock:/var/run/docker.sock bench-eval-runner:local docker ps
+
+# 配置内网端点后启动
+cp offline/env/example.env offline/env/company.env   # 已存在则跳过
+vi offline/env/company.env                            # 填 OPENAI_API_BASE/KEY/MODEL_NAME
+docker compose -f offline/docker-compose.yml --env-file offline/env/company.env up -d
+docker compose -f offline/docker-compose.yml exec runner bash /workspace/offline/run_stage1.sh
 ```
+
+> Linux 前置：当前用户在 `docker` 组（`groups | grep docker`），否则需要 `sudo usermod -aG docker $USER` 并重新登录。若 `docker.sock` 挂载被安全策略禁止，见方案第 7 节退化方案（宿主机直装 Python）。
 
 ## 注意
 

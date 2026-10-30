@@ -1,6 +1,6 @@
 # 离线（断网）环境跑 5 个基准：可行性与实施方案
 
-> 场景：家里 PC 有外网；公司网络对外部网络受限，但可用 Docker；公司内部模型只能走 API。
+> 场景：家里 PC（Windows）有外网；公司是 **Linux**，可用 Docker；公司内网模型同时支持 **OpenAI 兼容**与 **Anthropic 协议**，只能走 API。
 > 目标：在家里把环境 + 数据全部打包进 Docker，带到公司离线运行，模型端点指向公司内网 API。
 > 结论：**可行**，但有 4 个硬约束必须先解决（见第 1 节）。
 
@@ -31,6 +31,25 @@ bench-bundle/
 
 补充：DeepSWE/Pier、TB4/Harbor 的 agent 多数跑在任务容器内，模型 API 由容器发出；ProgramBench 与 Automation-Bench 的模型调用在宿主机进程（无此问题）。**这正是第 4 条约束要按基准分别处理的原因。**
 
+### 1.1 术语解释：挂载 docker.sock vs 运行 privileged
+
+Docker 是「客户端 + 守护进程」结构：`docker` 命令本身不干活，它把请求发给后台的 dockerd（有 root 权限）；两者通话的「门」就是 `/var/run/docker.sock`。
+
+| 方式 | 做法 | 效果 | 风险 |
+| :-- | :-- | :-- | :-- |
+| **挂载 docker.sock**（我们需要的） | `docker run -v /var/run/docker.sock:/var/run/docker.sock ...` | 容器里的 docker 命令直接指挥**宿主机** dockerd，从而启动「兄弟容器」（任务容器） | 拿到这个 socket ≈ 拥有宿主机 root（可挂宿主目录、起特权容器）；属于高权限，但比 privileged 范围小 |
+| **运行 privileged** | `docker run --privileged ...` | 容器获得几乎所有 capabilities 和设备访问，典型用于在容器里再跑一个 dockerd（DinD） | 几乎等同宿主机 root，安全策略通常禁止；我们的方案**不需要** |
+
+判断公司是否允许（Linux 上依次执行）：
+```bash
+groups | grep docker          # 当前用户是否有 docker 组权限
+docker run --rm -v /var/run/docker.sock:/var/run/docker.sock bench-eval-runner:local docker ps
+docker run --rm --privileged bench-eval-runner:local true   # 一般会失败，失败也没关系
+```
+- 第一条通过 → 方案可行（runner 容器用宿主 Docker 起任务容器）。
+- 两条都失败 → 用第 7 节的退化方案：harness 直接装在宿主机，任务容器仍由宿主机 Docker 启动，不依赖 socket 挂载。
+- 向 IT 申请时可以直接说明：「评测容器需要通过 `/var/run/docker.sock` 启动兄弟容器（Docker-outside-of-Docker），不申请 `--privileged`」。
+
 ## 2. 打包内容清单（按优先级）
 
 | 优先级 | 内容 | 体积量级 | 说明 |
@@ -45,16 +64,22 @@ bench-bundle/
 
 > 全量 5 个基准的镜像总量可能 50–120GB，**不建议一次全带**；先做 MVP（Automation + ProgramBench 5 题 + DeepSWE 10 题），验证公司环境后再补包。
 
-## 3. MVP 建议（第一次出行带什么）
+## 3. 「第一批」是什么意思 / 第一批带什么
 
-| 基准 | 子集 | 预估包体积 | 为什么 |
+「分批」= 不是一次把 5 个基准的所有镜像都带走，而是**按「离线可行性 × 与你们开发场景相关性 × 单题成本」排优先级**，先用一个 MVP 包在公司把链路跑通、拿到第一版对比数据，再决定补不补第二批。
+
+| 批次 | 带什么 | 预估体积 | 目的 |
 | :-- | :-- | --: | :-- |
-| Automation-Bench | simple 200 + sales 100 | ~1 GB | 无 Docker 任务、纯 API，先证明「端点通、判分通」 |
-| ProgramBench | 固定 5 题（记录 instance ID） | ~8 GB | 断网设计，能离线跑通就说明整条链没问题 |
-| DeepSWE | 10 题（sample-seed 0） | ~8 GB | 最贴近日常开发，官方支持确定性抽样 |
-| 合计 | — | **~17 GB** | 外部 SSD 一次带走，1–2 天可跑完 |
+| **第一批（MVP）** | Automation-Bench（simple 200 + sales 100）+ ProgramBench 固定 5 题 + DeepSWE 10 题 | **~15–25 GB** | 三个场景各一个代表（工具调用 / 从零实现 / 真实修 bug），体积可控，1–2 天跑完 |
+| 第二批 | Terminal-Bench 4.0（先 10–20 题，排除 3 个 H100 题）+ NL2Repo 10 题 | +15–40 GB | 补「终端 Agent 能力」和「规格→仓库」；离线可用性需先验证 |
+| 第三批（可选） | TB4 全量 66 题、ProgramBench 扩到 20–30 题、NL2Repo 全量 | +50–100 GB | 只在前面批次证明有意义、且公司环境允许时再做 |
 
-TB4 与 NL2Repo 放到第二批：先在离线环境对 3–5 题做「断网可用性」验证，能过再补进包里。
+选择第一批的判断标准：
+1. **离线可行性最高**：Automation-Bench 无任务容器、ProgramBench 官方设计断网，DeepSWE 任务镜像预拉后大概率可跑；
+2. **与软件开发公司最相关**：修 bug（DeepSWE）、从零实现（ProgramBench）、多步工具调用（Automation）；
+3. **成本可控**：三个子集合计约 $50–400，先证明链路再花钱。
+
+如果你们第一阶段只想要「给公司推荐模型」的快速结论，第一批足够；如果结论要覆盖「Coding Agent 在终端里干活」的能力，再加第二批的 TB4。
 
 ## 4. 在家构建（有外网）
 
@@ -89,37 +114,49 @@ Get-FileHash -Algorithm SHA256 (Get-ChildItem D:\bench-bundle\images\*.tar) | Ex
    - 任务容器里凡是需要外网的命令都会失败，逐题记录失败原因；
 4. 把能离线跑通的题号写入 `offline/tasks.offline-ok.txt`，到公司只用这批题（同一批题跨模型对比仍公平）。
 
-## 5. 到公司：加载与运行
+## 5. 到公司：加载与运行（Linux）
 
-```powershell
+```bash
 # 1) 校验并加载（不联网）
-.\offline\load_bundle.ps1 -Bundle E:\bench-bundle
+./offline/load_bundle.sh /mnt/ssd/bench-bundle
 
-# 2) 配置内网端点（configs/company.env，不提交 git）
-#    OPENAI_API_BASE=http://host.docker.internal:8080/v1
-#    OPENAI_API_KEY=<公司 key>
-#    MODEL_NAME=<公司模型名>
+# 2) 验证 docker.sock 是否允许（可选，但强烈建议先测）
+docker run --rm -v /var/run/docker.sock:/var/run/docker.sock bench-eval-runner:local docker ps
 
-# 3) 启动 runner（挂载宿主机 Docker，任务容器由宿主机 Docker 启动）
-docker compose -f offline\docker-compose.yml --env-file offline\env\company.env up -d
+# 3) 配置内网端点（offline/env/company.env，不提交 git）
+export OPENAI_API_BASE=http://host.docker.internal:8080/v1
+export OPENAI_API_KEY=<公司 key>
+export MODEL_NAME=<公司模型名>
 
-# 4) 小样本自检：先 5 题，再放量
-docker compose -f offline\docker-compose.yml exec runner bash /workspace/offline/run_stage1.sh
+# 4) 启动 runner（挂载宿主机 Docker，任务容器由宿主机 Docker 启动）
+docker compose -f offline/docker-compose.yml --env-file offline/env/company.env up -d
+
+# 5) 小样本自检：先 5 题，再放量
+docker compose -f offline/docker-compose.yml exec runner bash /workspace/offline/run_stage1.sh
 ```
 
-## 6. 公司内网模型接入
+> Linux 前置：当前用户在 `docker` 组；若 `docker.sock` 挂载失败但普通 Docker 可用，走第 7 节退化方案。
 
-三种情况：
+## 6. 公司内网模型接入（已确认：OpenAI 兼容 + Anthropic 双协议）
 
-1. **容器能直连内网端点**（同网段/路由可达）：把 `OPENAI_API_BASE` 填内网地址即可。
-2. **只有宿主机能访问**（常见）：在宿主机起一个反向代理，容器用 `host.docker.internal` 访问：
+按协议选 agent，口径与官方一致：
+
+| 协议 | 用哪个 agent | 适用基准 | 配置方式 |
+| :-- | :-- | :-- | :-- |
+| **OpenAI 兼容** | mini-swe-agent（模型无关、只需 bash） | DeepSWE（官方）、ProgramBench（官方）、Automation-Bench（官方 CLI）、NL2Repo（OpenHands 需要） | `model_kwargs.custom_llm_provider=openai` + `api_base`；Automation 用 `--base-url/--api-key` |
+| **Anthropic 协议** | claude-code | Terminal-Bench 4.0（官方 agent 就是 `-a claude-code`）、DeepSWE 交叉验证 | `ANTHROPIC_BASE_URL` + `ANTHROPIC_AUTH_TOKEN`（Harbor/Pier 的 agent.env） |
+
+其余两种网络情况：
+
+1. **容器能直连内网端点**（同网段/路由可达）：`OPENAI_API_BASE` 填内网地址即可。
+2. **只有宿主机能访问**（常见）：在宿主机起反向代理，容器用 `host.docker.internal` 访问：
    ```bash
-   # 示例：宿主机 8080 → 内网 10.x.x.x:8000（PowerShell 可用 nginx/Node 一行或 python -m http.server 走不了代理，建议 nginx）
+   # 宿主机 8080 → 内网 10.x.x.x:8000（nginx/Node 均可）
    # 证书自签：把 CA 挂进 runner 容器 /usr/local/share/ca-certificates/ 并 update-ca-certificates
    ```
-3. **公司禁止容器访问内网**：fallback 是把 harness 直接装在宿主机（第 7 节备选），只把任务容器交给 Docker。
+3. **公司禁止容器访问内网**：fallback 到第 7 节，harness 装在宿主机。
 
-另外：DeepSWE/Pier 的容器若 `allow_internet=false`，要把模型端点域名加入 Pier 的 allowlist；TB4 的 Harbor 同理检查网络配置。
+另外：DeepSWE/Pier 的容器若 `allow_internet=false`，要把模型端点域名加入 Pier 的 allowlist（Pier 会自动读取配置里的 URL）；TB4 的 Harbor 同理检查网络配置。
 
 ## 7. 备选：不用 docker.sock 的退化方案
 
@@ -152,10 +189,12 @@ docker compose -f offline\docker-compose.yml exec runner bash /workspace/offline
 
 模型调用成本按 `report/api-only-5bench-plan.md` 的阶段预算；离线化不改变 API 成本。
 
-## 10. 待确认（影响脚本最终形态）
+## 10. 已确认 / 待确认
 
-1. 公司那台机器是不是**同一台 Windows 笔记本**？（决定用 Docker Desktop + PowerShell 还是 Linux/WSL2）
-2. 公司是否允许挂载 `docker.sock` / 运行 privileged 容器？
-3. 公司内网模型：OpenAI 兼容？Anthropic 兼容？地址与证书情况？
-4. 公司是否允许外带硬盘/笔记本，是否有镜像白名单？
-5. 优先保哪几个基准？（决定第一批包的内容）
+已确认：公司是 **Linux**；内网模型 **OpenAI 兼容 + Anthropic 双协议**；公司 Docker 可用；家里 PC 是 Windows（构建端）。
+
+仍待确认（只影响最后一步放量，不影响打包）：
+1. 公司是否允许挂载 `docker.sock`（用第 1.1 节的三条命令测；不行走第 7 节退化方案）。
+2. 内网模型的具体地址、是否需要自签证书、限流（QPS/TPM）。
+3. 公司是否允许外带硬盘/笔记本，是否有镜像白名单（走 IT 流程）。
+4. 第一批是否就按 Automation + ProgramBench 5 题 + DeepSWE 10 题（默认建议）。
