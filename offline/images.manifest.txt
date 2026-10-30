@@ -1,0 +1,21 @@
+# 需要打包的 Docker 镜像清单（每行一个 image:tag；# 开头为注释）
+# 体积敏感，MVP 先只放必需项；每个镜像会 docker pull 后 docker save 到 bundle/images/。
+#
+# TODO verify：以下镜像名/任务 ID 只是示例，按你选定的子集替换。
+# —— ProgramBench：固定 5–10 个任务镜像（任务 ID 见 ProgramBench 榜单/数据）
+programbench/ffmpeg__ffmpeg.360a402:task_cleanroom_v6
+programbench/jqlang__jq.b33a763:task_cleanroom_v6
+
+# —— DeepSWE：10 个任务的预构建镜像（镜像仓库前缀以任务 task.toml/Dockerfile 为准）
+# TODO verify: deep-swe 任务镜像的实际 registry/命名
+# <registry>/<deep-swe-task-image>:<tag>
+
+# —— Terminal-Bench 4.0：官方以 prebuilt 镜像发布（不是逐个 pull），见 build 脚本 data 段
+# TODO verify: 66 题镜像的导入方式（release 里的 prebuilt tar）
+
+# —— NL2Repo：OpenHands 0.56 双镜像（第二批再带）
+# docker.all-hands.dev/all-hands-ai/openhands:0.56
+# docker.all-hands.dev/all-hands-ai/runtime:0.56-nikolaik
+
+# —— 通用工具镜像（可选，离线排障用）
+# curlimages/curl:latest

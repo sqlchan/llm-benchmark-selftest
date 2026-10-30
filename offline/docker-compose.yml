@@ -1,0 +1,26 @@
+# 离线 runner（在公司机器上执行）
+# 用法（仓库根目录）：
+#   docker compose -f offline/docker-compose.yml --env-file offline/env/company.env up -d
+#   docker compose -f offline/docker-compose.yml exec runner bash /workspace/offline/run_stage1.sh
+#
+# 需要 Docker Desktop（Windows）或 dockerd（Linux）；容器通过挂载的 docker.sock 启动任务容器。
+services:
+  runner:
+    image: bench-eval-runner:local
+    container_name: bench-eval-runner
+    env_file:
+      - ./env/company.env
+    environment:
+      - HF_HUB_OFFLINE=1
+      - PIP_NO_INDEX=1
+      - UV_OFFLINE=1
+    volumes:
+      # Linux 与 Docker Desktop(Windows/Linux 容器) 均可用该路径挂到宿主 daemon
+      - /var/run/docker.sock:/var/run/docker.sock
+      # 离线数据与脚本：BUNDLE_DIR 指向离线包根目录（默认当前目录）
+      - ${BUNDLE_DIR:-.}/data:/workspace/data
+      - ./logs:/workspace/logs
+      - ./env:/workspace/env:ro
+    working_dir: /workspace
+    stdin_open: true
+    tty: true
