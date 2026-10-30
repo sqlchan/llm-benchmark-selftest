@@ -1,0 +1,364 @@
+[
+  {
+    "id": "humanitys-last-exam",
+    "name": "Humanity's Last Exam (HLE, finalized at 2,500 questions)",
+    "name_zh": "人类最后的考试",
+    "category": "reasoning",
+    "publisher": "Center for AI Safety (CAIS) & Scale AI",
+    "release_date": "2025-01",
+    "homepage": "https://lastexam.ai",
+    "paper": "https://arxiv.org/abs/2501.14249",
+    "repo": "https://github.com/centerforaisafety/hle",
+    "leaderboard": "https://labs.scale.com/leaderboard/humanitys_last_exam",
+    "data_access": {
+      "public": "yes",
+      "url": "https://huggingface.co/datasets/cais/hle",
+      "license": "MIT (dataset card); paper CC BY 4.0",
+      "size_tasks": 2500,
+      "size_note": "2025-04-03 定稿 2,500 题；其中 342 题含图片（约 14%），纯文本子集 2,158 题。官方明确另外保留 private held-out 集用于检测过拟合，未公开。2026 年又出现 HLE-Rolling（2,689 题的滚动快照）与 HLE-Diamond，但 DeepSeek 模型卡用的仍是原始 2,500 题口径。"
+    },
+    "what_it_tests": "覆盖数学、自然科学、人文等上百个学科的专家级闭卷问答，题目经多模型难度筛选，要求深度推理与广博知识，而非检索。题目为多选或精确短答，可直接自动判分。",
+    "task_example": "输入一道高难度题目（如集合论：'AC(2) implies AC(n) 的最大正整数 n 是什么？'），要求输出 Explanation / Answer / Confidence（0–100%）；标准答案为简短字符串或多选项。",
+    "scoring": {
+      "metric": "准确率 Accuracy（另报 RMS calibration error）",
+      "judge": "LLM-judge",
+      "harness_official": "hle_eval：run_model_predictions.py 采样 + run_judge_results.py 判分；默认 judge 模型 o3-mini-2025-01-31",
+      "alt_harnesses": [
+        "Inspect AI / inspect_evals 的 hle 任务（UK AISI）"
+      ],
+      "pass_criteria": "判分 LLM 从回答中抽取最终答案，与标准答案语义一致（数值允许小误差）则计 correct=yes；准确率=正确题数/总题数。"
+    },
+    "requirements": {
+      "tool_use": false,
+      "code_exec": false,
+      "vision": true,
+      "docker": false,
+      "gpu_required": false,
+      "min_context_tokens": "unknown",
+      "model_iface": "OpenAI 兼容 API（openai-python，默认读 OPENAI_API_KEY；可用 OPENAI_BASE_URL 指向自建/第三方端点）"
+    },
+    "cost": {
+      "tokens_per_task": "unknown；论文只给 Figure 5（无逐题均值）。题干通常数百至上千 tokens，thinking 模型输出常达 1–3 万 tokens。",
+      "usd_per_full_run": "粗估 $25–$80（纯文本 2,158 题；假设平均 2k 输入 + 15–30k 输出 tokens/题，deepseek-flash 非高峰价；判分调用另计，建议按 $100 留量）。",
+      "wall_time_full_run": "粗估 2–8 小时（2,158 题，并发 20–50；DeepSeek API 并发上限 2,500）。未实测。",
+      "basis": "2,158 题 × (输入+输出) tokens × DeepSeek 官方价（2026-10-30 核实 deepseek-flash：非高峰 cache miss $0.15/M 输入、$0.6/M 输出，高峰翻倍）× 1 次采样 + 判分调用；token/题为假设，非官方统计。"
+    },
+    "self_test": {
+      "feasibility": "easy",
+      "quick_smoke_subset": "纯文本子集抽 50 题（官方脚本 --max_samples 50；或 Inspect 的 --limit 50）",
+      "setup_commands": [
+        "git clone https://github.com/centerforaisafety/hle.git",
+        "cd hle",
+        "pip install -r requirements.txt",
+        "# TODO verify：数据集为 gated=auto，需先登录 HF 并同意条款（huggingface-cli login 或设置 HF_TOKEN）",
+        "cd hle_eval",
+        "python run_model_predictions.py --dataset cais/hle --model <your-model-name> --max_completion_tokens 8192 --num_workers 20 --max_samples 50",
+        "python run_judge_results.py --dataset cais/hle --predictions hle_<your-model-name>.json --num_workers 20 --judge o3-mini-2025-01-31"
+      ],
+      "gotchas": "1) 数据集 gated=auto，无 HF 授权直接 401；2) 模型卡 42.6 / 44.0† 的 † 指纯文本子集：44.0 是 2,158 题口径，42.6 才是 2,500 题全量（含 342 道带图题）；3) 官方 judge 默认 o3-mini，judge 版本/提示词变化会影响分数，自测分数与官方榜不可直接横比；4) max_completion_tokens 不要低于 8192，否则容易模型塌缩；5) 训练语料污染：题目带 BIG-bench 系 canary 串，商用模型可能已见过；6) HLE-Verified 审计发现部分标准答案有误（668 题 gold 子集），自测误差需考虑；7) 官方只公开 2,500 题，另有未公开 held-out 集，别声称能复现官方榜的泛化数字。"
+    },
+    "sources": [
+      {
+        "url": "https://lastexam.ai",
+        "note": "官方主页：2,500 题、private held-out 集、HLE-Rolling/HLE-Diamond 新闻"
+      },
+      {
+        "url": "https://arxiv.org/abs/2501.14249",
+        "note": "论文：2,500 题、多模态、private test set、text-only 子集结果"
+      },
+      {
+        "url": "https://github.com/centerforaisafety/hle",
+        "note": "官方仓库与 hle_eval 运行命令、canary 串"
+      },
+      {
+        "url": "https://huggingface.co/api/datasets/cais/hle",
+        "note": "数据集元数据：test split 2,500 条、gated=auto、license=mit"
+      },
+      {
+        "url": "https://huggingface.co/datasets/cais/hle",
+        "note": "数据集页面（gated，需登录同意条款）"
+      },
+      {
+        "url": "https://raw.githubusercontent.com/centerforaisafety/hle/main/hle_eval/run_judge_results.py",
+        "note": "判分实现：默认 --judge o3-mini-2025-01-31、LLM judge prompt、accuracy 计算"
+      },
+      {
+        "url": "https://ukgovernmentbeis.github.io/inspect_evals/evals/hle/index.html",
+        "note": "替代 harness；明确 342/2,500 带图、纯文本子集 2,158 题、HLE-Verified gold 668 题"
+      },
+      {
+        "url": "https://labs.scale.com/leaderboard/humanitys_last_exam_text_only",
+        "note": "官方合作方 Scale 的 Text-Only 榜；2,500 定稿与 held-out 集说明"
+      },
+      {
+        "url": "https://huggingface.co/deepseek-ai/DeepSeek-V4.1-Flash-1017",
+        "note": "DeepSeek 模型卡：HLE w/o tools 42.6 (44.0†)，脚注 †=text-only subset"
+      }
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": "automation-bench",
+    "name": "AutomationBench v1.0.6",
+    "name_zh": "AutomationBench（Zapier 业务工作流 Agent 基准）",
+    "category": "agent",
+    "publisher": "Zapier",
+    "release_date": "2026-04",
+    "homepage": "https://zapier.com/benchmarks",
+    "paper": "https://arxiv.org/abs/2604.18934",
+    "repo": "https://github.com/zapier/AutomationBench",
+    "leaderboard": "https://zapier.com/benchmarks",
+    "data_access": {
+      "public": "yes",
+      "url": "https://github.com/zapier/AutomationBench",
+      "license": "MIT（代码与公开任务数据；LICENSE 含第三方 API schema 说明）",
+      "size_tasks": 600,
+      "size_note": "公开任务集 600 题（Sales/Marketing/Operations/Support/Finance/HR 各 100）+ simple 域 200 题（不计分，仅冒烟/基线）。官方榜单另用每个域一份未公开的 held-out 私有集（Zapier 页面称 600+ held-out），因此本地分数与官方榜不是 1:1。"
+    },
+    "what_it_tests": "在模拟的 SaaS 环境里通过 REST API 完成跨应用业务流程（CRM、邮箱、日历、Slack、财务等 47 个模拟工具、约 500 个端点）：自己发现正确端点、遵守分层业务规则、处理干扰/误导数据，最终把正确数据写进正确系统。",
+    "task_example": "触发消息给出一个业务请求（如'把新线索按区域分配并更新 CRM 阶段'）；环境预置 CRM 记录、收件箱线程、日历等；agent 只能调工具 API；评分只看最终环境状态是否满足全部断言，忽略 agent 的自然语言回复。",
+    "scoring": {
+      "metric": "Pass rate（严格通过率）；另有 partial_credit 0–1 作为诊断/训练信号",
+      "judge": "unit-tests（程序化 end-state 断言，无 LLM judge）",
+      "harness_official": "仓库自带 CLI：uv run auto-bench --model <model>（工具风格 --toolset api|zapier|limited_zapier）",
+      "alt_harnesses": [
+        "Prime Intellect Environments Hub（prime eval run zapier/AutomationBench）",
+        "Artificial Analysis 的 AutomationBench-AA 复现"
+      ],
+      "pass_criteria": "task_completed_correctly=1 当且仅当该题所有断言全部通过；官方分数=计分题（排除 simple）中该值为 1 的比例。"
+    },
+    "requirements": {
+      "tool_use": true,
+      "code_exec": false,
+      "vision": false,
+      "docker": false,
+      "gpu_required": false,
+      "min_context_tokens": "unknown",
+      "model_iface": "OpenAI 兼容 API（--base-url 可指向自建端点；claude-* 前缀自动走 Anthropic API）"
+    },
+    "cost": {
+      "tokens_per_task": "unknown；官方未公布 token 统计；单题最多 50 个交互步（--max-steps 默认 50），CLI 会统计 token 与费用。",
+      "usd_per_full_run": "粗估 $20–$100（600 题 × 平均约 30 步 × 每步约 10–20k 输入 tokens + 少量输出，按 deepseek-flash 非高峰价；缓存命中时更低）。未实测，建议先跑 20–50 题用 harness 统计外推。",
+      "wall_time_full_run": "粗估 3–10 小时（600 题，--max-concurrent 默认 100；单题最多 50 步）。",
+      "basis": "600 题 × 步数 × tokens/步 × DeepSeek 官方单价（2026-10-30 核实：非高峰 cache miss $0.15/M 输入、$0.6/M 输出）× 重试系数；步数与 tokens/步为假设，非官方统计。"
+    },
+    "self_test": {
+      "feasibility": "easy",
+      "quick_smoke_subset": "5 题冒烟：--num-examples 5；单域 100 题：--domains sales",
+      "setup_commands": [
+        "git clone https://github.com/zapier/AutomationBench.git",
+        "cd AutomationBench",
+        "uv sync",
+        "export OPENAI_API_KEY=<your-key>",
+        "uv run auto-bench --model <model-name> --num-examples 5 --domains sales",
+        "uv run auto-bench --model <model-name> --base-url <openai-compatible-endpoint> --api-key <key> --input-cost <usd-per-token> --output-cost <usd-per-token>"
+      ],
+      "gotchas": "1) 需要 Python >=3.13（pyproject 指定）与 uv；2) 公开 600 题 ≠ 官方榜私有 held-out 集，本地分数只能作方向性参考（官方也这么声明）；3) 模型卡 60.5 与 README 公开集上 Opus 5 50.3 / Kimi K3 46.67 / GPT-5.6 Sol 45.83 数字吻合，推测模型卡用的是公开 600 题自跑口径，而官方榜用私有集，两者不可混比；4) 工具风格（api / zapier / limited_zapier）与 reasoning effort 显著影响分数，必须固定配置；5) 单题 50 步上限可能截断长流程；6) third-party llm-stats 的 v1.0.6 榜是 0–1 分且只有 6 个模型，与模型卡口径不同。"
+    },
+    "sources": [
+      {
+        "url": "https://github.com/zapier/AutomationBench",
+        "note": "官方仓库（MIT）"
+      },
+      {
+        "url": "https://raw.githubusercontent.com/zapier/AutomationBench/main/README.md",
+        "note": "600 公开题/6 域/47 工具、simple 200 题、public vs 官方 held-out 私有集、评分指标、CLI 参数、Prime Intellect 用法"
+      },
+      {
+        "url": "https://raw.githubusercontent.com/zapier/AutomationBench/main/pyproject.toml",
+        "note": "当前仓库版本号 version = \"1.0.6\"、requires-python >=3.13"
+      },
+      {
+        "url": "https://raw.githubusercontent.com/zapier/AutomationBench/main/LICENSE",
+        "note": "MIT 许可及第三方 API schema 范围说明"
+      },
+      {
+        "url": "https://arxiv.org/abs/2604.18934",
+        "note": "白皮书：六域、跨应用 REST API、end-state 程序化判分（论文摘要称当时最好模型 <10%）"
+      },
+      {
+        "url": "https://zapier.com/benchmarks",
+        "note": "官方榜单页：47 个模拟应用、600+ held-out 评测题、strict task_completed_correctly、官方榜跑私有集"
+      },
+      {
+        "url": "https://llm-stats.com/benchmarks/automationbench-1.0.6",
+        "note": "第三方 v1.0.6 榜（2026-10-30 更新，6 个模型、0–1 分）"
+      },
+      {
+        "url": "https://huggingface.co/deepseek-ai/DeepSeek-V4.1-Flash-1017",
+        "note": "DeepSeek 模型卡：Automation-Bench v1.0.6 = 60.5"
+      }
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": "agents-last-exam",
+    "name": "Agents' Last Exam (ALE v1.1)",
+    "name_zh": "Agents' Last Exam（伯克利 RDI 的 Agent 长程基准）",
+    "category": "agent",
+    "publisher": "UC Berkeley RDI × RDI Foundation",
+    "release_date": "2026-06",
+    "homepage": "https://agents-last-exam.org",
+    "paper": "https://arxiv.org/abs/2606.05405",
+    "repo": "https://github.com/rdi-berkeley/agents-last-exam",
+    "leaderboard": "https://agents-last-exam.org/leaderboard",
+    "data_access": {
+      "public": "partial",
+      "url": "https://huggingface.co/datasets/agents-last-exam/agents-last-exam",
+      "license": "代码 Apache-2.0；数据 CC-BY-4.0",
+      "size_tasks": 122,
+      "size_note": "v1.1 公开基准 122 个 active tasks（Linux 86 + Windows 36；CPU 119、GPU 3；Docker 子集 78、ALE-CLI 子集 86），覆盖 55 个细分行业/13 个 cluster。官方网站宣传'已收集 1,500+ 题、目标 5,000'，但可复现的公开评测集是 v1.1 的 122 题。完整 task 数据（输入+隐藏 reference）在单独的 HF data-archive，需人工审批（archive 约 39.2 GB）。"
+    },
+    "what_it_tests": "真实职业工作的长程（数小时到数周人类工时）多步任务：在 Windows/Linux 真机沙箱里同时用 CLI 与 GUI（Generalist CUA-agents），完成专业软件工作流；评分只看留下的产物是否达到隐藏 reference，确定性 grader 打 0–1 分。",
+    "task_example": "例如在 Siemens NX 里创建/编辑 3D 模型、在 After Effects 做动画、在 Unreal 布置场景；agent 收到任务描述与输入文件，自主操作真实软件；结束后再放入隐藏 reference，evaluate() 比对交付物（文件/截图/数值）打分。",
+    "scoring": {
+      "metric": "Pass rate（每题满分 1.0 算通过）+ 平均部分分 avgScore（0–1）",
+      "judge": "unit-tests（任务内 evaluate() 对隐藏 reference 的确定性判分；部分任务含 text/image judge，可配置 JUDGE_*）",
+      "harness_official": "ale_run：uv run python -m ale_run run my_experiment.yaml（先 --dry-run 检查）",
+      "alt_harnesses": [],
+      "pass_criteria": "每个 task 由 evaluate() 给出 [0,1] 分；pass=该题得 1.0；官方榜单同时报 passRate 与 avgScore（未跑/失败的 run 计 0）。"
+    },
+    "requirements": {
+      "tool_use": true,
+      "code_exec": true,
+      "vision": true,
+      "docker": true,
+      "gpu_required": true,
+      "min_context_tokens": "unknown",
+      "model_iface": "任意 harness/模型：通过 CLI adapter（Claude Code、Codex、Kimi Code、OpenClaw、ALE-Claw 等）接入模型 API；需自备 provider（GCloud VM / QEMU-KVM / Docker / 现有 CUA 沙箱）"
+    },
+    "cost": {
+      "tokens_per_task": "官方 v1.1 榜全量 122 题的 totalOutputTokens 为 2.6M–21.5M（≈21k–176k 输出 tokens/题，跨模型）；输入 tokens 未公布（long-horizon 会很大，但有缓存命中价）。",
+      "usd_per_full_run": "API 粗估 $20–$150；云 VM/沙箱成本另计（可能 $50–$300+，取决于机型、时长与并发）。官方榜 totalCostUsd 字段为 null，无法直接引用；ALE 博客给过 frontier agent 每题约 $1.33–$15.70 的参考值。",
+      "wall_time_full_run": "官方榜全量 122 题的 totalDurationS 汇总约 8.8 万–56.4 万秒（≈24–157 小时 agent 执行时间）；实际墙钟取决于并发（并发 8 → 约 8–20 小时），另加 VM 启动/判分。单题 agent 预算示例 wall_time_s: 18000（5 小时）。",
+      "basis": "官方 leaderboard API（2026-10-30 拉取：122 runs、totalOutputTokens、totalDurationS、totalCostUsd=null）+ v1.1 文档（5h wall_time_s 示例）+ 博客每题成本；DeepSeek 官方价（2026-10-30）用于 API 估算，VM 单价未核实。"
+    },
+    "self_test": {
+      "feasibility": "hard",
+      "quick_smoke_subset": "先跑 hello_both 示例任务；再选 Docker 子集 78 题或 CPU 子集 119 题做小规模（如 5–10 题）试跑",
+      "setup_commands": [
+        "# 宿主机需 Ubuntu 22.04/24.04/26.04 或 Debian 12/13（Windows 需 WSL2/云 VM），以下在 Linux 上执行",
+        "git clone https://github.com/rdi-berkeley/agents-last-exam.git",
+        "cd agents-last-exam",
+        "bash env/install_host_deps.sh",
+        "uv sync --all-packages --locked",
+        "bash env/verify_host_env.sh",
+        "cp -n secret/.env.example secret/.env",
+        "cp example_exp.yaml my_experiment.yaml",
+        "# 按所选 provider（GCloud/QEMU/Docker）填 secret/.env 与 my_experiment.yaml；Docker 还需申请 data-archive 权限并下载约 39GB 数据",
+        "uv run python -m ale_run run my_experiment.yaml --dry-run",
+        "uv run python -m ale_run run my_experiment.yaml"
+      ],
+      "gotchas": "1) 完整数据（含隐藏 reference）是 gated=manual，需要人工审批，且条款禁止训练/评测中暴露/再分发；2) 宿主机安装脚本只支持 Ubuntu/Debian（Windows 本机不能直接跑，需 WSL2 或云 VM）；3) 需要真实 VM/沙箱：GCloud 推荐，QEMU/KVM 需 Linux+KVM，Docker 仅 78 题子集；4) 3 个 GPU 任务需要 Windows GPU 镜像；5) 单题预算可达 5 小时，全量 122 题是数十小时级 + 云成本；6) 模型卡 35.4 在官方 v1.1 leaderboard（2026-10-30）上查不到 DeepSeek 行（22 行/12 个模型，最高 pass 45.9%），口径/harness 未注明，不能当作官方榜数字；7) 公开集 122 题 ≠ 官网宣传的 1,500+ 题，别把 35.4 直接归因到 122 题或全量。"
+    },
+    "sources": [
+      {
+        "url": "https://agents-last-exam.org",
+        "note": "官网：55 sub-industries、1,500+ tasks toward 5,000、GUI+CLI、arXiv/HF/GitHub 链接"
+      },
+      {
+        "url": "https://arxiv.org/abs/2606.05405",
+        "note": "论文：55 子领域/13 cluster、1K+ tasks、平均全通过率 <1%（最难 tier）"
+      },
+      {
+        "url": "https://github.com/rdi-berkeley/agents-last-exam",
+        "note": "官方框架与快速开始；v1.1 122 题、provider 列表、任务分布、双许可证"
+      },
+      {
+        "url": "https://raw.githubusercontent.com/rdi-berkeley/agents-last-exam/main/README.md",
+        "note": "122 active tasks、task 清单（full/cpu/gpu/ale_cli/docker_support）、运行命令、hidden reference 机制"
+      },
+      {
+        "url": "https://raw.githubusercontent.com/rdi-berkeley/agents-last-exam/main/docs/releases/v1.1.md",
+        "note": "v1.1 运行指南：provider 配置、wall_time_s 18000 示例、Docker 数据下载、asset manifest、GPU/CPU 任务数"
+      },
+      {
+        "url": "https://huggingface.co/api/datasets/agents-last-exam/agents-last-exam",
+        "note": "公开 task-card 元数据：122 active tasks、CC-BY-4.0、含 task_cards.parquet"
+      },
+      {
+        "url": "https://huggingface.co/api/datasets/agents-last-exam/agents-last-exam-data-archive",
+        "note": "完整数据 archive：gated=manual、39,155,440,558 bytes、含 reference、禁止训练/暴露/再分发"
+      },
+      {
+        "url": "https://agents-last-exam.org/api/demo/leaderboard/v1.1",
+        "note": "官方榜 JSON（2026-10-30）：122 tasks、22 行/12 模型、最高 pass 45.9%、totalOutputTokens/totalDurationS、totalCostUsd=null、无 DeepSeek 行"
+      },
+      {
+        "url": "https://rdi.berkeley.edu/blog/agents-last-exam/",
+        "note": "发布博客：1,500+ 题/55 职业、ALE-CLI 86 题子集、每题成本 $1.33–$15.70、最好 agent 25.2%（ALE-CLI）"
+      },
+      {
+        "url": "https://huggingface.co/deepseek-ai/DeepSeek-V4.1-Flash-1017",
+        "note": "DeepSeek 模型卡：Agents' Last Exam = 35.4"
+      }
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": "apex-bench-v1-1",
+    "name": "Apex Bench v1.1",
+    "name_zh": "Apex Bench v1.1（仅见于 DeepSeek 模型卡）",
+    "category": "agent",
+    "publisher": "unknown（疑似 DeepSeek 内部基准，未能核实）",
+    "release_date": "unknown",
+    "homepage": "unknown",
+    "paper": "unknown",
+    "repo": "unknown",
+    "leaderboard": "none",
+    "data_access": {
+      "public": "no",
+      "url": "unknown",
+      "license": "unknown",
+      "size_tasks": 0,
+      "size_note": "题量未公开（0 表示未知）。截至 2026-10-30，官方唯一可核实出处是 DeepSeek-V4.1-Flash-1017 模型卡的一行 'Apex Bench v1.1 = 72.1'；未找到主页、论文、仓库、数据集或官方榜单。第三方聚合页也只转引该模型卡。"
+    },
+    "what_it_tests": "官方未公开说明。第三方聚合站 open-llm-radar 将其归类为 'Multimodal Agents'（视觉界面感知+操作的 agent 基准），但这并非官方描述，未获证实。",
+    "task_example": "unknown（无公开样题/接口文档）",
+    "scoring": {
+      "metric": "unknown（模型卡只报 72.1，未说明单位/口径）",
+      "judge": "unknown",
+      "harness_official": "unknown",
+      "alt_harnesses": [],
+      "pass_criteria": "unknown"
+    },
+    "requirements": {
+      "tool_use": true,
+      "code_exec": false,
+      "vision": true,
+      "docker": false,
+      "gpu_required": false,
+      "min_context_tokens": "unknown",
+      "model_iface": "unknown"
+    },
+    "cost": {
+      "tokens_per_task": "unknown",
+      "usd_per_full_run": "unknown（无公开数据，无法估算）",
+      "wall_time_full_run": "unknown",
+      "basis": "无公开题量/token/价格数据；唯一数字为 DeepSeek 模型卡自报 72.1（2026-10-17）。"
+    },
+    "self_test": {
+      "feasibility": "infeasible",
+      "quick_smoke_subset": "none（无公开数据/代码）",
+      "setup_commands": [
+        "# no public setup found as of 2026-10-30"
+      ],
+      "gotchas": "1) 只有厂商自报，无法复现、无法核验判分方式；2) 不要与 MathArena Apex、Mercor APEX/APEX-Agents 混淆（第三方页面明确说 Apex Bench v1.1 distinct from both；llm-stats 的 'Apex' 也是另一个 reasoning 榜）；3) 若官方后续发布，需重新核实数据、许可与 harness；在此之前正式对比中应标 unknown。"
+    },
+    "sources": [
+      {
+        "url": "https://huggingface.co/deepseek-ai/DeepSeek-V4.1-Flash-1017",
+        "note": "唯一官方出处：模型卡对比表 'Apex Bench v1.1 72.1'"
+      },
+      {
+        "url": "https://phaseo.app/zh-Hans/benchmarks/apex-bench-v1.1",
+        "note": "第三方聚合页：仅 1 条 self-reported 记录（DeepSeek V4.1 Flash 1017 72.10%），注明 distinct from MathArena Apex and APEX-Agents、来源为 DeepSeek 模型卡"
+      },
+      {
+        "url": "https://open-llm-radar.com/benchmarks/apexbench",
+        "note": "第三方聚合页：归类 Multimodal Agents、3 个模型均为 DeepSeek 系（72.1/36.5/26.2），来源 Report"
+      }
+    ],
+    "confidence": "low"
+  }
+]

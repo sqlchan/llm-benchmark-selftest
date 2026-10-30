@@ -1,0 +1,202 @@
+[
+  {
+    "name": "Harbor",
+    "type": "通用 agent 评测/运行框架（Terminal-Bench 官方 harness）",
+    "supports_benchmarks": ["Terminal-Bench 4.0"],
+    "install": "uv tool install harbor  # 或 pip install harbor（PyPI 0.25.0，requires_python>=3.12）",
+    "interface": "CLI: harbor run -d <dataset@version> -a <agent> -m <model>；模型 slug 由 LiteLLM 解析成 provider/model；预置 40+ agent（claude-code、mini-swe-agent、codex、terminus-2、openhands 等）；--base-url / --api-key-name / --api-format 覆盖端点与协议；默认 Docker 沙箱，--env modal/daytona 上云；--repo/--path 可跑任意 Harbor 格式任务目录",
+    "notes": "Terminal-Bench 4.0 官方命令：harbor run -d terminal-bench/terminal-bench@4.0.0（dataset v4.0.0 于 2026-08-26 发布，release 页给出该命令）。模型卡所说的‘Claude Code harness’即 -a claude-code；Claude Code 只支持 anthropic_messages 格式。先 harbor run --dry-run 可看到解析出的 provider、endpoint、API 格式与凭证路由。DeepSWE 任务也是 Harbor 格式（可用 --repo 指过去），但官方 DeepSWE 分数用 Pier 产出。",
+    "url": "https://github.com/harbor-framework/harbor",
+    "verified": true
+  },
+  {
+    "name": "terminal-bench（任务集仓库 + 旧版 tb CLI）",
+    "type": "基准任务集 + 旧版执行 harness",
+    "supports_benchmarks": ["Terminal-Bench 4.0"],
+    "install": "uv tool install terminal-bench  # 旧版 CLI `tb`；README 明确新用户改用 harbor",
+    "interface": "旧 CLI: tb run --agent <agent> --model <model> --dataset-name ... --dataset-version ... --n-concurrent N；任务目录含 instruction / tests / oracle solution；当前数据集在 Harbor Hub 按 tag 发布（v3.0.0、v4.0.0）",
+    "notes": "仓库 README 已把新用户导向 harbor；GitHub releases 核实 v4.0.0（2026-08-26，asset 含 prebuilt-images.json 与 terminal-bench-prebuilt-v4.0.0.tar.gz）。任务规模：EvalScope 文档记录 TB 4.0 为 66 个任务（11 个多容器、3 个需 H100、agent 超时 8h/任务）。旧 tb CLI 的 dataset 参数与 v4.0 的兼容性未核实 → TODO verify；建议直接用 Harbor。",
+    "url": "https://github.com/harbor-framework/terminal-bench",
+    "verified": true
+  },
+  {
+    "name": "Pier（datacurve-pier）",
+    "type": "代码 agent 评测框架（Harbor 分支，DeepSWE 官方 runner）",
+    "supports_benchmarks": ["DeepSWE v1.1"],
+    "install": "uv tool install datacurve-pier  # 或 pip install datacurve-pier；PyPI 0.3.1，requires_python>=3.12",
+    "interface": "CLI: pier run -p deep-swe/tasks --agent mini-swe-agent --model anthropic/claude-opus-4-8；--n-tasks/--sample-seed 抽确定性子集；agent 用 YAML/env 配端点（claude-code 用 ANTHROPIC_BASE_URL/ANTHROPIC_AUTH_TOKEN）；environments: docker / modal",
+    "notes": "DeepSWE 官方 README 指定用 Pier 跑（git clone datacurve-ai/deep-swe；uv tool install datacurve-pier；pier run -p deep-swe/tasks ...）。DeepSWE v1.1 起 verifier 在独立容器里 apply patch 评分，要求 datacurve-pier>0.3.0。Pier 相对 Harbor 增加了 air-gapped 任务下的 agent 安装 allowlist；不直接解析 Harbor registry 数据集，需先用 harbor download 再 -p 指向本地目录。EvalScope 的 deep_swe 集成也是走 Pier。",
+    "url": "https://github.com/datacurve-ai/pier",
+    "verified": true
+  },
+  {
+    "name": "mini-swe-agent v2（模型卡称 Mini-SWE-V2 / mini-swe-v2）",
+    "type": "极简 coding agent（bash-only），DeepSWE/ProgramBench 官方 baseline",
+    "supports_benchmarks": ["DeepSWE v1.1", "ProgramBench"],
+    "install": "pip install mini-swe-agent  # PyPI 2.4.6，requires_python>=3.10；或 uvx mini-swe-agent / pipx run mini-swe-agent",
+    "interface": "CLI: `mini`（单次交互式 agent）；`mini-extra swebench`、`mini-extra programbench`（批量）；模型走 LiteLLM（OpenAI Chat Completions/Responses、Anthropic 等），--model provider/model + 对应 *_API_KEY；环境 local/docker/singularity/bubblewrap 等；agent 只有 bash 一个工具，不依赖模型原生 tool-calling",
+    "notes": "DeepSWE 榜单所有模型固定用 mini-swe-agent 跑（DeepSWE blog 的 Evaluation harness 一节 + GitHub README 公告‘mini-swe-agent beats Claude Code and Codex on DeepSWE’）；DeepSeek 官方新闻称其 DeepSWE 用‘mini-swe-v2 harness’。是否等同 mini-swe-agent v2.4.6 / 具体版本与配置未核实 → TODO verify。ProgramBench 官方 baseline：mini-extra programbench（先 pip install programbench），容器无网、镜像 amd64、默认 step_limit 1000 / wall_time 6h。",
+    "url": "https://github.com/SWE-agent/mini-swe-agent",
+    "verified": true
+  },
+  {
+    "name": "Claude Code（Anthropic 官方 CLI agent）",
+    "type": "agent harness（模型卡里 Terminal-Bench 4.0 的官方 harness）",
+    "supports_benchmarks": ["Terminal-Bench 4.0", "Agents' Last Exam"],
+    "install": "npm install -g @anthropic-ai/claude-code  # Node 18+；Windows 另需 Git for Windows",
+    "interface": "Anthropic Messages API；接第三方/自建模型靠环境变量：ANTHROPIC_BASE_URL、ANTHROPIC_AUTH_TOKEN、ANTHROPIC_MODEL、ANTHROPIC_DEFAULT_OPUS/SONNET/HAIKU_MODEL、CLAUDE_CODE_EFFORT_LEVEL、CLAUDE_CODE_AUTO_COMPACT_WINDOW；在 Harbor 里用 -a claude-code 由框架自动注入凭证与 base_url",
+    "notes": "Terminal-Bench 4.0 官方用 claude-code harness（Harbor README 示例 -a claude-code -m anthropic/claude-fable-5）。可直接指向 DeepSeek 的 Anthropic 端点 https://api.deepseek.com/anthropic（DeepSeek 官方 Claude Code 集成文档给了 Windows/Linux 两套 env；模型名映射 claude-sonnet*/haiku*→deepseek-flash、claude-opus*→deepseek-v4-pro）。vLLM 也实现了 Anthropic Messages，本地模型需 --enable-auto-tool-choice + 正确 --tool-call-parser。注意该 harness 是通用编码 agent，不适合当作纯视觉问答基准（Chartography/ZeroBench/BabyVision）的 runner。",
+    "url": "https://code.claude.com/docs/en/quickstart",
+    "verified": true
+  },
+  {
+    "name": "EvalScope（ModelScope）",
+    "type": "通用 LLM/多模态/agent 评测框架",
+    "supports_benchmarks": ["HLE", "Terminal-Bench 4.0", "DeepSWE v1.1", "Automation-Bench v1.0.6", "BabyVision", "ZeroBench-main"],
+    "install": "pip install evalscope  # PyPI 1.14.1，requires_python>=3.10；TB4 额外 pip install 'evalscope[terminal_bench]'（文档要求 Python>=3.12、Harbor>=0.14.0,<1.0.0）；DeepSWE 额外 pip install 'evalscope[deep_swe]'；Automation-Bench 需 pip install \"verifiers==0.1.12.dev2\" 与 automation-bench（git 方式装 zapier/AutomationBench 固定 commit）",
+    "interface": "CLI: evalscope eval --model <name> --api-url <OpenAI 兼容 URL> --api-key <key> --datasets <name...> --limit N；judge 用 --judge '{\"strategy\":\"llm\",\"models\":[{\"model_id\":\"...\"}]}'；TB4 通过 dataset_args.extra_params.agent_name 选 Harbor agent（terminus-2 用 EvalScope 模型，claude-code 等外部 CLI 需自带 key）、task_names 选子集",
+    "notes": "一个框架覆盖 6/11 个基准，最适合自测起步。注意事项：HLE 纯文本模型要设 extra_params.include_multi_modal=false；ZeroBench/BabyVision/HLE 都需 LLM judge（额外费用与 judge 偏差）；DeepSWE 走 Pier，对不支持 Responses API 的 OpenAI 兼容商要传 pier_agent_kwargs={'model_class':'litellm'}；TB4 子集结果不能与完整 4.0 分数直接比较。文档还声明 AutomationBench 榜单用私有保留集，公开 600 题只能作参考。",
+    "url": "https://github.com/modelscope/evalscope",
+    "verified": true
+  },
+  {
+    "name": "Inspect AI（UK AISI）+ inspect_evals",
+    "type": "通用 LLM 评测框架 + 官方 eval 实现集",
+    "supports_benchmarks": ["HLE", "ZeroBench-main", "Chartography"],
+    "install": "pip install inspect-ai  # PyPI 0.3.286，requires_python>=3.11；pip install inspect-evals  # PyPI 0.27.0",
+    "interface": "CLI: inspect eval <task> --model <provider/model>；内置 provider 含 openai、anthropic、google、deepseek、vllm、ollama、sglang；OpenAI 兼容第三方用 openai-api/<provider>/<model>（读 <PROVIDER>_API_KEY / <PROVIDER>_BASE_URL，如 DEEPSEEK_API_KEY+DEEPSEEK_BASE_URL）；-T 传 task 参数，--model-base-url 可指本地端点，--epochs/--epochs-reducer 算 pass@k",
+    "notes": "inspect_evals 内置 hle 与 zerobench（zerobench 用 HF jonathan-roberts1/zerobench，主集 100 题/子题 334，默认 k=5 epochs，产出 pass@1、pass@5、5-of-5 reliability，数据 revision 固定）。Chartography 官方评测代码本身就用 Inspect 写（surge-ai/chartography）。HLE 默认配置与 CAIS 榜单不完全可比：可按需 pin include_multi_modal、answer_type、only_hle_verified_gold、rolling、judge。",
+    "url": "https://inspect.aisi.org.uk/",
+    "verified": true
+  },
+  {
+    "name": "VLMEvalKit（OpenCompass）",
+    "type": "多模态 VLM 评测工具包",
+    "supports_benchmarks": ["BabyVision", "ZeroBench-main"],
+    "install": "git clone https://github.com/open-compass/VLMEvalKit && cd VLMEvalKit && pip install -e .",
+    "interface": "python run.py --data <DATASET> --model <MODEL_NAME> [--mode infer] [--verbose]；模型在 vlmeval/config.py 的 supported_VLM 注册，API key 放 VLMEvalKit/.env；judge/选项抽取默认用 LLM（也可用 LMDeploy 本地 judge），未配 key 时退化为精确匹配",
+    "notes": "vlmeval/dataset/__init__.py 的 IMAGE_DATASET 列表里确认包含 BabyVision 与 ZEROBench（还有 HLEDataset，但属多模态 HLE 口径）。Chartography 不在支持列表（只有 ChartQAPro/CharXiv 等）。支持 thinking 切分（SPLIT_THINK=True）与长输出 TSV（PRED_FORMAT=tsv）。具体 dataset 名称字符串以 python run.py --help / 代码里 supported_datasets() 为准 → 文档未逐一列出，TODO verify。",
+    "url": "https://github.com/open-compass/VLMEvalKit",
+    "verified": true
+  },
+  {
+    "name": "lm-evaluation-harness（EleutherAI）",
+    "type": "通用文本评测框架",
+    "supports_benchmarks": [],
+    "install": "pip install lm_eval  # 也支持 pip install \"lm_eval[api,vllm]\"",
+    "interface": "CLI: lm_eval --model <hf|vllm|sglang|local-completions|local-chat-completions|openai-completions...> --model_args base_url=... --tasks <task>；OpenAI 兼容端点用 local-completions/local-chat-completions + base_url",
+    "notes": "核实结论：官方任务清单（lm_eval/tasks/README.md）中没有本页 11 个基准中的任何一个；多模态仅一个 mmmu 原型（README 自述建议改用 lmms-eval）。因此对本次自测不适用，只在需要补充传统文本能力横评时使用。",
+    "url": "https://github.com/EleutherAI/lm-evaluation-harness",
+    "verified": true
+  },
+  {
+    "name": "OpenAI simple-evals",
+    "type": "参考实现集（已停止维护）",
+    "supports_benchmarks": [],
+    "install": "git clone https://github.com/openai/simple-evals；仓库无统一 setup，按 eval 单独安装依赖（如 pip install openai / anthropic / human-eval）",
+    "interface": "python -m simple-evals.simple_evals --model <model> --examples <N>；sampler 仅 OpenAI 与 Anthropic",
+    "notes": "README 明确 2025-07 起不再为新模型/基准更新，只保留 HealthBench、BrowseComp、SimpleQA 参考实现；不包含 11 个基准中的任何一个 → 不用于本次自测。",
+    "url": "https://github.com/openai/simple-evals",
+    "verified": true
+  },
+  {
+    "name": "AutomationBench 官方 CLI（zapier/AutomationBench）",
+    "type": "基准自带 runner（含模拟 SaaS 环境）",
+    "supports_benchmarks": ["Automation-Bench v1.0.6"],
+    "install": "git clone https://github.com/zapier/AutomationBench && cd AutomationBench && uv sync；key 用 OPENAI_API_KEY 环境变量或 --api-key 传入",
+    "interface": "uv run auto-bench --model <model> [--domains all|sales,...] [--toolset api|zapier|limited_zapier] [--base-url <OpenAI 兼容 URL>] [--api-key <key>] [--num-examples N] [--max-steps 50] [--max-concurrent 100] [--reasoning-effort low..max] [--responses-api]；也支持托管环境：prime env install zapier/AutomationBench && prime eval run zapier/AutomationBench",
+    "notes": "公开集 600 题（sales/marketing/operations/support/finance/hr 各 100）+ simple 200 题基线（不计入官方分）；官方榜单用私有 held-out 集，因此本地公开集分数只能作方向性参考，不能与榜单 1:1 对齐。无需 Docker 或真实 SaaS 凭据，纯 API 调用；判分 task_completed_correctly（所有 assertion 通过才 1）与 partial_credit；EvalScope 另有 automation_bench 集成（底层 verifiers==0.1.12.dev2 + git 固定 commit 的 automation-bench）。",
+    "url": "https://github.com/zapier/AutomationBench",
+    "verified": true
+  },
+  {
+    "name": "HLE 官方评测脚本（centerforaisafety/hle）",
+    "type": "基准自带 runner",
+    "supports_benchmarks": ["HLE"],
+    "install": "git clone https://github.com/centerforaisafety/hle && cd hle && pip install -r requirements.txt",
+    "interface": "cd hle_eval；python run_model_predictions.py --dataset cais/hle --model <model> --max_completion_tokens 8192 --num_workers 100（可加 --max_samples N 小样本）；再 python run_judge_results.py --dataset cais/hle --predictions <file> --judge <judge_model> --num_workers 100；走 openai-python 接口，judge 用结构化输出",
+    "notes": "2500 题（14% 含图、24% 单选/76% 简答），官方默认 temperature=0，不建议 max_completion_tokens 低于 8192；judge 需支持 JSON/结构化输出。模型卡的 44.0† 是 HLE 纯文本子集口径，42.6 是含多模态全集口径，二者不可直接比较。",
+    "url": "https://github.com/centerforaisafety/hle",
+    "verified": true
+  },
+  {
+    "name": "ProgramBench CLI（facebookresearch/programbench）",
+    "type": "基准自带 eval runner",
+    "supports_benchmarks": ["ProgramBench"],
+    "install": "pip install programbench  # 或 uvx programbench --help；开发 pip/uv 从源码装：git clone + uv sync",
+    "interface": "推理：mini-swe-agent 的 mini-extra programbench（产物为 <out>/<instance>/submission.tar.gz + traj.json）；评测：uv run programbench eval <run_dir>；汇总：programbench info；测试 blob 预下载：programbench blob sync [instance_id]",
+    "notes": "200 个任务实例、6 种语言（Rust/Go/C/Python 等）；镜像只支持 linux/amd64，Windows/macOS 原生跑不了（QEMU 很慢）；推理时容器默认 --network none，反编译/包装原程序会被判违规；单任务默认 wall_time_limit 6h、step_limit 1000、20 CPU/60GB。ProgramBench 仓库本身就是评测入口，不依赖 Harbor。",
+    "url": "https://github.com/facebookresearch/programbench",
+    "verified": true
+  },
+  {
+    "name": "Agents' Last Exam（ale_run）",
+    "type": "基准自带评测框架（真机/VM + CUA）",
+    "supports_benchmarks": ["Agents' Last Exam"],
+    "install": "git clone https://github.com/rdi-berkeley/agents-last-exam && cd agents-last-exam && bash env/install_host_deps.sh && uv sync --all-packages --locked && bash env/verify_host_env.sh；另需单独安装 agent CLI（claude-code/codex 等）",
+    "interface": "uv run python -m ale_run run my_experiment.yaml [--dry-run]；experiment yaml 选 agent（claude-code、codex、ALE-Claw 等）× 环境 provider（GCP VM / AWS / 阿里云 / QEMU-KVM / 本地 Docker 子集 / 已有 CUA 沙箱）× 任务列表（selected_tasks/full.txt 122 题、gpu.txt 3 题、docker_support.txt 78 题）；评分用任务内 evaluate() 对隐藏 reference 打分（0-1）",
+    "notes": "v1.1 共 122 个活跃任务（55 个 subdomain / 13 个行业簇，O*NET 对齐），GPU 任务 3 个；host 安装脚本只支持 Ubuntu/Debian（Windows 需 WSL2 或 Linux 机器）；需要真机 Windows/Linux 桌面与 CUA MCP bridge，个人自测门槛与云成本最高。",
+    "url": "https://github.com/rdi-berkeley/agents-last-exam",
+    "verified": true
+  },
+  {
+    "name": "Chartography 官方评测代码（surge-ai/chartography）",
+    "type": "基准自带评测代码（基于 Inspect AI）",
+    "supports_benchmarks": ["Chartography"],
+    "install": "git clone https://github.com/surge-ai/chartography && cd chartography；README 用 uv run 运行（依赖 inspect-ai，uv 会自动装）",
+    "interface": "uv run inspect eval src/chartography/task.py --model <provider/model>；-T judge_model=<judge>、-T hf_repo=surgeai/chartography（跑全量 HF 数据）、-T limit=1、--max-connections；榜单口径：--epochs 10 --epochs-reducer \"mean,pass_at_10,at_least_10\" + judge_model=google/gemini-3.5-flash",
+    "notes": "100 个任务；判分是每题一次 LLM judge（judge 只看问题/标准答案/回答，不看图），默认 scorer 报 accuracy/mean；task_packs/sample_charts 两个 dummy 任务可离线 dry run（-T limit=2 --model mockllm/model -T judge_model=mockllm/model）。HF 数据集 surgeai/chartography 匿名 raw 请求返回 401（可能需登录/申请）→ 访问门槛 TODO verify。",
+    "url": "https://github.com/surge-ai/chartography",
+    "verified": true
+  },
+  {
+    "name": "NL2Repo-Bench 官方 runner（multimodal-art-projection/NL2RepoBench）",
+    "type": "基准自带 runner（OpenHands headless batch）",
+    "supports_benchmarks": ["NL2Repo-Bench"],
+    "install": "git clone https://github.com/multimodal-art-projection/NL2RepoBench；需本机 Docker 并预拉 docker.all-hands.dev/all-hands-ai/openhands:0.56 与 docker.all-hands.dev/all-hands-ai/runtime:0.56-nikolaik 两个镜像",
+    "interface": "官方仓库跑 OpenHands headless 批量模式：改 config.toml（模型行为）与 config.json（startPro.baseUrl/sk/proNameList、max_pool_size）→ 跑入口脚本 main.py；用 python-on-whales 管理容器；任务数据在 test_files/，结果落 result/*.json；README 明确当前只支持本地执行，多机需自行做共享存储（NFS）",
+    "notes": "104 个任务，每个任务自带测试环境（默认 Python 3.12 runtime 镜像，可自建其它语言镜像）。本质是 OpenHands 作为 agent scaffold，模型通过 config 里的 OpenAI 兼容 baseUrl+sk 接入；不是通用框架，换模型就是改 config。",
+    "url": "https://github.com/multimodal-art-projection/NL2RepoBench",
+    "verified": true
+  },
+  {
+    "name": "vLLM（模型服务：OpenAI + Anthropic 双协议）",
+    "type": "model server / endpoint",
+    "supports_benchmarks": [],
+    "install": "pip install vllm；启动：vllm serve <hf-model> --served-model-name <name> --enable-auto-tool-choice --tool-call-parser <parser>",
+    "interface": "OpenAI 兼容 /v1（chat/completions、responses）；Anthropic Messages /v1/messages（官方文档专门讲如何把 Claude Code 指到 vLLM：ANTHROPIC_BASE_URL=http://localhost:8000 + ANTHROPIC_AUTH_TOKEN=dummy + ANTHROPIC_DEFAULT_*_MODEL=<served name>）；工具调用需 --enable-auto-tool-choice 与模型匹配的 --tool-call-parser",
+    "notes": "自建模型接所有 agent harness 的通用入口。Claude Code 旧版本会注入 per-request hash 破坏 prefix cache（vLLM>0.17.1 已自动处理；旧版在 ~/.claude/settings.json 设 CLAUDE_CODE_ATTRIBUTION_HEADER=0）。DeepSeek-V4.1-Flash-1017 的官方参考推理（HF repo inference/README）用 8 路张量并行（MP=8，每 rank 一个转换后 checkpoint），vLLM 对该模型的官方支持未核实 → TODO verify。",
+    "url": "https://github.com/vllm-project/vllm",
+    "verified": true
+  },
+  {
+    "name": "Ollama（本地小模型服务，0 元档自检用）",
+    "type": "本地模型服务",
+    "supports_benchmarks": [],
+    "install": "从 https://ollama.com/download 安装；ollama pull <model>",
+    "interface": "OpenAI 兼容 /v1，默认 http://localhost:11434/v1（Inspect 的 ollama provider 默认即此地址；--model ollama/<model>）；原生不实现 Anthropic Messages，Claude Code 需再套代理",
+    "notes": "只适合‘零花费流程自检’：用 7B–30B 级本地模型把 HLE/ZeroBench/BabyVision 的极小样本、judge 链路跑通，不能代表 DeepSeek-V4.1-Flash 的真实水平。视觉模型可选 qwen2.5-vl 等（具体可用型号以 ollama.com/library 为准）。",
+    "url": "https://ollama.com/",
+    "verified": true
+  },
+  {
+    "name": "Apex Bench v1.1（未找到可核实的公开评测代码）",
+    "type": "基准（无可核实 runner）",
+    "supports_benchmarks": ["Apex Bench v1.1"],
+    "install": "无公开安装方式（TODO verify：未找到官方仓库 / 数据集 / runner）",
+    "interface": "unknown；检索到的第三方页面只给出 Pass@1 分数，未给出调用方式",
+    "notes": "检索到 DataLearner、Open LLM Radar、UltraBench、phaseo 等第三方页面把 ApexBench 描述为多模态 + 工具/UI 交互的 agent 基准、指标 Pass@1；DataLearner 明确写‘DeepSeek 未在发布页提供独立基准主页、题量或创建机构信息’。因此目前无法自测，只能引用官方数字 → TODO verify 是否存在未公开 runner 或内部评测。",
+    "url": "https://www.datalearner.com/benchmarks/apexbench",
+    "verified": false
+  },
+  {
+    "name": "DeepSeek API（OpenAI + Anthropic 双协议端点）",
+    "type": "model endpoint（SaaS）",
+    "supports_benchmarks": [],
+    "install": "无需安装；platform.deepseek.com 取 API key",
+    "interface": "OpenAI 格式 base_url=https://api.deepseek.com；Anthropic 格式 base_url=https://api.deepseek.com/anthropic；model=deepseek-flash（即 DeepSeek-V4.1-Flash-1017）或 deepseek-v4-pro；1M 上下文 / 最大输出 384K；thinking 默认开启；Claude Code 接法：ANTHROPIC_BASE_URL + ANTHROPIC_AUTH_TOKEN；Responses API 亦支持",
+    "notes": "价格（per 1M tokens，谷/峰）：deepseek-flash 输出 $0.6/$1.2、输入 cache miss $0.15/$0.3、cache hit $0.003/$0.006；deepseek-v4-pro 输出 $1.98/$3.96。并发上限 flash 2500、pro 500（峰值时段为 UTC 周一至周五 01:00-04:00、06:00-10:00）。用 Anthropic 协议时 claude-sonnet*/haiku* 会映射到 deepseek-flash，claude-opus* 映射到 v4-pro（按 pro 计费）。这是用 API 复现 11 个基准最省事的模型侧入口。",
+    "url": "https://api-docs.deepseek.com/",
+    "verified": true
+  }
+]

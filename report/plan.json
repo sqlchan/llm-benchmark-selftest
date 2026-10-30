@@ -1,0 +1,215 @@
+{
+  "tiers": [
+    {
+      "name": "档 0：0 元本地小样本（1–2 天）",
+      "budget": "≈$0，目标是验证管道而非出分数",
+      "items": [
+        {
+          "order": 1,
+          "benchmark": "工具安装（一次性）",
+          "subset": "uv tool install harbor；pip install evalscope inspect-ai inspect-evals；git clone VLMEvalKit && pip install -e .",
+          "reason": "本机 Python 3.11 不够（Harbor/Pier/ALE 要 ≥3.12），全部用 uv 隔离环境；数据/判分链路先通再花钱",
+          "time": "0.5–1 小时",
+          "cost": "$0"
+        },
+        {
+          "order": 2,
+          "benchmark": "Terminal-Bench 4.0（oracle 自检）",
+          "subset": "harbor run -d terminal-bench/terminal-bench@4.0.0 -a oracle -k 1 --n-concurrent 1",
+          "reason": "oracle 是标准答案 agent，不需要模型，能验证 Docker、镜像、verifier 是否正常",
+          "time": "0.5–2 小时",
+          "cost": "$0（仅本机 Docker 资源）"
+        },
+        {
+          "order": 3,
+          "benchmark": "Chartography（离线链路）",
+          "subset": "官方 sample_charts 2 个假任务 + mockllm/model",
+          "reason": "无需真实数据集和 API key，验证 Inspect AI 安装与 scorer 流程",
+          "time": "10–30 分钟",
+          "cost": "$0"
+        },
+        {
+          "order": 4,
+          "benchmark": "HLE 10 题 + judge",
+          "subset": "hle_eval --max_samples 10（或 EvalScope hle --limit 10）",
+          "reason": "验证 LLM judge 结构化输出能工作；纯文本成本最低",
+          "time": "10–30 分钟",
+          "cost": "$0–1（用本地 Ollama 小模型则 $0）"
+        },
+        {
+          "order": 5,
+          "benchmark": "ZeroBench 5 题",
+          "subset": "HF 前 5 题 × 1 次采样，按官方 pass@1 片段",
+          "reason": "验证图片输入链路与 {...} 精确匹配；HF 数据需登录同意条款",
+          "time": "10–30 分钟",
+          "cost": "$0–0.2"
+        },
+        {
+          "order": 6,
+          "benchmark": "BabyVision 2–5 题",
+          "subset": "babyvision_eval，NUM_PASSES=1",
+          "reason": "验证 \\boxed{} 抽取与 judge 调用；MIT 数据无门槛",
+          "time": "10–30 分钟",
+          "cost": "$0–0.2"
+        },
+        {
+          "order": 7,
+          "benchmark": "Automation-Bench simple 2 题",
+          "subset": "uv run auto-bench --domains simple --num-examples 2",
+          "reason": "无需 Docker、无需真实 SaaS 凭据，验证多步工具调用与 end-state 判分",
+          "time": "10–30 分钟",
+          "cost": "$0–0.5"
+        }
+      ]
+    },
+    {
+      "name": "档 1：一周 API 预算（$50–150）",
+      "budget": "出「可比较的粗分数」，按便宜→贵、无 Docker→有 Docker 排序",
+      "items": [
+        {
+          "order": 1,
+          "benchmark": "HLE（纯文本子集）",
+          "subset": "先 50 题，再 250 题；include_multi_modal=false",
+          "reason": "无 Docker、最便宜；先校准 judge 与 44.0†/42.6 口径差异",
+          "time": "50 题约 20–40 分钟",
+          "cost": "≈$2–8（50 题）；全量 $25–80"
+        },
+        {
+          "order": 2,
+          "benchmark": "ZeroBench-main",
+          "subset": "先 50 题 pass@1，再 100 题 ×5 采样报 Pass@5",
+          "reason": "无需 judge、精确匹配最可复现；100 题全量只要 500 次调用",
+          "time": "1–2 小时（全量）",
+          "cost": "≈$0.1–1.7（DeepSeek 价）"
+        },
+        {
+          "order": 3,
+          "benchmark": "BabyVision",
+          "subset": "先 50 题 NUM_PASSES=1，再 388 题 Avg@3",
+          "reason": "388 题、MIT 数据、judge 链路成熟，适合第二个视觉基准",
+          "time": "1–3 小时（全量）",
+          "cost": "≈$0.3–1 + judge"
+        },
+        {
+          "order": 4,
+          "benchmark": "Automation-Bench v1.0.6",
+          "subset": "simple 200 题冒烟 → sales 域 100 题",
+          "reason": "纯 API，验证多步工具调用；注意与官方私有 held-out 集不同口径",
+          "time": "2–6 小时",
+          "cost": "≈$5–20（200 题以内）"
+        },
+        {
+          "order": 5,
+          "benchmark": "Chartography",
+          "subset": "确认 HF 数据集授权后，limit=10 → 100 题 epochs=1",
+          "reason": "100 题、judge 单次、成本低；官方榜是 10 epochs，先不追榜",
+          "time": "1–2 小时",
+          "cost": "≈$1–5（judge 另计）"
+        },
+        {
+          "order": 6,
+          "benchmark": "DeepSWE v1.1",
+          "subset": "pier run --n-tasks 10 --sample-seed 0",
+          "reason": "第一次上 Docker agent；10 题即可外推 113 题成本",
+          "time": "数小时（并发 8–16）",
+          "cost": "≈$3–135（按 $0.24–13.41/题）"
+        },
+        {
+          "order": 7,
+          "benchmark": "Terminal-Bench 4.0",
+          "subset": "5–10 题小样本，只跑 k=1",
+          "reason": "最贵的 agent 基准，等 Docker/并发调好再上；3 题需 H100",
+          "time": "数小时",
+          "cost": "≈$50–300（小样本按比例）"
+        }
+      ]
+    },
+    {
+      "name": "档 2：完整复现（四位数预算起）",
+      "budget": "按官方 harness + 官方数据版本 + 官方 judge/采样，能解释与模型卡差异",
+      "items": [
+        {
+          "order": 1,
+          "benchmark": "HLE",
+          "subset": "2,500 题全量 + 固定 judge；同时报 44.0† 文本子集",
+          "reason": "分清全集与纯文本子集口径",
+          "time": "数小时（并发 20–50）",
+          "cost": "≈$25–80 + judge"
+        },
+        {
+          "order": 2,
+          "benchmark": "ZeroBench-main",
+          "subset": "100 题 ×5 采样，报 pass@1 / pass@5 / pass^5",
+          "reason": "官方榜三个指标都要报；固定 temperature 0.7 / top_p 0.95（老模型口径）",
+          "time": "1–2 小时",
+          "cost": "≈$1–111（模型价差异大）"
+        },
+        {
+          "order": 3,
+          "benchmark": "BabyVision",
+          "subset": "388 题 Avg@3 + 固定 judge（论文 Qwen3-Max；代码默认 gpt-5.2）",
+          "reason": "judge 不固定分数不可比",
+          "time": "2–4 小时",
+          "cost": "≈$5–25 + judge"
+        },
+        {
+          "order": 4,
+          "benchmark": "Chartography",
+          "subset": "100 题 ×10 epochs + gemini-3.5-flash judge",
+          "reason": "榜单协议；需先拿到 HF 数据集权限",
+          "time": "2–6 小时",
+          "cost": "≈$10–40"
+        },
+        {
+          "order": 5,
+          "benchmark": "Automation-Bench v1.0.6",
+          "subset": "600 题公开集（--domains all）",
+          "reason": "与官方私有 held-out 集永远对不上，只能方向对齐",
+          "time": "3–10 小时",
+          "cost": "≈$15–60"
+        },
+        {
+          "order": 6,
+          "benchmark": "DeepSWE v1.1",
+          "subset": "113 题，Pier + mini-swe-agent，pier>0.3.0",
+          "reason": "固定 agent 以排除 scaffold 差异",
+          "time": "1–4 天（8–16 并发）",
+          "cost": "≈$27–1,515"
+        },
+        {
+          "order": 7,
+          "benchmark": "Terminal-Bench 4.0",
+          "subset": "66 题 ×k=5（官方 330 trials），建议 --env modal",
+          "reason": "官方榜是 5 次平均；3 题需 H100、11 题多容器",
+          "time": "数天（高并发）",
+          "cost": "≈$634–7,334"
+        },
+        {
+          "order": 8,
+          "benchmark": "ProgramBench",
+          "subset": "200 题，linux/amd64 主机，6h/题上限",
+          "reason": "amd64-only + 断网推理，Windows 只能 WSL2/远程 Linux",
+          "time": "数十小时",
+          "cost": "≈$400–7,300"
+        },
+        {
+          "order": 9,
+          "benchmark": "NL2Repo-Bench",
+          "subset": "104 题，官方 OpenHands headless batch",
+          "reason": "需 openhands:0.56 双镜像；无轮数上限，极慢极贵",
+          "time": "数小时–1 天",
+          "cost": "≈$100–500"
+        },
+        {
+          "order": 10,
+          "benchmark": "Agents' Last Exam",
+          "subset": "122 题，Linux 宿主 + 云 VM；3 个 GPU 任务",
+          "reason": "真机 GUI 任务，单题预算可达 5 小时，个人自测门槛最高",
+          "time": "数天",
+          "cost": "≈$100–1,000+（含 VM）"
+        }
+      ]
+    }
+  ],
+  "notes": "Apex Bench v1.1 无任何公开数据/runner，三档都跑不了，只在需要引用模型卡数字时标注 unknown。所有金额为量级估算（按 2026-10-30 DeepSeek 官方价：flash 谷时输入 $0.15/M、输出 $0.6/M，峰时翻倍），非报价；实跑请先用 5–10 题标定 token/耗时再外推。"
+}

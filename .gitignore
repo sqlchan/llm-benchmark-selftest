@@ -1,0 +1,16 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# 临时/工作文件
+*.tmp
+report/_*.txt
+.tmp_*/
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/

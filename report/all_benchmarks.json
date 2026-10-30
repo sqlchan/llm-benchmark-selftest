@@ -1,0 +1,1042 @@
+[
+  {
+    "id": "humanitys-last-exam",
+    "name": "Humanity's Last Exam (HLE, finalized at 2,500 questions)",
+    "name_zh": "人类最后的考试",
+    "category": "reasoning",
+    "publisher": "Center for AI Safety (CAIS) & Scale AI",
+    "release_date": "2025-01",
+    "homepage": "https://lastexam.ai",
+    "paper": "https://arxiv.org/abs/2501.14249",
+    "repo": "https://github.com/centerforaisafety/hle",
+    "leaderboard": "https://labs.scale.com/leaderboard/humanitys_last_exam",
+    "data_access": {
+      "public": "yes",
+      "url": "https://huggingface.co/datasets/cais/hle",
+      "license": "MIT (dataset card); paper CC BY 4.0",
+      "size_tasks": 2500,
+      "size_note": "2025-04-03 定稿 2,500 题；其中 342 题含图片（约 14%），纯文本子集 2,158 题。官方明确另外保留 private held-out 集用于检测过拟合，未公开。2026 年又出现 HLE-Rolling（2,689 题的滚动快照）与 HLE-Diamond，但 DeepSeek 模型卡用的仍是原始 2,500 题口径。"
+    },
+    "what_it_tests": "覆盖数学、自然科学、人文等上百个学科的专家级闭卷问答，题目经多模型难度筛选，要求深度推理与广博知识，而非检索。题目为多选或精确短答，可直接自动判分。",
+    "task_example": "输入一道高难度题目（如集合论：'AC(2) implies AC(n) 的最大正整数 n 是什么？'），要求输出 Explanation / Answer / Confidence（0–100%）；标准答案为简短字符串或多选项。",
+    "scoring": {
+      "metric": "准确率 Accuracy（另报 RMS calibration error）",
+      "judge": "LLM-judge",
+      "harness_official": "hle_eval：run_model_predictions.py 采样 + run_judge_results.py 判分；默认 judge 模型 o3-mini-2025-01-31",
+      "alt_harnesses": [
+        "Inspect AI / inspect_evals 的 hle 任务（UK AISI）"
+      ],
+      "pass_criteria": "判分 LLM 从回答中抽取最终答案，与标准答案语义一致（数值允许小误差）则计 correct=yes；准确率=正确题数/总题数。"
+    },
+    "requirements": {
+      "tool_use": false,
+      "code_exec": false,
+      "vision": true,
+      "docker": false,
+      "gpu_required": false,
+      "min_context_tokens": "unknown",
+      "model_iface": "OpenAI 兼容 API（openai-python，默认读 OPENAI_API_KEY；可用 OPENAI_BASE_URL 指向自建/第三方端点）"
+    },
+    "cost": {
+      "tokens_per_task": "unknown；论文只给 Figure 5（无逐题均值）。题干通常数百至上千 tokens，thinking 模型输出常达 1–3 万 tokens。",
+      "usd_per_full_run": "粗估 $25–$80（纯文本 2,158 题；假设平均 2k 输入 + 15–30k 输出 tokens/题，deepseek-flash 非高峰价；判分调用另计，建议按 $100 留量）。",
+      "wall_time_full_run": "粗估 2–8 小时（2,158 题，并发 20–50；DeepSeek API 并发上限 2,500）。未实测。",
+      "basis": "2,158 题 × (输入+输出) tokens × DeepSeek 官方价（2026-10-30 核实 deepseek-flash：非高峰 cache miss $0.15/M 输入、$0.6/M 输出，高峰翻倍）× 1 次采样 + 判分调用；token/题为假设，非官方统计。"
+    },
+    "self_test": {
+      "feasibility": "easy",
+      "quick_smoke_subset": "纯文本子集抽 50 题（官方脚本 --max_samples 50；或 Inspect 的 --limit 50）",
+      "setup_commands": [
+        "git clone https://github.com/centerforaisafety/hle.git",
+        "cd hle",
+        "pip install -r requirements.txt",
+        "# TODO verify：数据集为 gated=auto，需先登录 HF 并同意条款（huggingface-cli login 或设置 HF_TOKEN）",
+        "cd hle_eval",
+        "python run_model_predictions.py --dataset cais/hle --model <your-model-name> --max_completion_tokens 8192 --num_workers 20 --max_samples 50",
+        "python run_judge_results.py --dataset cais/hle --predictions hle_<your-model-name>.json --num_workers 20 --judge o3-mini-2025-01-31"
+      ],
+      "gotchas": "1) 数据集 gated=auto，无 HF 授权直接 401；2) 模型卡 42.6 / 44.0† 的 † 指纯文本子集：44.0 是 2,158 题口径，42.6 才是 2,500 题全量（含 342 道带图题）；3) 官方 judge 默认 o3-mini，judge 版本/提示词变化会影响分数，自测分数与官方榜不可直接横比；4) max_completion_tokens 不要低于 8192，否则容易模型塌缩；5) 训练语料污染：题目带 BIG-bench 系 canary 串，商用模型可能已见过；6) HLE-Verified 审计发现部分标准答案有误（668 题 gold 子集），自测误差需考虑；7) 官方只公开 2,500 题，另有未公开 held-out 集，别声称能复现官方榜的泛化数字。"
+    },
+    "sources": [
+      {
+        "url": "https://lastexam.ai",
+        "note": "官方主页：2,500 题、private held-out 集、HLE-Rolling/HLE-Diamond 新闻"
+      },
+      {
+        "url": "https://arxiv.org/abs/2501.14249",
+        "note": "论文：2,500 题、多模态、private test set、text-only 子集结果"
+      },
+      {
+        "url": "https://github.com/centerforaisafety/hle",
+        "note": "官方仓库与 hle_eval 运行命令、canary 串"
+      },
+      {
+        "url": "https://huggingface.co/api/datasets/cais/hle",
+        "note": "数据集元数据：test split 2,500 条、gated=auto、license=mit"
+      },
+      {
+        "url": "https://huggingface.co/datasets/cais/hle",
+        "note": "数据集页面（gated，需登录同意条款）"
+      },
+      {
+        "url": "https://raw.githubusercontent.com/centerforaisafety/hle/main/hle_eval/run_judge_results.py",
+        "note": "判分实现：默认 --judge o3-mini-2025-01-31、LLM judge prompt、accuracy 计算"
+      },
+      {
+        "url": "https://ukgovernmentbeis.github.io/inspect_evals/evals/hle/index.html",
+        "note": "替代 harness；明确 342/2,500 带图、纯文本子集 2,158 题、HLE-Verified gold 668 题"
+      },
+      {
+        "url": "https://labs.scale.com/leaderboard/humanitys_last_exam_text_only",
+        "note": "官方合作方 Scale 的 Text-Only 榜；2,500 定稿与 held-out 集说明"
+      },
+      {
+        "url": "https://huggingface.co/deepseek-ai/DeepSeek-V4.1-Flash-1017",
+        "note": "DeepSeek 模型卡：HLE w/o tools 42.6 (44.0†)，脚注 †=text-only subset"
+      }
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": "deepswe-v1-1",
+    "name": "DeepSWE v1.1",
+    "name_zh": "DeepSWE 代码修复基准 v1.1",
+    "category": "swe",
+    "publisher": "Datacurve",
+    "release_date": "2026-06（v1 为 2026-05）",
+    "homepage": "https://deepswe.datacurve.ai/",
+    "paper": "https://arxiv.org/abs/2607.07946",
+    "repo": "https://github.com/datacurve-ai/deep-swe",
+    "leaderboard": "https://deepswe.datacurve.ai/",
+    "data_access": {
+      "public": "partial",
+      "url": "任务定义公开在 GitHub：https://github.com/datacurve-ai/deep-swe（tasks/ 目录，含 task.toml、instruction.md、environment/Dockerfile、tests/）；HF 数据集 https://huggingface.co/datasets/datacurve/deep-swe 为 gated(auto)，需登录接受条款",
+      "license": "Apache-2.0（代码仓库）；HF 数据集卡片未标 license=unknown",
+      "size_tasks": 113,
+      "size_note": "113 道原创长程 SWE 任务，来自 91 个活跃开源仓库，覆盖 TypeScript / Go / Python / JavaScript / Rust 五种语言"
+    },
+    "what_it_tests": "在真实开源仓库里完成「原创、长程」的工程改动：不是挖历史 PR 修复，而是从零编写、未回贡给上游的任务，参考解平均触及的代码量约为 SWE-Bench Pro 的 5.5 倍。重点考察定位、跨文件修改与验证能力。",
+    "task_example": "给 agent 一个仓库快照 + 一段英文 issue/需求（instruction.md），agent 在容器内改代码并 commit；随后把 commit 以 patch 形式应用到干净容器，跑手写行为 verifier。",
+    "scoring": {
+      "metric": "Pass@1（binary reward；另报 pass fraction、out tokens、steps、avg cost）",
+      "judge": "unit-tests",
+      "harness_official": "Pier + mini-swe-agent：pier run -p deep-swe/tasks --agent mini-swe-agent --model <provider/model>（v1.1 需 datacurve-pier > 0.3.0）",
+      "alt_harnesses": [
+        "claude-code",
+        "codex",
+        "gemini-cli",
+        "opencode（均为 Pier 内置 agent，可替换 mini-swe-agent）"
+      ],
+      "pass_criteria": "手写行为 verifier 只检查 prompt 描述的可观察行为，接受任何实现；binary reward 通过/不通过，同时给出 pass fraction"
+    },
+    "requirements": {
+      "tool_use": true,
+      "code_exec": true,
+      "vision": false,
+      "docker": true,
+      "gpu_required": false,
+      "min_context_tokens": "unknown",
+      "model_iface": "Pier + mini-swe-agent 的 provider/model 字符串（如 anthropic/…、openai/…）；底层是否 LiteLLM 未核实"
+    },
+    "cost": {
+      "tokens_per_task": "官方博客给每模型 avg cost/任务与输出 tokens（如 gpt-6-astra $4.43、输出 30k；Opus 5 max $11.84、输出 118k），未给 tokens/任务",
+      "usd_per_full_run": "113 题单轮约 $27–$1,515（按官方每任务平均成本 $0.24–$13.41 × 113；未含重试）",
+      "wall_time_full_run": "unknown（官方未给总时长；榜单有 avg steps 29–166）",
+      "basis": "DeepSWE v1.1 博客的 \"Avg cost per task\" 表（2026-10-30 读取）× 113 题"
+    },
+    "self_test": {
+      "feasibility": "medium",
+      "quick_smoke_subset": "pier run -p deep-swe/tasks --agent mini-swe-agent --n-tasks 10 --sample-seed 0（官方提供的确定性抽样）；或单题 -p deep-swe/tasks/<task-id>",
+      "setup_commands": [
+        "# TODO verify（以下命令引自官方 Run 页与仓库 README，未在本机执行）",
+        "git clone https://github.com/datacurve-ai/deep-swe",
+        "uv tool install datacurve-pier   # v1.1 独立 verifier 环境要求 Pier > 0.3.0",
+        "export ANTHROPIC_API_KEY=...     # 换成实际 provider key",
+        "pier run -p deep-swe/tasks --agent mini-swe-agent --model anthropic/claude-opus-4-8",
+        "pier run -p deep-swe/tasks --agent mini-swe-agent --n-tasks 10 --sample-seed 0"
+      ],
+      "gotchas": "① HF 数据集 gated(auto)，要 HF 账号接受条款才能拿 parquet/轨迹，但任务定义在 GitHub 公开，理论上可绕过 HF；② v1.1 判分改为「独立干净容器 + [[verifier.collect]] 取 commit」，必须 Pier > 0.3.0，旧版会判错；③ 首跑需拉取各任务预构建镜像（Docker 空间/带宽大，有文档提到预拉 ECR 镜像）；④ 官方模型卡写 Mini-SWE-V2 harness、官方文档用 mini-swe-agent，口径不一致，跨来源比分数时要注明；⑤ 成本差异极大（$0.24–$13.41/题），先跑 10 题估算。"
+    },
+    "sources": [
+      {
+        "url": "https://deepswe.datacurve.ai/run",
+        "note": "官方运行入口：Pier 命令、Harbor 兼容、子集抽样、单题运行"
+      },
+      {
+        "url": "https://deepswe.datacurve.ai/data/v1.1",
+        "note": "公开的 trial 结果浏览（tasks/trials/heatmap）；确认 113 题"
+      },
+      {
+        "url": "https://deepswe.datacurve.ai/blog/deepswe-v1-1",
+        "note": "v1.1 变更（干净容器判分）、113 题、Pass@1、avg cost per task 表"
+      },
+      {
+        "url": "https://raw.githubusercontent.com/datacurve-ai/deep-swe/main/README.md",
+        "note": "任务格式（task.toml/instruction.md/environment/tests/solution）、verifier 输出、v1.1 判分流程"
+      },
+      {
+        "url": "https://raw.githubusercontent.com/datacurve-ai/deep-swe/main/LICENSE",
+        "note": "Apache-2.0（代码仓库）"
+      },
+      {
+        "url": "https://huggingface.co/api/datasets/datacurve/deep-swe",
+        "note": "HF 数据集元数据：gated=auto、113 题、无 license 字段"
+      },
+      {
+        "url": "https://arxiv.org/abs/2607.07946",
+        "note": "论文：113 题、91 仓库、5 语言、行为 verifier 与 LLM judge 1.4% 分歧"
+      }
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": "agents-last-exam",
+    "name": "Agents' Last Exam (ALE v1.1)",
+    "name_zh": "Agents' Last Exam（伯克利 RDI 的 Agent 长程基准）",
+    "category": "agent",
+    "publisher": "UC Berkeley RDI × RDI Foundation",
+    "release_date": "2026-06",
+    "homepage": "https://agents-last-exam.org",
+    "paper": "https://arxiv.org/abs/2606.05405",
+    "repo": "https://github.com/rdi-berkeley/agents-last-exam",
+    "leaderboard": "https://agents-last-exam.org/leaderboard",
+    "data_access": {
+      "public": "partial",
+      "url": "https://huggingface.co/datasets/agents-last-exam/agents-last-exam",
+      "license": "代码 Apache-2.0；数据 CC-BY-4.0",
+      "size_tasks": 122,
+      "size_note": "v1.1 公开基准 122 个 active tasks（Linux 86 + Windows 36；CPU 119、GPU 3；Docker 子集 78、ALE-CLI 子集 86），覆盖 55 个细分行业/13 个 cluster。官方网站宣传'已收集 1,500+ 题、目标 5,000'，但可复现的公开评测集是 v1.1 的 122 题。完整 task 数据（输入+隐藏 reference）在单独的 HF data-archive，需人工审批（archive 约 39.2 GB）。"
+    },
+    "what_it_tests": "真实职业工作的长程（数小时到数周人类工时）多步任务：在 Windows/Linux 真机沙箱里同时用 CLI 与 GUI（Generalist CUA-agents），完成专业软件工作流；评分只看留下的产物是否达到隐藏 reference，确定性 grader 打 0–1 分。",
+    "task_example": "例如在 Siemens NX 里创建/编辑 3D 模型、在 After Effects 做动画、在 Unreal 布置场景；agent 收到任务描述与输入文件，自主操作真实软件；结束后再放入隐藏 reference，evaluate() 比对交付物（文件/截图/数值）打分。",
+    "scoring": {
+      "metric": "Pass rate（每题满分 1.0 算通过）+ 平均部分分 avgScore（0–1）",
+      "judge": "unit-tests（任务内 evaluate() 对隐藏 reference 的确定性判分；部分任务含 text/image judge，可配置 JUDGE_*）",
+      "harness_official": "ale_run：uv run python -m ale_run run my_experiment.yaml（先 --dry-run 检查）",
+      "alt_harnesses": [],
+      "pass_criteria": "每个 task 由 evaluate() 给出 [0,1] 分；pass=该题得 1.0；官方榜单同时报 passRate 与 avgScore（未跑/失败的 run 计 0）。"
+    },
+    "requirements": {
+      "tool_use": true,
+      "code_exec": true,
+      "vision": true,
+      "docker": true,
+      "gpu_required": true,
+      "min_context_tokens": "unknown",
+      "model_iface": "任意 harness/模型：通过 CLI adapter（Claude Code、Codex、Kimi Code、OpenClaw、ALE-Claw 等）接入模型 API；需自备 provider（GCloud VM / QEMU-KVM / Docker / 现有 CUA 沙箱）"
+    },
+    "cost": {
+      "tokens_per_task": "官方 v1.1 榜全量 122 题的 totalOutputTokens 为 2.6M–21.5M（≈21k–176k 输出 tokens/题，跨模型）；输入 tokens 未公布（long-horizon 会很大，但有缓存命中价）。",
+      "usd_per_full_run": "API 粗估 $20–$150；云 VM/沙箱成本另计（可能 $50–$300+，取决于机型、时长与并发）。官方榜 totalCostUsd 字段为 null，无法直接引用；ALE 博客给过 frontier agent 每题约 $1.33–$15.70 的参考值。",
+      "wall_time_full_run": "官方榜全量 122 题的 totalDurationS 汇总约 8.8 万–56.4 万秒（≈24–157 小时 agent 执行时间）；实际墙钟取决于并发（并发 8 → 约 8–20 小时），另加 VM 启动/判分。单题 agent 预算示例 wall_time_s: 18000（5 小时）。",
+      "basis": "官方 leaderboard API（2026-10-30 拉取：122 runs、totalOutputTokens、totalDurationS、totalCostUsd=null）+ v1.1 文档（5h wall_time_s 示例）+ 博客每题成本；DeepSeek 官方价（2026-10-30）用于 API 估算，VM 单价未核实。"
+    },
+    "self_test": {
+      "feasibility": "hard",
+      "quick_smoke_subset": "先跑 hello_both 示例任务；再选 Docker 子集 78 题或 CPU 子集 119 题做小规模（如 5–10 题）试跑",
+      "setup_commands": [
+        "# 宿主机需 Ubuntu 22.04/24.04/26.04 或 Debian 12/13（Windows 需 WSL2/云 VM），以下在 Linux 上执行",
+        "git clone https://github.com/rdi-berkeley/agents-last-exam.git",
+        "cd agents-last-exam",
+        "bash env/install_host_deps.sh",
+        "uv sync --all-packages --locked",
+        "bash env/verify_host_env.sh",
+        "cp -n secret/.env.example secret/.env",
+        "cp example_exp.yaml my_experiment.yaml",
+        "# 按所选 provider（GCloud/QEMU/Docker）填 secret/.env 与 my_experiment.yaml；Docker 还需申请 data-archive 权限并下载约 39GB 数据",
+        "uv run python -m ale_run run my_experiment.yaml --dry-run",
+        "uv run python -m ale_run run my_experiment.yaml"
+      ],
+      "gotchas": "1) 完整数据（含隐藏 reference）是 gated=manual，需要人工审批，且条款禁止训练/评测中暴露/再分发；2) 宿主机安装脚本只支持 Ubuntu/Debian（Windows 本机不能直接跑，需 WSL2 或云 VM）；3) 需要真实 VM/沙箱：GCloud 推荐，QEMU/KVM 需 Linux+KVM，Docker 仅 78 题子集；4) 3 个 GPU 任务需要 Windows GPU 镜像；5) 单题预算可达 5 小时，全量 122 题是数十小时级 + 云成本；6) 模型卡 35.4 在官方 v1.1 leaderboard（2026-10-30）上查不到 DeepSeek 行（22 行/12 个模型，最高 pass 45.9%），口径/harness 未注明，不能当作官方榜数字；7) 公开集 122 题 ≠ 官网宣传的 1,500+ 题，别把 35.4 直接归因到 122 题或全量。"
+    },
+    "sources": [
+      {
+        "url": "https://agents-last-exam.org",
+        "note": "官网：55 sub-industries、1,500+ tasks toward 5,000、GUI+CLI、arXiv/HF/GitHub 链接"
+      },
+      {
+        "url": "https://arxiv.org/abs/2606.05405",
+        "note": "论文：55 子领域/13 cluster、1K+ tasks、平均全通过率 <1%（最难 tier）"
+      },
+      {
+        "url": "https://github.com/rdi-berkeley/agents-last-exam",
+        "note": "官方框架与快速开始；v1.1 122 题、provider 列表、任务分布、双许可证"
+      },
+      {
+        "url": "https://raw.githubusercontent.com/rdi-berkeley/agents-last-exam/main/README.md",
+        "note": "122 active tasks、task 清单（full/cpu/gpu/ale_cli/docker_support）、运行命令、hidden reference 机制"
+      },
+      {
+        "url": "https://raw.githubusercontent.com/rdi-berkeley/agents-last-exam/main/docs/releases/v1.1.md",
+        "note": "v1.1 运行指南：provider 配置、wall_time_s 18000 示例、Docker 数据下载、asset manifest、GPU/CPU 任务数"
+      },
+      {
+        "url": "https://huggingface.co/api/datasets/agents-last-exam/agents-last-exam",
+        "note": "公开 task-card 元数据：122 active tasks、CC-BY-4.0、含 task_cards.parquet"
+      },
+      {
+        "url": "https://huggingface.co/api/datasets/agents-last-exam/agents-last-exam-data-archive",
+        "note": "完整数据 archive：gated=manual、39,155,440,558 bytes、含 reference、禁止训练/暴露/再分发"
+      },
+      {
+        "url": "https://agents-last-exam.org/api/demo/leaderboard/v1.1",
+        "note": "官方榜 JSON（2026-10-30）：122 tasks、22 行/12 模型、最高 pass 45.9%、totalOutputTokens/totalDurationS、totalCostUsd=null、无 DeepSeek 行"
+      },
+      {
+        "url": "https://rdi.berkeley.edu/blog/agents-last-exam/",
+        "note": "发布博客：1,500+ 题/55 职业、ALE-CLI 86 题子集、每题成本 $1.33–$15.70、最好 agent 25.2%（ALE-CLI）"
+      },
+      {
+        "url": "https://huggingface.co/deepseek-ai/DeepSeek-V4.1-Flash-1017",
+        "note": "DeepSeek 模型卡：Agents' Last Exam = 35.4"
+      }
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": "apex-bench-v1-1",
+    "name": "Apex Bench v1.1",
+    "name_zh": "Apex Bench v1.1（仅见于 DeepSeek 模型卡）",
+    "category": "agent",
+    "publisher": "unknown（疑似 DeepSeek 内部基准，未能核实）",
+    "release_date": "unknown",
+    "homepage": "unknown",
+    "paper": "unknown",
+    "repo": "unknown",
+    "leaderboard": "none",
+    "data_access": {
+      "public": "no",
+      "url": "unknown",
+      "license": "unknown",
+      "size_tasks": 0,
+      "size_note": "题量未公开（0 表示未知）。截至 2026-10-30，官方唯一可核实出处是 DeepSeek-V4.1-Flash-1017 模型卡的一行 'Apex Bench v1.1 = 72.1'；未找到主页、论文、仓库、数据集或官方榜单。第三方聚合页也只转引该模型卡。"
+    },
+    "what_it_tests": "官方未公开说明。第三方聚合站 open-llm-radar 将其归类为 'Multimodal Agents'（视觉界面感知+操作的 agent 基准），但这并非官方描述，未获证实。",
+    "task_example": "unknown（无公开样题/接口文档）",
+    "scoring": {
+      "metric": "unknown（模型卡只报 72.1，未说明单位/口径）",
+      "judge": "unknown",
+      "harness_official": "unknown",
+      "alt_harnesses": [],
+      "pass_criteria": "unknown"
+    },
+    "requirements": {
+      "tool_use": true,
+      "code_exec": false,
+      "vision": true,
+      "docker": false,
+      "gpu_required": false,
+      "min_context_tokens": "unknown",
+      "model_iface": "unknown"
+    },
+    "cost": {
+      "tokens_per_task": "unknown",
+      "usd_per_full_run": "unknown（无公开数据，无法估算）",
+      "wall_time_full_run": "unknown",
+      "basis": "无公开题量/token/价格数据；唯一数字为 DeepSeek 模型卡自报 72.1（2026-10-17）。"
+    },
+    "self_test": {
+      "feasibility": "infeasible",
+      "quick_smoke_subset": "none（无公开数据/代码）",
+      "setup_commands": [
+        "# no public setup found as of 2026-10-30"
+      ],
+      "gotchas": "1) 只有厂商自报，无法复现、无法核验判分方式；2) 不要与 MathArena Apex、Mercor APEX/APEX-Agents 混淆（第三方页面明确说 Apex Bench v1.1 distinct from both；llm-stats 的 'Apex' 也是另一个 reasoning 榜）；3) 若官方后续发布，需重新核实数据、许可与 harness；在此之前正式对比中应标 unknown。"
+    },
+    "sources": [
+      {
+        "url": "https://huggingface.co/deepseek-ai/DeepSeek-V4.1-Flash-1017",
+        "note": "唯一官方出处：模型卡对比表 'Apex Bench v1.1 72.1'"
+      },
+      {
+        "url": "https://phaseo.app/zh-Hans/benchmarks/apex-bench-v1.1",
+        "note": "第三方聚合页：仅 1 条 self-reported 记录（DeepSeek V4.1 Flash 1017 72.10%），注明 distinct from MathArena Apex and APEX-Agents、来源为 DeepSeek 模型卡"
+      },
+      {
+        "url": "https://open-llm-radar.com/benchmarks/apexbench",
+        "note": "第三方聚合页：归类 Multimodal Agents、3 个模型均为 DeepSeek 系（72.1/36.5/26.2），来源 Report"
+      }
+    ],
+    "confidence": "low"
+  },
+  {
+    "id": "automation-bench",
+    "name": "AutomationBench v1.0.6",
+    "name_zh": "AutomationBench（Zapier 业务工作流 Agent 基准）",
+    "category": "agent",
+    "publisher": "Zapier",
+    "release_date": "2026-04",
+    "homepage": "https://zapier.com/benchmarks",
+    "paper": "https://arxiv.org/abs/2604.18934",
+    "repo": "https://github.com/zapier/AutomationBench",
+    "leaderboard": "https://zapier.com/benchmarks",
+    "data_access": {
+      "public": "yes",
+      "url": "https://github.com/zapier/AutomationBench",
+      "license": "MIT（代码与公开任务数据；LICENSE 含第三方 API schema 说明）",
+      "size_tasks": 600,
+      "size_note": "公开任务集 600 题（Sales/Marketing/Operations/Support/Finance/HR 各 100）+ simple 域 200 题（不计分，仅冒烟/基线）。官方榜单另用每个域一份未公开的 held-out 私有集（Zapier 页面称 600+ held-out），因此本地分数与官方榜不是 1:1。"
+    },
+    "what_it_tests": "在模拟的 SaaS 环境里通过 REST API 完成跨应用业务流程（CRM、邮箱、日历、Slack、财务等 47 个模拟工具、约 500 个端点）：自己发现正确端点、遵守分层业务规则、处理干扰/误导数据，最终把正确数据写进正确系统。",
+    "task_example": "触发消息给出一个业务请求（如'把新线索按区域分配并更新 CRM 阶段'）；环境预置 CRM 记录、收件箱线程、日历等；agent 只能调工具 API；评分只看最终环境状态是否满足全部断言，忽略 agent 的自然语言回复。",
+    "scoring": {
+      "metric": "Pass rate（严格通过率）；另有 partial_credit 0–1 作为诊断/训练信号",
+      "judge": "unit-tests（程序化 end-state 断言，无 LLM judge）",
+      "harness_official": "仓库自带 CLI：uv run auto-bench --model <model>（工具风格 --toolset api|zapier|limited_zapier）",
+      "alt_harnesses": [
+        "Prime Intellect Environments Hub（prime eval run zapier/AutomationBench）",
+        "Artificial Analysis 的 AutomationBench-AA 复现"
+      ],
+      "pass_criteria": "task_completed_correctly=1 当且仅当该题所有断言全部通过；官方分数=计分题（排除 simple）中该值为 1 的比例。"
+    },
+    "requirements": {
+      "tool_use": true,
+      "code_exec": false,
+      "vision": false,
+      "docker": false,
+      "gpu_required": false,
+      "min_context_tokens": "unknown",
+      "model_iface": "OpenAI 兼容 API（--base-url 可指向自建端点；claude-* 前缀自动走 Anthropic API）"
+    },
+    "cost": {
+      "tokens_per_task": "unknown；官方未公布 token 统计；单题最多 50 个交互步（--max-steps 默认 50），CLI 会统计 token 与费用。",
+      "usd_per_full_run": "粗估 $20–$100（600 题 × 平均约 30 步 × 每步约 10–20k 输入 tokens + 少量输出，按 deepseek-flash 非高峰价；缓存命中时更低）。未实测，建议先跑 20–50 题用 harness 统计外推。",
+      "wall_time_full_run": "粗估 3–10 小时（600 题，--max-concurrent 默认 100；单题最多 50 步）。",
+      "basis": "600 题 × 步数 × tokens/步 × DeepSeek 官方单价（2026-10-30 核实：非高峰 cache miss $0.15/M 输入、$0.6/M 输出）× 重试系数；步数与 tokens/步为假设，非官方统计。"
+    },
+    "self_test": {
+      "feasibility": "easy",
+      "quick_smoke_subset": "5 题冒烟：--num-examples 5；单域 100 题：--domains sales",
+      "setup_commands": [
+        "git clone https://github.com/zapier/AutomationBench.git",
+        "cd AutomationBench",
+        "uv sync",
+        "export OPENAI_API_KEY=<your-key>",
+        "uv run auto-bench --model <model-name> --num-examples 5 --domains sales",
+        "uv run auto-bench --model <model-name> --base-url <openai-compatible-endpoint> --api-key <key> --input-cost <usd-per-token> --output-cost <usd-per-token>"
+      ],
+      "gotchas": "1) 需要 Python >=3.13（pyproject 指定）与 uv；2) 公开 600 题 ≠ 官方榜私有 held-out 集，本地分数只能作方向性参考（官方也这么声明）；3) 模型卡 60.5 与 README 公开集上 Opus 5 50.3 / Kimi K3 46.67 / GPT-5.6 Sol 45.83 数字吻合，推测模型卡用的是公开 600 题自跑口径，而官方榜用私有集，两者不可混比；4) 工具风格（api / zapier / limited_zapier）与 reasoning effort 显著影响分数，必须固定配置；5) 单题 50 步上限可能截断长流程；6) third-party llm-stats 的 v1.0.6 榜是 0–1 分且只有 6 个模型，与模型卡口径不同。"
+    },
+    "sources": [
+      {
+        "url": "https://github.com/zapier/AutomationBench",
+        "note": "官方仓库（MIT）"
+      },
+      {
+        "url": "https://raw.githubusercontent.com/zapier/AutomationBench/main/README.md",
+        "note": "600 公开题/6 域/47 工具、simple 200 题、public vs 官方 held-out 私有集、评分指标、CLI 参数、Prime Intellect 用法"
+      },
+      {
+        "url": "https://raw.githubusercontent.com/zapier/AutomationBench/main/pyproject.toml",
+        "note": "当前仓库版本号 version = \"1.0.6\"、requires-python >=3.13"
+      },
+      {
+        "url": "https://raw.githubusercontent.com/zapier/AutomationBench/main/LICENSE",
+        "note": "MIT 许可及第三方 API schema 范围说明"
+      },
+      {
+        "url": "https://arxiv.org/abs/2604.18934",
+        "note": "白皮书：六域、跨应用 REST API、end-state 程序化判分（论文摘要称当时最好模型 <10%）"
+      },
+      {
+        "url": "https://zapier.com/benchmarks",
+        "note": "官方榜单页：47 个模拟应用、600+ held-out 评测题、strict task_completed_correctly、官方榜跑私有集"
+      },
+      {
+        "url": "https://llm-stats.com/benchmarks/automationbench-1.0.6",
+        "note": "第三方 v1.0.6 榜（2026-10-30 更新，6 个模型、0–1 分）"
+      },
+      {
+        "url": "https://huggingface.co/deepseek-ai/DeepSeek-V4.1-Flash-1017",
+        "note": "DeepSeek 模型卡：Automation-Bench v1.0.6 = 60.5"
+      }
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": "terminal-bench-4-0",
+    "name": "Terminal-Bench 4.0 (v4.0.0)",
+    "name_zh": "终端智能体基准 4.0",
+    "category": "agent",
+    "publisher": "Stanford / Harbor / Laude Institute",
+    "release_date": "2026-08",
+    "homepage": "https://www.tbench.ai/",
+    "paper": "unknown（官方只有博客与仓库，未见论文/技术报告）",
+    "repo": "https://github.com/harbor-framework/terminal-bench",
+    "leaderboard": "https://hub.harborframework.com/datasets/terminal-bench/terminal-bench/latest?tab=leaderboard&leaderboard=4-0-0",
+    "data_access": {
+      "public": "yes",
+      "url": "数据集（含 tasks/verifiers/solutions）：https://hub.harborframework.com/datasets/terminal-bench/terminal-bench/4 ；代码与发布包：https://github.com/harbor-framework/terminal-bench/releases/tag/v4.0.0",
+      "license": "Apache-2.0（GitHub 仓库 LICENSE）",
+      "size_tasks": 66,
+      "size_note": "v4.0.0：3.0 的 74 题删 8 题（饱和/拒答/公开答案/质量问题）、修 19–20 题后为 66 题；覆盖 software、science、ML、operations、security、hardware、media 等领域"
+    },
+    "what_it_tests": "在容器化终端环境里完成真实工程任务：写代码、跑命令、改文件、调试环境，覆盖面从软件工程到科学计算、ML、运维、安全、硬件与媒体。官方把它定位为「连续基准」，每季度左右删题/加题并重新校准资源，用语义化版本号区分「重跑/重判/可复用」。部分任务需要 GPU。",
+    "task_example": "给 agent 一个容器和一条任务说明（如修复某个仓库的 bug、优化某段代码、复现一个实验），agent 用 shell/文件工具自由操作；结束时由容器内 verifier 跑测试或检查产物，返回该题通过/失败。",
+    "scoring": {
+      "metric": "resolve rate（66 题通过率；官方榜单为 5 次运行平均 + 95% CI）",
+      "judge": "unit-tests",
+      "harness_official": "Harbor：harbor run -d terminal-bench/terminal-bench@4.0.0 -e modal -a <agent> -m <model> -k 5",
+      "alt_harnesses": [],
+      "pass_criteria": "每题由任务自带 verifier（测试/检查脚本）判定通过；整轮取通过题数占比，官方榜单跑 k=5 次取平均"
+    },
+    "requirements": {
+      "tool_use": true,
+      "code_exec": true,
+      "vision": false,
+      "docker": true,
+      "gpu_required": true,
+      "min_context_tokens": "unknown",
+      "model_iface": "Harbor 的 agent/model 配置（通过各家 provider 调用模型；具体协议未核实）"
+    },
+    "cost": {
+      "tokens_per_task": "unknown（官方榜单给整轮合计 tokens：约 8.9 亿–194 亿 / 330 trials）",
+      "usd_per_full_run": "整轮（5×66 trials）约 $634–$7,334（2026-10 榜单不同模型；Opus 5.5 max 为 $4,718.65）",
+      "wall_time_full_run": "单 trial 平均约 1,684–7,432 秒（榜单数据）；官方用 Modal 高并发，整轮现实耗时约数小时，取决于并发与 GPU 配额",
+      "basis": "tbench.ai 首页内嵌 leaderboard JSON：n_trials=330、total_cost_usd、total_tokens、avg_trial_duration_sec（2026-10-30 读取）"
+    },
+    "self_test": {
+      "feasibility": "hard",
+      "quick_smoke_subset": "先用 --agent oracle 跑单题验证 sandbox 环境是否正常，再抽 5–10 题、只跑 1 次；GPU 题需要 GPU sandbox（官方用 Modal，Daytona 也支持 GPU）",
+      "setup_commands": [
+        "# TODO verify（以下命令引自官方 Run 页，未在本机执行）",
+        "uv tool install 'harbor[modal]'",
+        "harbor run -d terminal-bench/terminal-bench@4.0.0 -e modal -a claude-code -m anthropic/claude-sonnet-5 -k 5",
+        "harbor view jobs"
+      ],
+      "gotchas": "① 有 GPU 任务，普通无 GPU 的 Docker 跑不全；② 官方榜单是 66 题 × 5 次，闭源 frontier 整轮 $0.6k–$7k；③ Epoch AI 2026-09 复核认为 4.0.0 有 30/66 题存在奖励 hack、答案泄漏、假阴/假阳等评分缺陷（评为 Flawed）；④ 单题超时上限 8 小时；⑤ 连续基准版本更新快，必须锁 4.0.0，否则结果不可比。"
+    },
+    "sources": [
+      {
+        "url": "https://www.tbench.ai/",
+        "note": "官方主页；内嵌 leaderboard JSON（n_trials=330、cost、tokens、avg trial 时长）"
+      },
+      {
+        "url": "https://www.tbench.ai/run",
+        "note": "运行命令、Harbor 安装、GPU/Modal 要求、上传结果"
+      },
+      {
+        "url": "https://www.tbench.ai/news/terminal-bench-4-0",
+        "note": "4.0 变更：删 8 题、修 19 题、8 小时超时、语义化版本约定"
+      },
+      {
+        "url": "https://raw.githubusercontent.com/harbor-framework/terminal-bench/main/README.md",
+        "note": "官方仓库说明、oracle 验证建议、运行示例"
+      },
+      {
+        "url": "https://raw.githubusercontent.com/harbor-framework/terminal-bench/main/LICENSE",
+        "note": "Apache-2.0"
+      },
+      {
+        "url": "https://api.github.com/repos/harbor-framework/terminal-bench/releases",
+        "note": "v4.0.0 发布于 2026-08-26；v3.0 初始 74 题；4.0 删 8 题清单"
+      },
+      {
+        "url": "https://epoch.ai/benchmarks/terminal-bench-4/review",
+        "note": "第三方复核：66 题、30/66 有评分缺陷、Flawed 结论（2026-09-04）"
+      },
+      {
+        "url": "https://hub.harborframework.com/datasets/terminal-bench/terminal-bench/4",
+        "note": "官方数据集入口（页面 JS 渲染，仅确认可达）"
+      }
+    ],
+    "confidence": "medium"
+  },
+  {
+    "id": "nl2repo-bench",
+    "name": "NL2Repo-Bench",
+    "name_zh": "自然语言到完整仓库基准",
+    "category": "nl2code",
+    "publisher": "ByteDance Seed / M-A-P / 2077AI / Humanlaya Data / 南京大学 / 北京大学 等",
+    "release_date": "2025-12（arXiv v1 2025-12-14，v2 2026-01-08）",
+    "homepage": "https://github.com/multimodal-art-projection/NL2RepoBench",
+    "paper": "https://arxiv.org/abs/2512.12730",
+    "repo": "https://github.com/multimodal-art-projection/NL2RepoBench",
+    "leaderboard": "none",
+    "data_access": {
+      "public": "yes",
+      "url": "https://github.com/multimodal-art-projection/NL2RepoBench（test_files/ 为任务数据，workspaces/ 为 Docker 挂载，docker_self/ 为评测环境；未发现独立 HF 数据集）",
+      "license": "unknown（仓库无 LICENSE 文件，GitHub API license=null；arXiv 论文为 arXiv 非独占许可）",
+      "size_tasks": 104,
+      "size_note": "104 题、9 类 Python 库（系统工具 24、数据处理 18、测试 13、工具库 11、Web 10、网络 9、ML 7、数据库 7、批处理 5）；难度 easy 26 / medium 46 / hard 32；规格文档平均约 18.8k tokens"
+    },
+    "what_it_tests": "只给一份自然语言需求文档和一个空工作区，要求从 0 到 1 生成完整、可安装的 Python 库：自己做架构、依赖管理、多模块实现与打包。用原仓库的上游 pytest 套件判分，是少见的「长程 + 可执行验证」仓库生成基准。",
+    "task_example": "输入是一份结构化 .md 规格（Project Description / Supports / API Usage Guide / Implementation Nodes），输出是完整 Python 仓库；随后把仓库打进测试镜像，跑原项目 pytest，按通过用例比例计分。",
+    "scoring": {
+      "metric": "average test pass rate（0–100%；论文另报 Pass@1 count 与难度/类别分组）",
+      "judge": "unit-tests",
+      "harness_official": "仓库自带 main.py 驱动 OpenHands 0.56 headless 批量跑（config.json 配模型端点与任务列表，python main.py）；结果存 result/<uuid>.json",
+      "alt_harnesses": [
+        "Claude Code、Cursor CLI（论文中作为对比 agent 框架；官方脚本默认 OpenHands）"
+      ],
+      "pass_criteria": "把生成仓库放入任务测试镜像执行原仓库 pytest，取通过测试数占比；即使 pytest collection 报错也继续执行其余用例，避免整仓直接 0 分"
+    },
+    "requirements": {
+      "tool_use": true,
+      "code_exec": true,
+      "vision": false,
+      "docker": true,
+      "gpu_required": false,
+      "min_context_tokens": "unknown（输入规格均值约 18.8k tokens，需长程多轮交互）",
+      "model_iface": "config.json 中 baseUrl + sk 指定的 OpenAI 兼容 endpoint（示例配置字段，具体协议未核实）"
+    },
+    "cost": {
+      "tokens_per_task": "unknown（论文/仓库未给成本或 token 统计；单题规格均值约 18.8k tokens，需数百轮交互）",
+      "usd_per_full_run": "unknown（无官方数据；按 104 题 × 长程多轮估计，属四个基准中单题最贵的量级之一，建议先跑 1–2 题）",
+      "wall_time_full_run": "unknown（论文提到模型交互数百轮、无轮数上限；仓库支持 max_pool_size 并发，默认示例 30）",
+      "basis": "论文与仓库均未公布成本；仅依据题量、输入长度与「无轮数上限」推断，未做实测"
+    },
+    "self_test": {
+      "feasibility": "hard",
+      "quick_smoke_subset": "把 config.json 的 proNameList 只留 1–2 个任务（如 aiofiles、math-verify），max_pool_size 调成 1–2，先跑通整条链路",
+      "setup_commands": [
+        "# TODO verify（以下命令引自仓库 readme/requirements，未在本机执行）",
+        "git clone https://github.com/multimodal-art-projection/NL2RepoBench",
+        "pip install -r requirements.txt   # 依赖：openhands、python_on_whales、socketio、pydantic",
+        "docker pull docker.all-hands.dev/all-hands-ai/openhands:0.56",
+        "docker pull docker.all-hands.dev/all-hands-ai/runtime:0.56-nikolaik",
+        "# 编辑 config.json 填 baseUrl/sk/proNameList 后：",
+        "python main.py"
+      ],
+      "gotchas": "① 只支持本地 Docker（python-on-whales 管理容器），多机要共享文件系统（NFS）或手工搬文件；② 必须预置 openhands:0.56 与 runtime:0.56-nikolaik 两个镜像，版本不匹配会跑不起来；③ 无 LICENSE 文件，再分发/商用前需联系作者；④ 单题无轮数上限、交互数百轮，非常慢且贵，不适合全量自测；⑤ 结果按随机 UUID 存 result/，官方没给汇总脚本，要自己算平均通过率。"
+    },
+    "sources": [
+      {
+        "url": "https://raw.githubusercontent.com/multimodal-art-projection/NL2RepoBench/main/readme.md",
+        "note": "仓库运行方式：OpenHands headless、镜像要求、config.json 字段、结果目录"
+      },
+      {
+        "url": "https://raw.githubusercontent.com/multimodal-art-projection/NL2RepoBench/main/main.py",
+        "note": "入口 main.py：读 config.json → start_openhands"
+      },
+      {
+        "url": "https://raw.githubusercontent.com/multimodal-art-projection/NL2RepoBench/main/config.json",
+        "note": "模型端点字段 baseUrl/sk、104 个任务名、max_pool_size=30"
+      },
+      {
+        "url": "https://raw.githubusercontent.com/multimodal-art-projection/NL2RepoBench/main/requirements.txt",
+        "note": "依赖：socketio、python_on_whales、openhands、pydantic"
+      },
+      {
+        "url": "https://api.github.com/repos/multimodal-art-projection/NL2RepoBench",
+        "note": "仓库元数据：默认分支 main、license=null（无 LICENSE）"
+      },
+      {
+        "url": "https://arxiv.org/abs/2512.12730",
+        "note": "论文：104 题、9 类、上游 pytest 判分、平均输入约 18.8k tokens、OpenHands 设置"
+      },
+      {
+        "url": "https://ar5iv.labs.arxiv.org/html/2512.12730",
+        "note": "论文全文（任务构造流程、难度统计、实验结果）"
+      }
+    ],
+    "confidence": "medium"
+  },
+  {
+    "id": "programbench",
+    "name": "ProgramBench",
+    "name_zh": "程序重建基准",
+    "category": "nl2code",
+    "publisher": "Meta Superintelligence Labs / Stanford University / Harvard University",
+    "release_date": "2026-05（论文 2026-05-05；榜单更新 2026-10-22）",
+    "homepage": "https://programbench.com/",
+    "paper": "https://arxiv.org/abs/2605.03546",
+    "repo": "https://github.com/facebookresearch/ProgramBench",
+    "leaderboard": "https://programbench.com/",
+    "data_access": {
+      "public": "yes",
+      "url": "测试集（MIT）：https://huggingface.co/datasets/programbench/ProgramBench-Tests ；运行镜像（tag task_cleanroom_v6）：https://hub.docker.com/orgs/programbench/repositories ；代码/评测 CLI：https://github.com/facebookresearch/ProgramBench",
+      "license": "MIT（GitHub 仓库 LICENSE 与 HF 测试集均标 MIT）",
+      "size_tasks": 200,
+      "size_note": "200 个程序（从 jq/ripgrep 这类小工具到 FFmpeg、SQLite、PHP 解释器），共 24.8 万+ 条 agent 生成的行为测试；同一份通用 harness（mini-swe-agent），不做每题调参"
+    },
+    "what_it_tests": "只看编译后二进制 + 文档，在无源码、禁反编译、禁联网的容器里从零重建整个程序：自己选语言、做架构、写全部源码和构建脚本，最终行为要与原程序一致。测的是端到端软件设计与实现能力，而不是补丁或单文件生成。",
+    "task_example": "容器里给一个可执行文件（只可执行、不可读）和文档；agent 观察程序行为（可任意输入）后从零写代码，最终提交整个 codebase 的 submission.tar.gz；评测端用隐藏行为测试对比候选程序与原程序。",
+    "scoring": {
+      "metric": "Resolved（该题全部测试通过的比例，主指标）；辅助 Almost resolved（≥95% 测试通过）与平均测试通过率",
+      "judge": "unit-tests",
+      "harness_official": "programbench eval /path/to/run（uvx programbench 或 pip 安装后）；推理基线用 mini-extra programbench（mini-swe-agent）",
+      "alt_harnesses": [
+        "mini-swe-agent（官方基线 scaffold，可换模型）"
+      ],
+      "pass_criteria": "单题所有隐藏行为测试全过才算 resolved；测试由 agent 驱动 fuzzing 生成，参考程序自身能全过"
+    },
+    "requirements": {
+      "tool_use": true,
+      "code_exec": true,
+      "vision": false,
+      "docker": true,
+      "gpu_required": false,
+      "min_context_tokens": "unknown",
+      "model_iface": "OpenAI 兼容 API（mini-swe-agent 基线；官方未强制特定协议）"
+    },
+    "cost": {
+      "tokens_per_task": "unknown（官方只公布平均 API 成本/题）",
+      "usd_per_full_run": "平均 $36.36/题（Opus 5.5）→ 200 题约 $7.3k；官方 FAQ 称个别 run 总成本达 $5k",
+      "wall_time_full_run": "unknown（官方未给；单题允许较长步数/时间，几乎不受 step 限制）",
+      "basis": "programbench.com 榜单 Cost 列（Average API cost in USD per benchmark task）与 FAQ 的 run 成本说明（2026-10-30 读取）"
+    },
+    "self_test": {
+      "feasibility": "medium",
+      "quick_smoke_subset": "先跑 1 个中等任务（如 ffmpeg__ffmpeg.360a402 或 jqlang__jq.b33a763）：用 dockerhub task_cleanroom_v6 镜像做推理，提交 submission.tar.gz 后 programbench eval 单实例目录",
+      "setup_commands": [
+        "# TODO verify（以下命令引自官方 README/docs，未在本机执行）",
+        "uvx programbench --help",
+        "uv tool install programbench   # 或 pip install programbench / uv pip install programbench",
+        "uv run programbench eval /path/to/my-amazing-agent-run",
+        "uv run programbench blob sync   # 预下载 HF 上的测试 blob（可选）"
+      ],
+      "gotchas": "① 所有镜像只构建 linux/amd64，Windows/macOS 不能原生跑（QEMU 模拟很慢），需 WSL2 或远程 Linux；② 推理容器必须断网，二进制只可执行不可读（objdump/strings/hexdump 会失败）；③ 每题平均 API 成本高（Opus 5.5 $36/题，200 题约 $7k）；④ eval 会按需拉 Docker 镜像和 HF 测试 blob，磁盘/带宽消耗大；⑤ 2026-10 时公开提交入口尚未开放（coming soon）。"
+    },
+    "sources": [
+      {
+        "url": "https://programbench.com/",
+        "note": "官方主页：200 题、24.8 万测试、Resolved/Almost resolved 指标、榜单与成本列、FAQ（禁网/禁反编译/防作弊）"
+      },
+      {
+        "url": "https://raw.githubusercontent.com/facebookresearch/ProgramBench/main/README.md",
+        "note": "快速开始命令、HF/Leaderboard 链接、MIT 许可说明"
+      },
+      {
+        "url": "https://raw.githubusercontent.com/facebookresearch/ProgramBench/main/docs/README.md",
+        "note": "使用指南：linux/amd64 限制、镜像 tag task_cleanroom_v6、submission.tar.gz 结构、eval 命令、blob sync"
+      },
+      {
+        "url": "https://raw.githubusercontent.com/facebookresearch/ProgramBench/main/LICENSE",
+        "note": "MIT License"
+      },
+      {
+        "url": "https://huggingface.co/api/datasets/programbench/ProgramBench-Tests",
+        "note": "HF 测试集元数据：license=mit、非 gated"
+      },
+      {
+        "url": "https://arxiv.org/abs/2605.03546",
+        "note": "论文：200 题、行为测试由 agent fuzzing 生成、9 个模型无一完全解出"
+      }
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": "babyvision",
+    "name": "BabyVision (v2, 2026-07)",
+    "name_zh": "BabyVision 婴儿级视觉推理基准",
+    "category": "vision",
+    "publisher": "UniPat AI（多机构作者合作）",
+    "release_date": "2026-01",
+    "homepage": "https://unipat.ai/benchmarks/BabyVision",
+    "paper": "https://arxiv.org/abs/2601.06521",
+    "repo": "https://github.com/UniPat-AI/BabyVision",
+    "leaderboard": "https://unipat.ai/benchmarks/BabyVision",
+    "data_access": {
+      "public": "yes",
+      "url": "https://huggingface.co/datasets/UnipatAI/BabyVision",
+      "license": "MIT",
+      "size_tasks": 388,
+      "size_note": "388 题 / 22 子类 / 4 大类（Fine-grained Discrimination、Visual Tracking、Spatial Perception、Visual Pattern Recognition）；HF 单一 train split；GitHub data/babyvision_data.zip 约 48MB（实测 Content-Length 50,125,541 字节）；另有 BabyVision-Gen 280 题（图像生成标注轨，单独数据集 UnipatAI/BabyVision-Gen）。"
+    },
+    "what_it_tests": "测不依赖语言先验的核心视觉能力：细粒度辨别（找不同/找相同/找阴影）、视觉追踪（迷宫、地铁图、连线）、空间感知（3D 视图、立方体展开、折纸、数积木）、视觉模式识别（逻辑/旋转/镜像/叠加/补全）。题目号称 3 岁小孩可解，但前沿 MLLM 远低于人类（成人基线 94.1；2026-01 最强 Gemini3-Pro-Preview 49.7）。",
+    "task_example": "一张图 + 一个问题（ansType=blank 或 choice），例如“哪张图与其余不同？”“沿迷宫从起点走到终点的顺序是？”；模型输出 \\boxed{答案}（选择题输出字母），LLM judge 判断与金标是否语义等价。",
+    "scoring": {
+      "metric": "accuracy（论文为 Avg@3：3 次随机 pass 的均值±std；代码 NUM_PASSES 默认 3）",
+      "judge": "LLM-judge",
+      "harness_official": "官方 babyvision_eval：python evaluate_model.py（run_inference.sh 包装）→ python compute_score.py 聚合；数据+代码在 GitHub",
+      "alt_harnesses": [
+        "VLMEvalKit（vlmeval/dataset/babyvision.py，已核实：--data BabyVision，默认 judge gpt-5.2）"
+      ],
+      "pass_criteria": "LLM judge 对比模型最终答案与 ground truth 的语义等价性（True/False）→ 单题二值；总体 accuracy=correct/388，可按 type/subtype 细分，多次 pass 取 mean±std。"
+    },
+    "requirements": {
+      "tool_use": false,
+      "code_exec": false,
+      "vision": true,
+      "docker": false,
+      "gpu_required": false,
+      "min_context_tokens": "unknown",
+      "model_iface": "OpenAI 兼容 API（默认 OpenRouter 端点）；图片输入 + \\boxed{} 输出；需另一个 LLM 作 judge"
+    },
+    "cost": {
+      "tokens_per_task": "unknown（官方未公布；单题 1 图 + 短问，3 passes）",
+      "usd_per_full_run": "unknown（官方未给。估算公式：388 题 × 3 passes ≈1164 次模型调用 + 1164 次 judge 调用；按你的模型单价 × token 用量 + judge 费用）",
+      "wall_time_full_run": "unknown（官方 NUM_PROCESSES 默认 8，全量 1164 次生成，API 并发下粗估 1–3 小时，属估算）",
+      "basis": "题量 388 × 默认 NUM_PASSES=3（README 实测字段）；无官方成本数据，只给公式；另见 notes.md 的 DeepSeek 价目估算"
+    },
+    "self_test": {
+      "feasibility": "easy",
+      "quick_smoke_subset": "抽 30–50 题、NUM_PASSES=1 跑一遍（约 1 分钟级至十几分钟，取决于 API）；全量 388 题 × 3 passes ≈1164 次生成 + 1164 次 judge。",
+      "setup_commands": [
+        "# TODO verify 以下命令摘自官方 README/babyvision_eval/README，未在本机执行（需 API key）",
+        "git clone https://github.com/UniPat-AI/BabyVision && cd BabyVision",
+        "unzip data/babyvision_data.zip -d data/",
+        "pip install -r requirements.txt",
+        "cd babyvision_eval",
+        "export MODEL_API_KEY=<key> MODEL_BASE_URL=https://openrouter.ai/api/v1 MODEL_NAME=<model>",
+        "export JUDGE_API_KEY=<key> JUDGE_BASE_URL=https://openrouter.ai/api/v1 JUDGE_MODEL_NAME=openai/gpt-5.2",
+        "bash run_inference.sh",
+        "python compute_score.py results/model_results_run_*.json"
+      ],
+      "gotchas": "（1）judge 很关键：论文用 Qwen3-Max 作 judge（自称与人工 100% 一致），官方代码默认 openai/gpt-5.2；换便宜 judge 会改变分数，务必固定 judge 模型与版本。（2）指标是 Avg@3（NUM_PASSES 默认 3），单跑 1 次和榜单不可比。（3）模型卡 BabyVision (w/tools) 92.5 不是官方默认协议：官方 protocol 无工具；模型卡/技术报告用 Claude Code harness + 512k context（DeepSeek-V4.1 技术报告 §5.3.1，Table 3 以 Pass@1 报 BabyVision w/tools）；官方 leaderboard 另有标注 “(with tools)”/“(with Python tools)” 的提交（例：Qwen3.8-Max w/tools 91.3 vs 无工具 82.0；Kimi K3 with Python tools 85.7），各家工具集不同，分数不可直接横比。（4）答案有 blank/choice 两种，choice 要输出选项字母（A/B/C…），格式错了会被 judge 判错。（5）MIT 许可，数据可自由下载，但代码仓库 README 写 “released for research purposes”。（6）图片是谜题类，模型必须先“看清图”，thinking 模式默认开启时更接近论文设置。"
+    },
+    "sources": [
+      {
+        "url": "https://arxiv.org/abs/2601.06521",
+        "note": "标题/作者/日期（v1 2026-01-10，v2 2026-07-07）/摘要：388 题、22 子类、4 类、人类 94.1、Gemini3-Pro 49.7、GitHub 与数据链接"
+      },
+      {
+        "url": "https://arxiv.org/html/2601.06521v2",
+        "note": "全文：388 题构成、Avg@3、judge=Qwen3-Max、最高推理预算、BabyVision-Gen 280 题与 Gemini-3-Flash judge"
+      },
+      {
+        "url": "https://github.com/UniPat-AI/BabyVision",
+        "note": "官方 README：目录结构、MLLM 评测与生成评测两轨、快速开始、judge 默认 openai/gpt-5.2、\\boxed{} 输出、许可说明"
+      },
+      {
+        "url": "https://raw.githubusercontent.com/UniPat-AI/BabyVision/main/babyvision_eval/README.md",
+        "note": "官方评测命令与环境变量（MODEL_/JUDGE_ API、NUM_PASSES=3、NUM_PROCESSES=8、compute_score.py）"
+      },
+      {
+        "url": "https://huggingface.co/datasets/UnipatAI/BabyVision",
+        "note": "HF 数据卡：license MIT、388 samples 单 train split、字段（ansType/choiceAns/blankAns/coT 等）"
+      },
+      {
+        "url": "https://huggingface.co/api/datasets/UnipatAI/BabyVision",
+        "note": "HF API：数据公开未 gated、downloads、tags 含 license:mit"
+      },
+      {
+        "url": "https://unipat.ai/benchmarks/BabyVision",
+        "note": "官方 leaderboard：含 “(with tools)”“(with Python tools)” 标注条目（Qwen3.8-Max w/tools 91.3、Kimi K3 with Python tools 85.7 等）；无工具条目与工具条目混排，未见工具协议说明"
+      },
+      {
+        "url": "https://unipat.ai/blog/BabyVision",
+        "note": "官方博客：人类基线 94.1、失败模式分析、BabyVision-Gen 与自动评测量化"
+      },
+      {
+        "url": "https://raw.githubusercontent.com/open-compass/VLMEvalKit/main/vlmeval/dataset/babyvision.py",
+        "note": "VLMEvalKit 已支持 BabyVision：--data BabyVision，数据从官方 GitHub zip 下载，默认 judge gpt-5.2"
+      },
+      {
+        "url": "https://huggingface.co/deepseek-ai/DeepSeek-V4.1-Flash-1017/raw/main/README.md",
+        "note": "官方模型卡：BabyVision (w/tools)=92.5（自报；协议见同系列技术报告 §5.3.1）"
+      },
+      {
+        "url": "https://huggingface.co/deepseek-ai/DeepSeek-V4.1-Flash/blob/main/DeepSeek_V41_Tech_Report.pdf",
+        "note": "DeepSeek-V4.1 技术报告：§5.3.1 视觉 agent（Chartography/BabyVision/ZeroBench main set）统一用 Claude Code harness + 512k context、temperature 1.0、top-p 0.95；Table 3 报 BabyVision w/tools (Pass@1)"
+      }
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": "chartography",
+    "name": "Chartography (v1, 2026-08)",
+    "name_zh": "Chartography 专业图表理解基准",
+    "category": "vision",
+    "publisher": "Surge AI",
+    "release_date": "2026-08",
+    "homepage": "https://surgehq.ai/benchmarks/chartography",
+    "paper": "https://arxiv.org/abs/2608.10677",
+    "repo": "https://github.com/surge-ai/chartography",
+    "leaderboard": "https://surgehq.ai/benchmarks/chartography",
+    "data_access": {
+      "public": "partial",
+      "url": "https://huggingface.co/datasets/surgeai/chartography",
+      "license": "unknown",
+      "size_tasks": 100,
+      "size_note": "100 个 task-image 记录，12 个专业领域标签（STEM 各工程子领域/金融/制造/医疗等）；98 个去重图片文件（80 PNG、18 JPG、2 WebP），图片面积中位数 0.66MP；51 题金标带专家可接受区间。论文 §4.1 为每任务 20 trials（100×20=2000 次评分），官方 README 的 leaderboard 复现配置为每任务 10 epochs。"
+    },
+    "what_it_tests": "测专业场景的图表阅读能力：在稀疏坐标轴上估读数值、在等值线/曲线间插值、追踪细线或重叠的流线（Sankey）、解读投影 3D 几何、遵守领域惯例（如该用哪条百分位曲线、能否外推）。图表是 Kaplan-Meier 曲线、K 线、等值线图、Bode 图、风玫瑰、控制图等专业格式，而非普通柱状/折线/饼图。题目由各领域执业专家撰写并经 3 位专家独立复核，考的是“看图”而不是查标签。",
+    "task_example": "给一张专业图（如结构工程的风压等值线图）并问：“该建筑的设计风速是多少 mph？”；专家金标可带区间（例：140–150 mph，示意自论文）。模型只在单条 user message 里拿到题面+图片，自由文本作答；judge 只拿题面、金标、模型回答（不看图），判断回答是否落在专家区间/集合内。",
+    "scoring": {
+      "metric": "mean pass@1（100 题 × 每任务多次试验的二值结果取均值）",
+      "judge": "LLM-judge",
+      "harness_official": "Inspect AI 官方 harness（src/chartography/task.py，solver=generate()）；leaderboard 配置：100 题 × 10 epochs、judge=google/gemini-3.5-flash",
+      "alt_harnesses": [],
+      "pass_criteria": "judge 只看题面/金标/回答（不看图）：数值落在专家区间（含端点）内即对，无区间则需与金标一致（允许舍入/等价写法）；分类答案集合需完全一致；多部分答案全对才算 1；一次试验=一次二值，最终报告多次试验的 mean pass@1。"
+    },
+    "requirements": {
+      "tool_use": false,
+      "code_exec": false,
+      "vision": true,
+      "docker": false,
+      "gpu_required": false,
+      "min_context_tokens": "unknown",
+      "model_iface": "Inspect AI generate() 支持的 provider API（Anthropic/Google/OpenAI 等）；本地模型需自行接 OpenAI 兼容端点"
+    },
+    "cost": {
+      "tokens_per_task": "unknown（官方未公布；图片中位 0.66MP，单次试验 1 次模型调用 + 1 次 judge 调用）",
+      "usd_per_full_run": "unknown（官方未给成本。估算公式：100 题 × 10 次试验 × 单次调用 tokens × 你的模型单价 + 1000 次 Gemini 3.5 Flash judge 费用）",
+      "wall_time_full_run": "unknown（1000 次生成 + 1000 次 judge；API 并发下粗估数十分钟到数小时，属估算）",
+      "basis": "题量 100 × README 的 leaderboard 10 epochs；官方无成本字段，只给公式，不做数字断言"
+    },
+    "self_test": {
+      "feasibility": "hard",
+      "quick_smoke_subset": "官方 sample pack 只有 2 个假任务（task_packs/sample_charts，manifest 明确写 not part of the released dataset），可用于离线跑通 harness 与 scorer；真实 100 题必须拿到 HF 数据集，当前匿名不可得。",
+      "setup_commands": [
+        "# TODO verify 以下命令均摘自官方 GitHub README / pyproject，未在本机执行（需 API key，且完整数据需 HF 授权）",
+        "# 官方依赖：Python>=3.11 + uv + inspect-ai>=0.3.244（见 pyproject.toml）",
+        "git clone https://github.com/surge-ai/chartography && cd chartography",
+        "# 用 2 个假任务冒烟（不需要真实数据集）",
+        "uv run inspect eval src/chartography/task.py -T limit=1 --model anthropic/claude-opus-4-8 -T judge_model=google/gemini-3.5-flash --max-connections 8",
+        "# 完整 100 题（需要能访问 HF 数据集 surgeai/chartography；当前匿名 401，见 notes）",
+        "uv run inspect eval src/chartography/task.py --model <your-model> --epochs 10 --epochs-reducer \"mean,pass_at_10,at_least_10\" -T judge_model=google/gemini-3.5-flash -T hf_repo=surgeai/chartography"
+      ],
+      "gotchas": "（1）最大门槛是数据：论文/HF 卡声称已发布 100 题到 huggingface.co/datasets/surgeai/chartography，但 2026-10-30 匿名访问该 HF dataset 返回 HTTP 401、HF 数据集搜索也搜不到 surgeai/chartography，GitHub 只含 harness + 2 个假任务 → 真实 100 题/图片当前拿不到（需联系 benchmarks@surgehq.ai 或 HF 授权，获取方式未核实）。（2）官方协议明确“no tools”：论文 §3“no external data, browsing, or tools are permitted”、§4.1“no tools (no code execution, cropping, or zooming)”，README 也写 “chart attached inline, no tools”。模型卡里的 Chartography (w/tools) 83.0 用的是厂商自建 agent 协议：DeepSeek-V4.1 技术报告 §5.3.1 写明“视觉 agent 任务统一用 Claude Code harness + 512k context、temperature 1.0、top-p 0.95”，Table 3 以 Pass@1 报 Chartography w/tools；该口径不是官方 no-tools 榜单，不可直接比：官方 Chartography 榜上 DeepSeek V4.1 Flash (Max reasoning) 只有 11.6%。（3）judge 固定为 Gemini 3.5 Flash 且 judge 是 leaderboard 中一个被测配置（自评条件），换 judge 会改变分数。（4）论文 20 trials vs README leaderboard 10 epochs，两套配置别混用。（5）数据集许可未确认（repo 无 LICENSE 文件，HF 页拿不到）。（6）VLMEvalKit 未支持 Chartography（已核实 vlmeval/dataset/__init__.py 无 chartography 导入），只能走官方 Inspect AI harness。"
+    },
+    "sources": [
+      {
+        "url": "https://arxiv.org/abs/2608.10677",
+        "note": "标题/作者/日期（2026-08-11，ECCV 2026 BEAM workshop）/摘要：100 题、30 个模型配置、最佳 45.0% mean pass@1、放出全部任务与代码"
+      },
+      {
+        "url": "https://arxiv.org/html/2608.10677v1",
+        "note": "全文：§3 “no external data, browsing, or tools”、§4.1 “no tools (no code execution, cropping, or zooming)”、§4.2 judge=Gemini 3.5 Flash 且 judge 不看图、§4.3 mean pass@1、20 trials、51 题带区间等"
+      },
+      {
+        "url": "https://github.com/surge-ai/chartography",
+        "note": "官方 harness README：Inspect AI、sample pack、judge_model=google/gemini-3.5-flash、Pass@K/Pass^K 命令、leaderboard 10 epochs 配置"
+      },
+      {
+        "url": "https://raw.githubusercontent.com/surge-ai/chartography/main/src/chartography/task.py",
+        "note": "task 定义：solver=generate()（无 tools），默认 judge google/gemini-3.5-flash"
+      },
+      {
+        "url": "https://raw.githubusercontent.com/surge-ai/chartography/main/task_packs/sample_charts/manifest.yaml",
+        "note": "sample pack 说明：“two dummy tasks ... not part of the released dataset”"
+      },
+      {
+        "url": "https://raw.githubusercontent.com/surge-ai/chartography/main/pyproject.toml",
+        "note": "依赖要求：python>=3.11、inspect-ai>=0.3.244、datasets、huggingface-hub 等（供 setup_commands 核实）"
+      },
+      {
+        "url": "https://surgehq.ai/benchmarks/chartography",
+        "note": "官方 leaderboard：当前第一 71.6%（Gemini 4 Argon）；DeepSeek V4.1 Flash (Max reasoning) 11.6%；无工具赛道"
+      },
+      {
+        "url": "https://surgehq.ai/blog/chartography",
+        "note": "官方博客：题源、12 领域、专家复核、最佳 45%、失败模式；未提及工具赛道"
+      },
+      {
+        "url": "https://huggingface.co/datasets/surgeai/chartography",
+        "note": "unreachable（2026-10-30 匿名访问 HTTP 401；HF API 同 401，搜索无结果）"
+      },
+      {
+        "url": "https://raw.githubusercontent.com/open-compass/VLMEvalKit/main/vlmeval/dataset/__init__.py",
+        "note": "VLMEvalKit 数据集注册表：有 BabyVision、ZEROBench，但无 Chartography → 说明 VLMEvalKit 不支持 Chartography（只能用官方 Inspect AI harness）"
+      },
+      {
+        "url": "https://huggingface.co/deepseek-ai/DeepSeek-V4.1-Flash-1017/raw/main/README.md",
+        "note": "官方模型卡：表格写 Chartography (w/tools)=83.0、BabyVision (w/tools)=92.5、ZeroBench-main (w/tools)=51.0；这几行 w/tools 的协议见同系列技术报告 §5.3.1"
+      },
+      {
+        "url": "https://huggingface.co/deepseek-ai/DeepSeek-V4.1-Flash/blob/main/DeepSeek_V41_Tech_Report.pdf",
+        "note": "DeepSeek-V4.1 技术报告（51 页，实测可下载）：§5.3.1 “视觉 agent 任务（Chartography/BabyVision/ZeroBench main set）用 Claude Code harness + 512k context、temperature 1.0、top-p 0.95”；Table 3 以 w/tools 口径报三项（Chartography Pass@1、BabyVision Pass@1、ZeroBench-main Pass@5）；附录 B.1 定义 DeepSeek Harness 的 Minimal 模式=单 bash 工具"
+      }
+    ],
+    "confidence": "medium"
+  },
+  {
+    "id": "zerobench",
+    "name": "ZeroBench (v3, 2026-07)",
+    "name_zh": "ZeroBench 视觉推理基准（main 主集）",
+    "category": "vision",
+    "publisher": "University of Cambridge 等（Jonathan Roberts、Mohammad Reza Taesiri 等 46 位作者）",
+    "release_date": "2025-02",
+    "homepage": "https://zerobench.github.io",
+    "paper": "https://arxiv.org/abs/2502.09696",
+    "repo": "https://github.com/jonathan-roberts1/zerobench",
+    "leaderboard": "https://zerobench.github.io",
+    "data_access": {
+      "public": "yes",
+      "url": "https://huggingface.co/datasets/jonathan-roberts1/zerobench",
+      "license": "MIT（GitHub 代码仓库 LICENSE）；HF 数据卡未单独标注 license，且为 gated，需同意“不公开答案/不用于训练”条款",
+      "size_tasks": 100,
+      "size_note": "main 100 题 + subquestions 334 题（subquestions 是每题拆出的推理步骤子问题，与 main 共用同一批图片）；单图题 93 / 多图题 7；合成图 30 / 自然图 70；HF 数据卡 metadata 显示 download_size≈191MB；v1(2025-02)→v2(2025-03)→v3(2025-12 题面; arXiv v3 2026-07)。"
+    },
+    "what_it_tests": "高难、多步的“真看图”推理：题目经过对抗式筛选，发布时前沿模型 pass@1/pass^5 全为 0。覆盖象棋记谱、菜单/地图读数、雪flake 体积估算、音乐谱号等，必须从图片中精确提取信息并多步计算，答案空间大、无法靠猜。",
+    "task_example": "论文例：给一张国际象棋对局照片，问“最近一步（第 45 步）黑方移动了一个此前未动过的兵，图中局面的 FEN 是什么？”；模型需要读棋盘并输出精确 FEN。官方要求最终答案放在花括号里，如 {final answer}。",
+    "scoring": {
+      "metric": "Pass@1 / Pass@5 / Pass^5（5 次采样）",
+      "judge": "exact-match",
+      "harness_official": "无官方评测脚本（GitHub repo 仅 README/LICENSE/assets）；HF 数据卡 README 提供 pass@1 参考代码（正则取最后一次花括号内容后精确匹配），Pass@5 需自行做 5 次采样；leaderboard 由作者团队运行",
+      "alt_harnesses": [
+        "inspect_evals (UK AISI)：inspect eval inspect_evals/zerobench（内置 pass@k 与 k/k reliability）",
+        "VLMEvalKit：ZEROBench / ZEROBench_sub（exact match，仅 accuracy/pass@1）"
+      ],
+      "pass_criteria": "从模型回答里正则取最后一次 {...} 的内容，与 ground truth 精确匹配（官方实现会 lower-case 并比较长度/前缀，本质上要求完全一致）；格式错误/超长截断算错；Pass@1=单次采样平均正确率，Pass@5=5 次采样中至少 1 次答对的题目比例，Pass^5=5 次全对的题目比例。"
+    },
+    "requirements": {
+      "tool_use": false,
+      "code_exec": false,
+      "vision": true,
+      "docker": false,
+      "gpu_required": false,
+      "min_context_tokens": "unknown",
+      "model_iface": "任意多模态 chat API；按官方 prompt 输出 {final answer}；本地模型需自建推理循环（官方只给参考代码）"
+    },
+    "cost": {
+      "tokens_per_task": "官方 leaderboard 给 tokens/question（5 次采样合计）：约 3.7k–72.1k（Pixtral-Large 4.1k、GPT-6 Astra 16.8k、Claude Sonnet 5 72.1k 等）",
+      "usd_per_full_run": "官方 leaderboard 给 cost/question：约 $0.010–$1.11/题（Pixtral-Large $0.010、GPT-6 Luna $0.018、GPT-6 Sol $0.17、GPT-6 Astra $0.56、GPT-5.6 Sol $0.76、Claude Opus 5.5 $1.11）→ 100 题全量约 $1–$111（按官方榜模型价格，pass@5 口径）",
+      "wall_time_full_run": "unknown（100 题×5 次=500 次调用；不进工具、API 并发下通常 10–60 分钟量级，属估算）",
+      "basis": "官方 leaderboard 的 Mean per question 的 cost/tokens 列 × 100 题；不含自建 agent/工具 harness 的额外开销"
+    },
+    "self_test": {
+      "feasibility": "easy",
+      "quick_smoke_subset": "抽 50 题 × 1 次 greedy 采样估 pass@1（约几分钟到十几分钟）；要报 Pass@5 必须 100 题 × 5 次采样（≈500 次调用），并固定采样参数。",
+      "setup_commands": [
+        "# TODO verify 以下命令未在本机执行；HF 数据为 gated，需先登录并同意条款（或改用 VLMEvalKit 镜像/自行 5 次采样）",
+        "pip install datasets",
+        "python -c \"from datasets import load_dataset; d=load_dataset('jonathan-roberts1/zerobench', split='zerobench'); print(len(d))\"",
+        "# 替代框架（UK AISI inspect_evals，官方文档已核实；需 pip install inspect-ai inspect-evals）",
+        "inspect eval inspect_evals/zerobench --model <model> --max-tokens 16000 --temperature 0.7 --top-p 0.95",
+        "# 替代框架（VLMEvalKit，已核实支持 ZEROBench；默认走 opencompass 镜像 TSV）",
+        "python run.py --data ZEROBench --model <model> --verbose"
+      ],
+      "gotchas": "（1）HF 数据是 gated(auto)：需登录并“Acknowledge”不公开答案/不用于训练才能下载（含 canary string）；不登录直接 API 访问文件会 401。VLMEvalKit 用 opencompass 镜像 TSV，可绕过 gating，但镜像是否与 v3 同步未核实。（2）官方判分是精确匹配，不做语义判断；花括号格式、大小写、单位、有效数字错一点就算错，必须在 prompt 里严格约束输出格式。（3）Pass@5 需要 5 次采样：官方老模型用 temperature=0.7/top_p=0.95，新模型用默认参数；单次 greedy 只能报 pass@1。（4）官方 code repo 只有 README/LICENSE/assets，没有评测脚本，得自己写（参考 README 片段）或用 inspect_evals/VLMEvalKit；VLMEvalKit 只算 accuracy(=pass@1)，不内置 pass@5。（5）模型卡的 ZeroBench-main (w/tools)=51.0 是工具增强、5 samplings 的自报值：DeepSeek-V4.1 技术报告 §5.3.1 写明视觉 agent 任务用 Claude Code harness + 512k context、temperature 1.0、top-p 0.95，Table 3 以此口径报 Pass@5；ZeroBench 官方 externals 表也把它标注为 “Claude Code harness tools; 5 samplings”。官方主榜是 no-tools，两者不可直接比较。（6）“minimal” 不是 ZeroBench 子集：官方只定义 main(100) 与 subquestions(334)；DeepSeek 技术报告里的 “Minimal” 是 DeepSeek Harness (DSH) 的 Minimal 模式（单个 bash 工具，用于 code agent 评测，见附录 B.1），与 ZeroBench 无关。详见 notes.md。"
+    },
+    "sources": [
+      {
+        "url": "https://arxiv.org/abs/2502.09696",
+        "note": "标题/作者/日期（v1 2025-02-13，v3 2026-07-07，ICML 2026）/摘要：100 题、pass@1/pass^5 初始 0、SotA 6% pass^5 与 19% pass@5、46 个 LMM"
+      },
+      {
+        "url": "https://arxiv.org/html/2502.09696v3",
+        "note": "全文：100 main + 334 subquestions、单图/多图与合成/自然图统计、官方用精确匹配并逐个格式错误算错、o1 pro/QVQ 例外用 LLM 解析、人工基线与错误分析"
+      },
+      {
+        "url": "https://github.com/jonathan-roberts1/zerobench",
+        "note": "官方 README：100 题主集、pass@1/pass@5/pass^5 定义（over 5 samplings）、HF load_dataset 用法与图像下载、pass@1 参考代码、canary string、v1→v3 更新记录"
+      },
+      {
+        "url": "https://zerobench.github.io",
+        "note": "官方项目页与 leaderboard：main/subquestions 标签、pass@5/pass^5 定义（5 samplings）、官方 vs 外部报告双榜、工具辅助结果画成空心菱形、cost/question 与 tokens/question 数据、0.71% grading 修正说明"
+      },
+      {
+        "url": "https://huggingface.co/api/datasets/jonathan-roberts1/zerobench",
+        "note": "HF API：splits（zerobench 100 / zerobench_subquestions 334）、gated=auto、download_size≈191MB、门禁条款（不得公开答案/不得用于训练）"
+      },
+      {
+        "url": "https://ukgovernmentbeis.github.io/inspect_evals/evals/zerobench/index.html",
+        "note": "inspect_evals 的 ZeroBench 任务：inspect eval 命令、pass@K 与 k/k reliability、k=5、max-tokens 16000、temperature 0.7/top-p 0.95 等"
+      },
+      {
+        "url": "https://raw.githubusercontent.com/open-compass/VLMEvalKit/main/vlmeval/dataset/image_vqa.py",
+        "note": "VLMEvalKit 的 ZEROBench/ZEROBench_sub 实现：exact match、花括号解析、build_prompt（src 约 135311 起）"
+      },
+      {
+        "url": "https://raw.githubusercontent.com/open-compass/VLMEvalKit/main/vlmeval/dataset/__init__.py",
+        "note": "VLMEvalKit 注册表：ZEROBench 与 BabyVision 均在支持列表（说明不要用 Chartography 假设）"
+      },
+      {
+        "url": "https://www.llmreference.com/benchmark/zerobench-main-with-tools",
+        "note": "第三方追踪页（非官方）：ZeroBench-main w/ tools、指标 Pass@5；记录 DeepSeek 用 “Claude Code harness + 512k context”，Kimi 用 python 工具 → 说明 with-tools 协议因模型而异"
+      },
+      {
+        "url": "https://huggingface.co/deepseek-ai/DeepSeek-V4.1-Flash-1017/raw/main/README.md",
+        "note": "官方模型卡：ZeroBench-main (w/tools)=51.0；同表其余行可在 ZeroBench 官方 externals 表核对到（GPT-5.6 Sol 53.0、Claude Opus 5 52.0、Kimi K3 41.0），来源标注为 DeepSeek 模型卡 + Claude Code harness tools + 5 samplings"
+      },
+      {
+        "url": "https://huggingface.co/deepseek-ai/DeepSeek-V4.1-Flash/blob/main/DeepSeek_V41_Tech_Report.pdf",
+        "note": "DeepSeek-V4.1 技术报告：§5.3.1 视觉 agent 任务（含 ZeroBench main set）用 Claude Code harness + 512k context、temperature 1.0、top-p 0.95；Table 3 以 Pass@5 报 ZeroBench-main w/tools；附录 B.1 说明 “Minimal” 是 DeepSeek Harness 的单个 bash 工具模式（code agent 用），与 ZeroBench 子集无关"
+      }
+    ],
+    "confidence": "high"
+  }
+]

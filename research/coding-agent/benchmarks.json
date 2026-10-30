@@ -1,0 +1,264 @@
+[
+  {
+    "id": "terminal-bench-4-0",
+    "name": "Terminal-Bench 4.0 (v4.0.0)",
+    "name_zh": "终端智能体基准 4.0",
+    "category": "agent",
+    "publisher": "Stanford / Harbor / Laude Institute",
+    "release_date": "2026-08",
+    "homepage": "https://www.tbench.ai/",
+    "paper": "unknown（官方只有博客与仓库，未见论文/技术报告）",
+    "repo": "https://github.com/harbor-framework/terminal-bench",
+    "leaderboard": "https://hub.harborframework.com/datasets/terminal-bench/terminal-bench/latest?tab=leaderboard&leaderboard=4-0-0",
+    "data_access": {
+      "public": "yes",
+      "url": "数据集（含 tasks/verifiers/solutions）：https://hub.harborframework.com/datasets/terminal-bench/terminal-bench/4 ；代码与发布包：https://github.com/harbor-framework/terminal-bench/releases/tag/v4.0.0",
+      "license": "Apache-2.0（GitHub 仓库 LICENSE）",
+      "size_tasks": 66,
+      "size_note": "v4.0.0：3.0 的 74 题删 8 题（饱和/拒答/公开答案/质量问题）、修 19–20 题后为 66 题；覆盖 software、science、ML、operations、security、hardware、media 等领域"
+    },
+    "what_it_tests": "在容器化终端环境里完成真实工程任务：写代码、跑命令、改文件、调试环境，覆盖面从软件工程到科学计算、ML、运维、安全、硬件与媒体。官方把它定位为「连续基准」，每季度左右删题/加题并重新校准资源，用语义化版本号区分「重跑/重判/可复用」。部分任务需要 GPU。",
+    "task_example": "给 agent 一个容器和一条任务说明（如修复某个仓库的 bug、优化某段代码、复现一个实验），agent 用 shell/文件工具自由操作；结束时由容器内 verifier 跑测试或检查产物，返回该题通过/失败。",
+    "scoring": {
+      "metric": "resolve rate（66 题通过率；官方榜单为 5 次运行平均 + 95% CI）",
+      "judge": "unit-tests",
+      "harness_official": "Harbor：harbor run -d terminal-bench/terminal-bench@4.0.0 -e modal -a <agent> -m <model> -k 5",
+      "alt_harnesses": [],
+      "pass_criteria": "每题由任务自带 verifier（测试/检查脚本）判定通过；整轮取通过题数占比，官方榜单跑 k=5 次取平均"
+    },
+    "requirements": {
+      "tool_use": true,
+      "code_exec": true,
+      "vision": false,
+      "docker": true,
+      "gpu_required": true,
+      "min_context_tokens": "unknown",
+      "model_iface": "Harbor 的 agent/model 配置（通过各家 provider 调用模型；具体协议未核实）"
+    },
+    "cost": {
+      "tokens_per_task": "unknown（官方榜单给整轮合计 tokens：约 8.9 亿–194 亿 / 330 trials）",
+      "usd_per_full_run": "整轮（5×66 trials）约 $634–$7,334（2026-10 榜单不同模型；Opus 5.5 max 为 $4,718.65）",
+      "wall_time_full_run": "单 trial 平均约 1,684–7,432 秒（榜单数据）；官方用 Modal 高并发，整轮现实耗时约数小时，取决于并发与 GPU 配额",
+      "basis": "tbench.ai 首页内嵌 leaderboard JSON：n_trials=330、total_cost_usd、total_tokens、avg_trial_duration_sec（2026-10-30 读取）"
+    },
+    "self_test": {
+      "feasibility": "hard",
+      "quick_smoke_subset": "先用 --agent oracle 跑单题验证 sandbox 环境是否正常，再抽 5–10 题、只跑 1 次；GPU 题需要 GPU sandbox（官方用 Modal，Daytona 也支持 GPU）",
+      "setup_commands": [
+        "# TODO verify（以下命令引自官方 Run 页，未在本机执行）",
+        "uv tool install 'harbor[modal]'",
+        "harbor run -d terminal-bench/terminal-bench@4.0.0 -e modal -a claude-code -m anthropic/claude-sonnet-5 -k 5",
+        "harbor view jobs"
+      ],
+      "gotchas": "① 有 GPU 任务，普通无 GPU 的 Docker 跑不全；② 官方榜单是 66 题 × 5 次，闭源 frontier 整轮 $0.6k–$7k；③ Epoch AI 2026-09 复核认为 4.0.0 有 30/66 题存在奖励 hack、答案泄漏、假阴/假阳等评分缺陷（评为 Flawed）；④ 单题超时上限 8 小时；⑤ 连续基准版本更新快，必须锁 4.0.0，否则结果不可比。"
+    },
+    "sources": [
+      {"url": "https://www.tbench.ai/", "note": "官方主页；内嵌 leaderboard JSON（n_trials=330、cost、tokens、avg trial 时长）"},
+      {"url": "https://www.tbench.ai/run", "note": "运行命令、Harbor 安装、GPU/Modal 要求、上传结果"},
+      {"url": "https://www.tbench.ai/news/terminal-bench-4-0", "note": "4.0 变更：删 8 题、修 19 题、8 小时超时、语义化版本约定"},
+      {"url": "https://raw.githubusercontent.com/harbor-framework/terminal-bench/main/README.md", "note": "官方仓库说明、oracle 验证建议、运行示例"},
+      {"url": "https://raw.githubusercontent.com/harbor-framework/terminal-bench/main/LICENSE", "note": "Apache-2.0"},
+      {"url": "https://api.github.com/repos/harbor-framework/terminal-bench/releases", "note": "v4.0.0 发布于 2026-08-26；v3.0 初始 74 题；4.0 删 8 题清单"},
+      {"url": "https://epoch.ai/benchmarks/terminal-bench-4/review", "note": "第三方复核：66 题、30/66 有评分缺陷、Flawed 结论（2026-09-04）"},
+      {"url": "https://hub.harborframework.com/datasets/terminal-bench/terminal-bench/4", "note": "官方数据集入口（页面 JS 渲染，仅确认可达）"}
+    ],
+    "confidence": "medium"
+  },
+  {
+    "id": "deepswe-v1-1",
+    "name": "DeepSWE v1.1",
+    "name_zh": "DeepSWE 代码修复基准 v1.1",
+    "category": "swe",
+    "publisher": "Datacurve",
+    "release_date": "2026-06（v1 为 2026-05）",
+    "homepage": "https://deepswe.datacurve.ai/",
+    "paper": "https://arxiv.org/abs/2607.07946",
+    "repo": "https://github.com/datacurve-ai/deep-swe",
+    "leaderboard": "https://deepswe.datacurve.ai/",
+    "data_access": {
+      "public": "partial",
+      "url": "任务定义公开在 GitHub：https://github.com/datacurve-ai/deep-swe（tasks/ 目录，含 task.toml、instruction.md、environment/Dockerfile、tests/）；HF 数据集 https://huggingface.co/datasets/datacurve/deep-swe 为 gated(auto)，需登录接受条款",
+      "license": "Apache-2.0（代码仓库）；HF 数据集卡片未标 license=unknown",
+      "size_tasks": 113,
+      "size_note": "113 道原创长程 SWE 任务，来自 91 个活跃开源仓库，覆盖 TypeScript / Go / Python / JavaScript / Rust 五种语言"
+    },
+    "what_it_tests": "在真实开源仓库里完成「原创、长程」的工程改动：不是挖历史 PR 修复，而是从零编写、未回贡给上游的任务，参考解平均触及的代码量约为 SWE-Bench Pro 的 5.5 倍。重点考察定位、跨文件修改与验证能力。",
+    "task_example": "给 agent 一个仓库快照 + 一段英文 issue/需求（instruction.md），agent 在容器内改代码并 commit；随后把 commit 以 patch 形式应用到干净容器，跑手写行为 verifier。",
+    "scoring": {
+      "metric": "Pass@1（binary reward；另报 pass fraction、out tokens、steps、avg cost）",
+      "judge": "unit-tests",
+      "harness_official": "Pier + mini-swe-agent：pier run -p deep-swe/tasks --agent mini-swe-agent --model <provider/model>（v1.1 需 datacurve-pier > 0.3.0）",
+      "alt_harnesses": ["claude-code", "codex", "gemini-cli", "opencode（均为 Pier 内置 agent，可替换 mini-swe-agent）"],
+      "pass_criteria": "手写行为 verifier 只检查 prompt 描述的可观察行为，接受任何实现；binary reward 通过/不通过，同时给出 pass fraction"
+    },
+    "requirements": {
+      "tool_use": true,
+      "code_exec": true,
+      "vision": false,
+      "docker": true,
+      "gpu_required": false,
+      "min_context_tokens": "unknown",
+      "model_iface": "Pier + mini-swe-agent 的 provider/model 字符串（如 anthropic/…、openai/…）；底层是否 LiteLLM 未核实"
+    },
+    "cost": {
+      "tokens_per_task": "官方博客给每模型 avg cost/任务与输出 tokens（如 gpt-6-astra $4.43、输出 30k；Opus 5 max $11.84、输出 118k），未给 tokens/任务",
+      "usd_per_full_run": "113 题单轮约 $27–$1,515（按官方每任务平均成本 $0.24–$13.41 × 113；未含重试）",
+      "wall_time_full_run": "unknown（官方未给总时长；榜单有 avg steps 29–166）",
+      "basis": "DeepSWE v1.1 博客的 \"Avg cost per task\" 表（2026-10-30 读取）× 113 题"
+    },
+    "self_test": {
+      "feasibility": "medium",
+      "quick_smoke_subset": "pier run -p deep-swe/tasks --agent mini-swe-agent --n-tasks 10 --sample-seed 0（官方提供的确定性抽样）；或单题 -p deep-swe/tasks/<task-id>",
+      "setup_commands": [
+        "# TODO verify（以下命令引自官方 Run 页与仓库 README，未在本机执行）",
+        "git clone https://github.com/datacurve-ai/deep-swe",
+        "uv tool install datacurve-pier   # v1.1 独立 verifier 环境要求 Pier > 0.3.0",
+        "export ANTHROPIC_API_KEY=...     # 换成实际 provider key",
+        "pier run -p deep-swe/tasks --agent mini-swe-agent --model anthropic/claude-opus-4-8",
+        "pier run -p deep-swe/tasks --agent mini-swe-agent --n-tasks 10 --sample-seed 0"
+      ],
+      "gotchas": "① HF 数据集 gated(auto)，要 HF 账号接受条款才能拿 parquet/轨迹，但任务定义在 GitHub 公开，理论上可绕过 HF；② v1.1 判分改为「独立干净容器 + [[verifier.collect]] 取 commit」，必须 Pier > 0.3.0，旧版会判错；③ 首跑需拉取各任务预构建镜像（Docker 空间/带宽大，有文档提到预拉 ECR 镜像）；④ 官方模型卡写 Mini-SWE-V2 harness、官方文档用 mini-swe-agent，口径不一致，跨来源比分数时要注明；⑤ 成本差异极大（$0.24–$13.41/题），先跑 10 题估算。"
+    },
+    "sources": [
+      {"url": "https://deepswe.datacurve.ai/run", "note": "官方运行入口：Pier 命令、Harbor 兼容、子集抽样、单题运行"},
+      {"url": "https://deepswe.datacurve.ai/data/v1.1", "note": "公开的 trial 结果浏览（tasks/trials/heatmap）；确认 113 题"},
+      {"url": "https://deepswe.datacurve.ai/blog/deepswe-v1-1", "note": "v1.1 变更（干净容器判分）、113 题、Pass@1、avg cost per task 表"},
+      {"url": "https://raw.githubusercontent.com/datacurve-ai/deep-swe/main/README.md", "note": "任务格式（task.toml/instruction.md/environment/tests/solution）、verifier 输出、v1.1 判分流程"},
+      {"url": "https://raw.githubusercontent.com/datacurve-ai/deep-swe/main/LICENSE", "note": "Apache-2.0（代码仓库）"},
+      {"url": "https://huggingface.co/api/datasets/datacurve/deep-swe", "note": "HF 数据集元数据：gated=auto、113 题、无 license 字段"},
+      {"url": "https://arxiv.org/abs/2607.07946", "note": "论文：113 题、91 仓库、5 语言、行为 verifier 与 LLM judge 1.4% 分歧"}
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": "programbench",
+    "name": "ProgramBench",
+    "name_zh": "程序重建基准",
+    "category": "nl2code",
+    "publisher": "Meta Superintelligence Labs / Stanford University / Harvard University",
+    "release_date": "2026-05（论文 2026-05-05；榜单更新 2026-10-22）",
+    "homepage": "https://programbench.com/",
+    "paper": "https://arxiv.org/abs/2605.03546",
+    "repo": "https://github.com/facebookresearch/ProgramBench",
+    "leaderboard": "https://programbench.com/",
+    "data_access": {
+      "public": "yes",
+      "url": "测试集（MIT）：https://huggingface.co/datasets/programbench/ProgramBench-Tests ；运行镜像（tag task_cleanroom_v6）：https://hub.docker.com/orgs/programbench/repositories ；代码/评测 CLI：https://github.com/facebookresearch/ProgramBench",
+      "license": "MIT（GitHub 仓库 LICENSE 与 HF 测试集均标 MIT）",
+      "size_tasks": 200,
+      "size_note": "200 个程序（从 jq/ripgrep 这类小工具到 FFmpeg、SQLite、PHP 解释器），共 24.8 万+ 条 agent 生成的行为测试；同一份通用 harness（mini-swe-agent），不做每题调参"
+    },
+    "what_it_tests": "只看编译后二进制 + 文档，在无源码、禁反编译、禁联网的容器里从零重建整个程序：自己选语言、做架构、写全部源码和构建脚本，最终行为要与原程序一致。测的是端到端软件设计与实现能力，而不是补丁或单文件生成。",
+    "task_example": "容器里给一个可执行文件（只可执行、不可读）和文档；agent 观察程序行为（可任意输入）后从零写代码，最终提交整个 codebase 的 submission.tar.gz；评测端用隐藏行为测试对比候选程序与原程序。",
+    "scoring": {
+      "metric": "Resolved（该题全部测试通过的比例，主指标）；辅助 Almost resolved（≥95% 测试通过）与平均测试通过率",
+      "judge": "unit-tests",
+      "harness_official": "programbench eval /path/to/run（uvx programbench 或 pip 安装后）；推理基线用 mini-extra programbench（mini-swe-agent）",
+      "alt_harnesses": ["mini-swe-agent（官方基线 scaffold，可换模型）"],
+      "pass_criteria": "单题所有隐藏行为测试全过才算 resolved；测试由 agent 驱动 fuzzing 生成，参考程序自身能全过"
+    },
+    "requirements": {
+      "tool_use": true,
+      "code_exec": true,
+      "vision": false,
+      "docker": true,
+      "gpu_required": false,
+      "min_context_tokens": "unknown",
+      "model_iface": "OpenAI 兼容 API（mini-swe-agent 基线；官方未强制特定协议）"
+    },
+    "cost": {
+      "tokens_per_task": "unknown（官方只公布平均 API 成本/题）",
+      "usd_per_full_run": "平均 $36.36/题（Opus 5.5）→ 200 题约 $7.3k；官方 FAQ 称个别 run 总成本达 $5k",
+      "wall_time_full_run": "unknown（官方未给；单题允许较长步数/时间，几乎不受 step 限制）",
+      "basis": "programbench.com 榜单 Cost 列（Average API cost in USD per benchmark task）与 FAQ 的 run 成本说明（2026-10-30 读取）"
+    },
+    "self_test": {
+      "feasibility": "medium",
+      "quick_smoke_subset": "先跑 1 个中等任务（如 ffmpeg__ffmpeg.360a402 或 jqlang__jq.b33a763）：用 dockerhub task_cleanroom_v6 镜像做推理，提交 submission.tar.gz 后 programbench eval 单实例目录",
+      "setup_commands": [
+        "# TODO verify（以下命令引自官方 README/docs，未在本机执行）",
+        "uvx programbench --help",
+        "uv tool install programbench   # 或 pip install programbench / uv pip install programbench",
+        "uv run programbench eval /path/to/my-amazing-agent-run",
+        "uv run programbench blob sync   # 预下载 HF 上的测试 blob（可选）"
+      ],
+      "gotchas": "① 所有镜像只构建 linux/amd64，Windows/macOS 不能原生跑（QEMU 模拟很慢），需 WSL2 或远程 Linux；② 推理容器必须断网，二进制只可执行不可读（objdump/strings/hexdump 会失败）；③ 每题平均 API 成本高（Opus 5.5 $36/题，200 题约 $7k）；④ eval 会按需拉 Docker 镜像和 HF 测试 blob，磁盘/带宽消耗大；⑤ 2026-10 时公开提交入口尚未开放（coming soon）。"
+    },
+    "sources": [
+      {"url": "https://programbench.com/", "note": "官方主页：200 题、24.8 万测试、Resolved/Almost resolved 指标、榜单与成本列、FAQ（禁网/禁反编译/防作弊）"},
+      {"url": "https://raw.githubusercontent.com/facebookresearch/ProgramBench/main/README.md", "note": "快速开始命令、HF/Leaderboard 链接、MIT 许可说明"},
+      {"url": "https://raw.githubusercontent.com/facebookresearch/ProgramBench/main/docs/README.md", "note": "使用指南：linux/amd64 限制、镜像 tag task_cleanroom_v6、submission.tar.gz 结构、eval 命令、blob sync"},
+      {"url": "https://raw.githubusercontent.com/facebookresearch/ProgramBench/main/LICENSE", "note": "MIT License"},
+      {"url": "https://huggingface.co/api/datasets/programbench/ProgramBench-Tests", "note": "HF 测试集元数据：license=mit、非 gated"},
+      {"url": "https://arxiv.org/abs/2605.03546", "note": "论文：200 题、行为测试由 agent fuzzing 生成、9 个模型无一完全解出"}
+    ],
+    "confidence": "high"
+  },
+  {
+    "id": "nl2repo-bench",
+    "name": "NL2Repo-Bench",
+    "name_zh": "自然语言到完整仓库基准",
+    "category": "nl2code",
+    "publisher": "ByteDance Seed / M-A-P / 2077AI / Humanlaya Data / 南京大学 / 北京大学 等",
+    "release_date": "2025-12（arXiv v1 2025-12-14，v2 2026-01-08）",
+    "homepage": "https://github.com/multimodal-art-projection/NL2RepoBench",
+    "paper": "https://arxiv.org/abs/2512.12730",
+    "repo": "https://github.com/multimodal-art-projection/NL2RepoBench",
+    "leaderboard": "none",
+    "data_access": {
+      "public": "yes",
+      "url": "https://github.com/multimodal-art-projection/NL2RepoBench（test_files/ 为任务数据，workspaces/ 为 Docker 挂载，docker_self/ 为评测环境；未发现独立 HF 数据集）",
+      "license": "unknown（仓库无 LICENSE 文件，GitHub API license=null；arXiv 论文为 arXiv 非独占许可）",
+      "size_tasks": 104,
+      "size_note": "104 题、9 类 Python 库（系统工具 24、数据处理 18、测试 13、工具库 11、Web 10、网络 9、ML 7、数据库 7、批处理 5）；难度 easy 26 / medium 46 / hard 32；规格文档平均约 18.8k tokens"
+    },
+    "what_it_tests": "只给一份自然语言需求文档和一个空工作区，要求从 0 到 1 生成完整、可安装的 Python 库：自己做架构、依赖管理、多模块实现与打包。用原仓库的上游 pytest 套件判分，是少见的「长程 + 可执行验证」仓库生成基准。",
+    "task_example": "输入是一份结构化 .md 规格（Project Description / Supports / API Usage Guide / Implementation Nodes），输出是完整 Python 仓库；随后把仓库打进测试镜像，跑原项目 pytest，按通过用例比例计分。",
+    "scoring": {
+      "metric": "average test pass rate（0–100%；论文另报 Pass@1 count 与难度/类别分组）",
+      "judge": "unit-tests",
+      "harness_official": "仓库自带 main.py 驱动 OpenHands 0.56 headless 批量跑（config.json 配模型端点与任务列表，python main.py）；结果存 result/<uuid>.json",
+      "alt_harnesses": ["Claude Code、Cursor CLI（论文中作为对比 agent 框架；官方脚本默认 OpenHands）"],
+      "pass_criteria": "把生成仓库放入任务测试镜像执行原仓库 pytest，取通过测试数占比；即使 pytest collection 报错也继续执行其余用例，避免整仓直接 0 分"
+    },
+    "requirements": {
+      "tool_use": true,
+      "code_exec": true,
+      "vision": false,
+      "docker": true,
+      "gpu_required": false,
+      "min_context_tokens": "unknown（输入规格均值约 18.8k tokens，需长程多轮交互）",
+      "model_iface": "config.json 中 baseUrl + sk 指定的 OpenAI 兼容 endpoint（示例配置字段，具体协议未核实）"
+    },
+    "cost": {
+      "tokens_per_task": "unknown（论文/仓库未给成本或 token 统计；单题规格均值约 18.8k tokens，需数百轮交互）",
+      "usd_per_full_run": "unknown（无官方数据；按 104 题 × 长程多轮估计，属四个基准中单题最贵的量级之一，建议先跑 1–2 题）",
+      "wall_time_full_run": "unknown（论文提到模型交互数百轮、无轮数上限；仓库支持 max_pool_size 并发，默认示例 30）",
+      "basis": "论文与仓库均未公布成本；仅依据题量、输入长度与「无轮数上限」推断，未做实测"
+    },
+    "self_test": {
+      "feasibility": "hard",
+      "quick_smoke_subset": "把 config.json 的 proNameList 只留 1–2 个任务（如 aiofiles、math-verify），max_pool_size 调成 1–2，先跑通整条链路",
+      "setup_commands": [
+        "# TODO verify（以下命令引自仓库 readme/requirements，未在本机执行）",
+        "git clone https://github.com/multimodal-art-projection/NL2RepoBench",
+        "pip install -r requirements.txt   # 依赖：openhands、python_on_whales、socketio、pydantic",
+        "docker pull docker.all-hands.dev/all-hands-ai/openhands:0.56",
+        "docker pull docker.all-hands.dev/all-hands-ai/runtime:0.56-nikolaik",
+        "# 编辑 config.json 填 baseUrl/sk/proNameList 后：",
+        "python main.py"
+      ],
+      "gotchas": "① 只支持本地 Docker（python-on-whales 管理容器），多机要共享文件系统（NFS）或手工搬文件；② 必须预置 openhands:0.56 与 runtime:0.56-nikolaik 两个镜像，版本不匹配会跑不起来；③ 无 LICENSE 文件，再分发/商用前需联系作者；④ 单题无轮数上限、交互数百轮，非常慢且贵，不适合全量自测；⑤ 结果按随机 UUID 存 result/，官方没给汇总脚本，要自己算平均通过率。"
+    },
+    "sources": [
+      {"url": "https://raw.githubusercontent.com/multimodal-art-projection/NL2RepoBench/main/readme.md", "note": "仓库运行方式：OpenHands headless、镜像要求、config.json 字段、结果目录"},
+      {"url": "https://raw.githubusercontent.com/multimodal-art-projection/NL2RepoBench/main/main.py", "note": "入口 main.py：读 config.json → start_openhands"},
+      {"url": "https://raw.githubusercontent.com/multimodal-art-projection/NL2RepoBench/main/config.json", "note": "模型端点字段 baseUrl/sk、104 个任务名、max_pool_size=30"},
+      {"url": "https://raw.githubusercontent.com/multimodal-art-projection/NL2RepoBench/main/requirements.txt", "note": "依赖：socketio、python_on_whales、openhands、pydantic"},
+      {"url": "https://api.github.com/repos/multimodal-art-projection/NL2RepoBench", "note": "仓库元数据：默认分支 main、license=null（无 LICENSE）"},
+      {"url": "https://arxiv.org/abs/2512.12730", "note": "论文：104 题、9 类、上游 pytest 判分、平均输入约 18.8k tokens、OpenHands 设置"},
+      {"url": "https://ar5iv.labs.arxiv.org/html/2512.12730", "note": "论文全文（任务构造流程、难度统计、实验结果）"}
+    ],
+    "confidence": "medium"
+  }
+]
