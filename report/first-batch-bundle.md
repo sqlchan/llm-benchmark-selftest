@@ -1,7 +1,7 @@
 # 第一批离线包：打包实录（2026-10-31）
 
 > 目标：把 Automation-Bench + ProgramBench（3 题）+ DeepSWE（10 题）打包成可带到公司断网 Linux 环境运行的 Docker 离线包。
-> 结果：**已生成 `E:\bench-bundle`，整包 5.06 GB，全部验证通过。**
+> 结果：**已生成 `E:\bench-bundle`，整包 5.10 GB，全部验证通过。**
 
 ## 1. 最终产物
 
@@ -12,9 +12,14 @@ E:\bench-bundle\
 ├─ SHA256SUMS                   # 镜像 tar 校验
 ├─ Dockerfile                   # runner 构建文件（可重建）
 ├─ images\
-│  ├─ bench-images.tar          # 5.01 GB，14 个镜像（单 tar，共享层只存一份）
+│  ├─ bench-images.tar          # 5.04 GB，14 个镜像（单 tar，共享层只存一份）
 │  ├─ image-list.txt
 │  └─ SHA256SUMS
+├─ results\                     # 实测证据离线副本（2.4 MB，含 SHA256SUMS）
+│  ├─ programbench-zoxide\      # eval.json(Score 56)/轨迹/提交/控制台
+│  ├─ deepswe-smoke\            # 6 轮冒烟日志 + Pier 配置 + 失败现场
+│  └─ ark_*_simple5.json        # Automation-Bench 原始结果
+├─ docs\                        # 关键文档离线副本（README/打包实录/清单等）
 ├─ data\                        # ~60 MB
 │  ├─ AutomationBench\          # v1.0.6, commit 4a8e106
 │  ├─ deep-swe\tasks\           # commit 0b9fabbb，113 题任务定义
@@ -28,6 +33,9 @@ E:\bench-bundle\
 │  └─ env\example.env
 └─ logs\
 ```
+
+> `results/` 与 `docs/` 是 2026-10-31 追加的**离线查阅副本**（公司断网时可直接看证据和关键报告），
+> 校验命令：`sha256sum -c results/SHA256SUMS`。
 
 ## 2. 镜像清单（14 个）
 
