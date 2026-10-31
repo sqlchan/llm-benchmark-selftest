@@ -12,10 +12,27 @@ offline/
 ├─ load_bundle.sh        # 公司 Linux 机器加载：校验 → docker load → 写配置
 ├─ Dockerfile.runner     # 评测 runner 镜像（harness + 数据）
 ├─ docker-compose.yml    # runner 服务（挂载宿主机 docker.sock）
+├─ tools/
+│   └─ mock_openai_server.py  # 无 key 时验证链路的本地 mock 端点
 ├─ images.manifest.txt   # 需要打包的镜像清单（MVP 先填少量）
 └─ env/
    └─ example.env        # 模型端点模板（Ark / 公司内网），不要提交真实 key
 ```
+
+## 先用 mock 验证链路（不需要模型 key）
+
+```powershell
+# Windows（建议设 UTF-8，避免 rich 在 GBK 控制台报错）
+$env:PYTHONUTF8="1"; $env:PYTHONIOENCODING="utf-8"
+python offline\tools\mock_openai_server.py 8765
+
+# 另一个终端，AutomationBench 仓库内（v1.0.6 要求 Python>=3.13，用 uv）
+uv run auto-bench --model mock-model --base-url http://127.0.0.1:8765/v1 `
+  --api-key dummy --api chat_completions --domains simple --num-examples 2 `
+  --max-steps 3 --input-cost 0 --output-cost 0 --export-json ..\mock_simple2.json
+```
+
+预期结果：0 分（mock 不调用工具），但进程 exit=0、JSON 完整导出。验证记录见 [`report/stage2-automation-validation.md`](../report/stage2-automation-validation.md)。
 
 ## 步骤
 
