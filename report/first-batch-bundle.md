@@ -79,7 +79,7 @@ DeepSWE 选中的 10 题（语言覆盖 python/go/typescript/javascript/rust 各
 
 ```bash
 cd /path/to/bench-bundle
-./offline/load_bundle.sh            # 校验 + docker load
+./offline/load_bundle.sh "$PWD"     # 校验 + docker load（需传离线包路径）
 cp offline/env/example.env offline/env/company.env && vi offline/env/company.env
 docker compose -f offline/docker-compose.yml --env-file offline/env/company.env up -d
 docker compose -f offline/docker-compose.yml exec runner bash /workspace/offline/run_stage1.sh

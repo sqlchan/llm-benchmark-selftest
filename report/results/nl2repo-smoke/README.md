@@ -49,7 +49,7 @@
 ## 4. 复现（公司 Linux + 离线包）
 
 ```bash
-./offline/load_bundle.sh
+./offline/load_bundle.sh "$PWD"
 cp offline/env/example.env offline/env/company.env && vi offline/env/company.env
 
 # 冒烟：1 题 8 轮（约 10–20 分钟）

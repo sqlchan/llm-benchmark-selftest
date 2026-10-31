@@ -37,7 +37,7 @@ oracle 是参考解 agent，**不调用模型**；本证据只验证环境与判
 
 ```bash
 # 加载镜像（含 mcp 自动补丁）
-./offline/load_bundle.sh
+./offline/load_bundle.sh "$PWD"
 
 # 单题 oracle 自检（不需要模型，约 3–5 分钟）
 BUNDLE_DIR=$PWD TB4_TASKS=html-js-filter ./offline/run_batch2.sh oracle
