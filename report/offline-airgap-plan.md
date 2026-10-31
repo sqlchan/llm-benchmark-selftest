@@ -227,3 +227,6 @@ docker compose -f offline/docker-compose.yml exec runner bash /workspace/offline
 - 扩题（2026-10-31 晚）：TB4 从 15 题扩到 36 题（Software/Operations/Security/Media 全量 CPU 题），新增 `images/bench-images-tb4-extra.tar`（22.70 GB，SHA256 `113bc3ed…3997`），oracle 验证 reward=1。
 - 打包末期发现的额外坑：LiteLLM 1.106 顶层导入依赖 `mcp`，而 Harbor 安装命令未带 `--with mcp` → TB4 agent 启动即退出。
   修复方式：给 15 个派生镜像追加 ~5.6MB 的 mcp 补丁层（`offline/fix_tb4_images.sh`，`load_bundle.sh` 自动执行）。
+- **并发预设（2026-10-31 晚新增，不改镜像）**：公司 32C/64G 宿主机的并发/超时参数统一放在 `offline/config/32c64g.env`，入口 `./offline/run_batch2_32c64g.sh tb4|oracle|nl2repo`（等价 `PROFILE=32c64g ./offline/run_batch2.sh ...`）；DeepSWE 3 并发用 `offline/deepswe-pier-32c64g.yaml`。
+- **NL2Repo 由串行改并行**：harness 并行补丁 `offline/patches/nl2repo_parallel.patch` + `offline/nl2repo-harness/`（应用/校验/回滚脚本随包），10 题从串行约 2–8h 压到 pool=3 约 1–3h（估算；并发机制已验证，模型分数待公司 Linux 真实端点首跑）。
+- **对离线包体积的影响：无**——上述改动只新增脚本/配置/文档，离线包仍是 4 个镜像 tar，镜像布局、件数与磁盘占用均不变；容量、工期与降级规则见 [company-32c64g-concurrency.md](company-32c64g-concurrency.md)。

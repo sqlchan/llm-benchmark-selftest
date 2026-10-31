@@ -13,19 +13,20 @@
 - [ ] 内网模型端点**从 Docker 容器网络可达**（不只是宿主机可达；见 Step 3 的验证方法）
 - [ ] 拿到内网模型的 `OPENAI_API_BASE` / `OPENAI_API_KEY` / `MODEL_NAME`
 - [ ] 当前用户在 `docker` 组；架构为 linux/amd64
+- [ ] 机器为 **32 vCPU / 64GB RAM / 1TB 盘**（本清单的并发预设按此调整；规格不同见 Step 3 后的「并发与机器配置」）
 
 ## 1. 时间轴
 
 | 时间 | 做什么 | 完成标志 |
 | :-- | :-- | :-- |
-| 0–5 min | 接 SSD、检查路径/磁盘/Docker | `df -h` ≥ 60G，`docker info` OK |
+| 0–5 min | 接 SSD、检查路径/磁盘/Docker | `df -h` ≥ 140G（建议 ≥250G），`docker info` OK |
 | 5–25 min | `load_bundle.sh`：4 个 tar + 自动打 mcp 补丁 | SHA OK + 124 个镜像 tag + 36 个 TB4 镜像补丁完成 |
 | 25–35 min | docker.sock / harbor / buildx / python-on-whales 自检 | `SOCK_OK` + 版本号 |
 | 35–50 min | 配 `company.env`、验证端点与 tool-call 格式 | curl 返回 200；容器内也通 |
 | 50–65 min | TB4 oracle 单题（html-js-filter） | reward=1 |
 | 65–95 min | TB4 agent 单题冒烟（5% 预算） | job 完成、无 `NonZeroAgentExitCodeError` |
 | 95–125 min | NL2Repo 单题冒烟（8 轮） | `All tasks completed!` + result JSON |
-| 当晚 | 正式跑：TB4 36 题 + NL2Repo 10 题 | 后台任务已启动 |
+| 当晚 | 正式跑：TB4 36 题 + NL2Repo 10 题（32C/64G 用 `run_batch2_32c64g.sh`：n=3 / pool=3） | 后台任务已启动 |
 
 > 建议全程用 `tmux`/`screen`：`run_batch2.sh` 用 `docker run -it`，直接 `nohup` 会因没有 TTY 失败。
 > ```bash
@@ -41,7 +42,7 @@
 lsblk -o NAME,SIZE,MOUNTPOINT | grep -i zx1 || df -h | grep -Ei 'media|mnt'
 cd /media/<user>/ZX1/bench-bundle     # 换成实际路径
 
-df -h .                     # 期望 Avail ≥ 60G
+df -h .                     # 期望 Avail ≥ 140G（建议 ≥250G，口径见 company-32c64g-concurrency.md §5）
 docker info --format 'docker {{.ServerVersion}}'   # 期望有版本号
 ls -la                      # README.md / manifest.json / images / data / offline / results / docs
 ```
@@ -108,7 +109,9 @@ vi offline/env/company.env
 #   OPENAI_API_BASE=http://<内网模型地址>/v1
 #   OPENAI_API_KEY=<公司 key>
 #   MODEL_NAME=<公司模型名>
-#   可选：TB4_AGENT_TIMEOUT_MULTIPLIER=1.0  TB4_N_CONCURRENT=2  NL2REPO_MAX_ITERATIONS=500
+#   company.env 只放端点/模型；并发/超时参数统一放 offline/config/32c64g.env（PROFILE=32c64g），
+#   不要把并发值抄进 company.env（profile 在 company.env 之后加载，会覆盖同名变量）。
+#   冒烟参数走命令行、不要经 wrapper——见 Step 5/7 与下面的「并发与机器配置」。
 ```
 
 端点验证分两步：**宿主 shell** 和 **容器网络**（TB4 任务容器/OpenHands 容器都要直接访问模型端点）。
@@ -142,6 +145,53 @@ docker run --rm -e OPENAI_API_BASE -e OPENAI_API_KEY -e MODEL_NAME bench-eval-ru
 
 > 两批共用 `offline/env/company.env`；第一批 compose 命令也读同一份配置。
 
+## 并发与机器配置（32C/64G）
+
+> 完整容量推导（内存最坏叠加、工期）、监控与降级规则见 [`company-32c64g-concurrency.md`](company-32c64g-concurrency.md)；
+> NL2Repo 并行的机制、验证证据与残余风险见 `offline/nl2repo-harness/README.md`（随离线包交付）。
+> 公司机器是 **32 vCPU / 64GB RAM / 1TB 盘**，并发预设已按此调好，现场不要手抄参数。
+
+**用法（二选一，效果等价）**
+
+```bash
+# 推荐：wrapper 自动 export PROFILE=32c64g，再转调 run_batch2.sh
+./offline/run_batch2_32c64g.sh oracle     # TB4 oracle 自检（不需要模型）
+./offline/run_batch2_32c64g.sh tb4        # TB4 36 题：n_concurrent=3、超时倍数 1.0
+./offline/run_batch2_32c64g.sh nl2repo    # NL2Repo 10 题：pool=3、端口 3000–3002
+
+# 等价写法（自己设 PROFILE）
+PROFILE=32c64g ./offline/run_batch2.sh tb4
+```
+
+`run_batch2.sh` 的加载顺序是：先 source `offline/env/company.env`（端点/模型），再 source
+`offline/config/32c64g.env`（并发/超时，**同名变量覆盖前者**）。因此：
+
+- **正式跑用 wrapper / `PROFILE=32c64g`**：并发与超时取 profile 里的正式值；
+- **冒烟必须绕过 wrapper**（否则 profile 会把冒烟值覆盖回正式值）——直接 `./offline/run_batch2.sh`，见 Step 5/7；
+- 缺 `offline/config/32c64g.env`、或 `run_batch2.sh` 没有 PROFILE 补丁时，wrapper 会**报错退出**（不会静默按冒烟参数跑正式评测）。
+
+**关键取值（`offline/config/32c64g.env`）**
+
+| 基准 | 变量 | 32C/64G 取值 | 说明 |
+| :-- | :-- | :-: | :-- |
+| TB4 | `TB4_N_CONCURRENT` | `3` | 单题内存上限 16GB；最坏叠加 3×16+8≈56GB；n=4≈72GB > 64GB，不可用 |
+| TB4 | `TB4_AGENT_TIMEOUT_MULTIPLIER` | `1.0` | 正式跑必须 1.0（官方单题 8h 预算）；`run_batch2.sh` 默认 0.05 是冒烟值 |
+| NL2Repo | `NL2REPO_MAX_POOL` | `3` | 单题 app+runtime 约 2–4GB，pool=3 合计约 6–12GB |
+| NL2Repo | `NL2REPO_PORT_BASE` | `3000` | 第 i 题端口 = base + i（3000/3001/3002）；被占时整段后移（如 3100） |
+| NL2Repo | `NL2REPO_MAX_ITERATIONS` | `500` | 正式跑保持 500 才与官方口径可比 |
+| NL2Repo | `NL2REPO_TASKS` | 10 题全量 | `aiofiles,humanize,…python-slugify`（见 profile） |
+| DeepSWE | `n_concurrent_trials` | `3` | 用 `offline/deepswe-pier-32c64g.yaml`，不走 `run_batch2.sh` |
+| Automation-Bench | `--max-concurrent` | `5` | 纯 API，无任务容器；瓶颈是内网端点 QPS/TPM |
+
+**降级规则（统一：先 N-1，最低 1）**
+
+- **OOM**：宿主 `free` < 6GB、`dmesg -T` 出现 oom-kill、或容器 exit 137 → 该基准并发 N-1（TB4 3→2、NL2Repo 3→2、DeepSWE 3→2），先停掉混跑的其它基准。
+- **端口冲突**：NL2Repo 报 `port is already allocated` → 把 `NL2REPO_PORT_BASE` 后移（如 3100）再 N-1，或用 `NL2REPO_CLEANUP=1` 清理本批次残留容器。
+- **端点限流**：429/`rate limit` 密集出现 → Automation 5→3、容器基准 N-1、错峰跑；**不要**靠降 `TB4_AGENT_TIMEOUT_MULTIPLIER` 赶工（分数不可比）。
+- **基准之间顺序跑**：不要同时开两个带容器的基准——TB4 n=3 最坏 56GB，再叠加 NL2Repo pool=3（约 6–12GB）会超 64GB。
+
+**放量前**：先 `./offline/run_batch2_32c64g.sh oracle`（TB4 单题 → 36 题）+ NL2Repo 单题 8 轮冒烟（Step 7），链路 OK 再开正式跑。
+
 ## Step 4（45–60 min）TB4 oracle 自检（不需要模型）
 
 先单题，确认环境没问题（约 3–5 分钟）：
@@ -158,6 +208,8 @@ cat results/tb4/*/html-js-filter__*/verifier/reward.txt    # 期望 1
 mkdir -p logs
 TB4_TASKS= ./offline/run_batch2.sh oracle 2>&1 | tee logs/tb4-oracle.log
 ```
+
+> 32C/64G 想加速 36 题 oracle：`./offline/run_batch2_32c64g.sh oracle`（profile 注入 n=3；`TB4_TASKS` 不在 profile 里，命令行仍可限定子集）。
 
 汇总（在离线包根目录执行）：
 
@@ -214,17 +266,20 @@ TB4_AGENT_TIMEOUT_MULTIPLIER=1.0 TB4_N_CONCURRENT=2 \
 ```
 
 - 36 题 × 单题 agent 预算 **8 小时**（`task.toml [agent] timeout_sec=28800`），并发 2：多数题会提前结束，现实工期约 **2–4 天**（若全部跑满上限约 144 小时）。
+- **32C/64G 推荐 n=3**：`./offline/run_batch2_32c64g.sh tb4`（或 `PROFILE=32c64g ./offline/run_batch2.sh tb4`），并发 2→3，粗算比 n=2 快约 1/3；按主文档工期口径 n=3 典型约 **1 天**（典型 6–25h，全部跑满最坏约 4 天）。上面的 n=2 命令保留作兜底；降级到 n=2 的触发条件（OOM / 宿主 `free` < 6GB / exit 137）见 [`company-32c64g-concurrency.md`](company-32c64g-concurrency.md) §9。
 - 若时间不够：按 18 题/晚分两批过夜（`TB4_TASKS=` 填对应任务名）；不要降超时倍数，否则分数不可比。
 - **注意**：`run_batch2.sh` 默认 `TB4_AGENT_TIMEOUT_MULTIPLIER=0.05`（冒烟值），正式跑必须显式设为 `1.0`。
 
 ## Step 7（90–120 min）NL2Repo 单题冒烟
 
 ```bash
-# 端口固定 3000、max_pool 必须为 1；先确认没有残留容器
+# 单题冒烟 = 串行（max_pool=1）+ 8 轮；先确认没有残留容器。
+# 注意：冒烟不要经过 wrapper/PROFILE——profile 会把 max_iterations 覆盖回 500、pool 覆盖回 3。
 docker ps -a --filter 'name=openhands' --format '{{.Names}} {{.Status}}'
 docker rm -f openhands-app-3000 2>/dev/null || true
 
-NL2REPO_TASKS=aiofiles NL2REPO_MAX_ITERATIONS=8 ./offline/run_batch2.sh nl2repo
+NL2REPO_TASKS=aiofiles NL2REPO_MAX_ITERATIONS=8 NL2REPO_MAX_POOL=1 \
+  ./offline/run_batch2.sh nl2repo
 # 期望：日志出现 "All tasks completed!"；data/nl2repo/harness/result/aiofiles_bo1.json 生成
 ```
 
@@ -238,15 +293,26 @@ NL2REPO_TASKS=aiofiles NL2REPO_MAX_ITERATIONS=8 ./offline/run_batch2.sh nl2repo
 
 ## Step 8（当晚起）NL2Repo 正式跑
 
+32C/64G 推荐用 wrapper（自动注入 pool=3、端口 3000–3002、10 题清单、`max_iterations=500`）：
+
+```bash
+./offline/run_batch2_32c64g.sh nl2repo 2>&1 | tee logs/nl2repo-full.log
+# 等价写法：PROFILE=32c64g ./offline/run_batch2.sh nl2repo
+```
+
+兜底（串行；机器更小、或现场并发/端口不稳时）：
+
 ```bash
 NL2REPO_TASKS=aiofiles,humanize,sqlparse,tenacity,cerberus,tinydb,markupsafe,jsonlines,freezegun,python-slugify \
 NL2REPO_MAX_ITERATIONS=500 NL2REPO_MAX_POOL=1 \
 ./offline/run_batch2.sh nl2repo 2>&1 | tee logs/nl2repo-full.log
 ```
 
-- 串行（端口 3000 固定），10 题预计 **2–8 小时**，单题可能 10 分钟到 2 小时，波动大。
+- **并行收益（估算）**：pool=3 时 10 题约 **1–3 小时**（10/3≈4 轮 × 单题 10min–2h），串行约 **2–8 小时**；未在公司 Linux 实测，以首跑日志为准（容量口径见 [`company-32c64g-concurrency.md`](company-32c64g-concurrency.md) §4）。
+- 并发依赖 harness **并行补丁**（`offline/nl2repo-harness/` 随包交付；机制级已验证 2 题真并发通过，**模型分数需真实端点首跑确认**）；回滚补丁后只有 pool=1 与原来一致，**回滚后不要开并发**。
+- 端口/残留：pool=3 占 3000–3002；`port is already allocated` 时用 `NL2REPO_PORT_BASE=3100` 整段后移，或加 `NL2REPO_CLEANUP=1` 清本批次残留容器（`NL2REPO_CLEANUP` 不在 profile 里，命令行可覆盖）。
 - 结果：`data/nl2repo/harness/result/*.json`（每题一个）。
-- 中断后重跑：先 `docker rm -f openhands-app-3000`，再重跑；`result/` 里已有的题会被覆盖。
+- 中断后重跑：`NL2REPO_CLEANUP=1 ./offline/run_batch2_32c64g.sh nl2repo`（启动前自动清本批次残留容器），或手动 `docker rm -f openhands-app-3000 openhands-app-3001 openhands-app-3002`；`result/` 里已有的题会被覆盖。
 
 ## Step 9 结果采集与归档
 
@@ -270,8 +336,8 @@ rm -f data/nl2repo/harness/config.json
 rm -f data/nl2repo/harness/workspaces/*/config.toml
 rm -f offline/env/company.env          # 或改回 example.env 占位
 
-# 2) 清理容器与缓存
-docker rm -f openhands-app-3000 2>/dev/null || true
+# 2) 清理容器与缓存（NL2Repo pool=3 时 app 容器有 3000–3002 三个）
+docker rm -f openhands-app-3000 openhands-app-3001 openhands-app-3002 2>/dev/null || true
 docker ps -a --filter 'name=terminal-bench' --format '{{.Names}}'   # 有残留就删
 docker system df                        # 确认磁盘没被评测镜像吃满
 ```
@@ -294,7 +360,7 @@ docker system df                        # 确认磁盘没被评测镜像吃满
 | `ValueError: Invalid mount format in sandbox.volumes: ...` | 宿主机路径必须以 `/` 开头；本包要求「容器路径 = 宿主机路径」，用 `run_batch2.sh` 的默认挂载即可 |
 | OpenHands `unrecognized arguments` / `No module named 'dotenv'` | harness 启动必须用 `bash -c`，不要用 `bash -lc`（login shell 会丢 `/app/.venv/bin` 的 PATH；包内已修好） |
 | NL2Repo 后处理 `pip install -e .` 失败、缺构建后端 | 加载的不是派生测试镜像：`docker run --rm ghcr.io/multimodal-art-projection/nl2repobench/aiofiles:1.0 bash -c 'pip list 2>/dev/null | grep -Ei "hatch|setuptools|wheel"'` 应能看到构建相关包 |
-| NL2Repo 报 `port is already allocated` / 3000 被占 | 上一轮残留容器：`docker rm -f openhands-app-3000`；`NL2REPO_MAX_POOL` 必须为 1 |
+| NL2Repo 报 `port is already allocated` / 3000 被占 | pool>1 需要 harness 并行补丁（`offline/nl2repo-harness/`，随包交付；`run_batch2.sh` 的 PROFILE 补丁也要在）；端口冲突时把 `NL2REPO_PORT_BASE` 后移（如 3100，pool=3 → 3100/3101/3102）或加 `NL2REPO_CLEANUP=1` 清理本批次残留容器；单题冒烟保持 `NL2REPO_MAX_POOL=1` |
 | TB4 agent 报 `RepeatedFormatError` 或反复格式错误 | 模型 tool-call 格式不兼容（第一批 ProgramBench 也踩过）：换模型或改 mini-swe `format_error_template`，记录后继续 |
 | 容器 `curl` 内网端点超时、宿主正常 | 用 docker0 网关反代（`http://172.17.0.1:<端口>/v1`）并确认端点监听 `0.0.0.0` |
 | `docker build` 失败 / snapshot 报错 / 磁盘满 | `docker builder prune -f` + 重启 docker；**不要用 `docker system prune`**（会删掉已加载的离线镜像）；磁盘空闲 < 20G 时先清评测容器 |

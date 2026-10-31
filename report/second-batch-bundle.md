@@ -157,20 +157,23 @@ ModuleNotFoundError: No module named 'mcp'
 cd /mnt/ssd/bench-bundle
 ./offline/load_bundle.sh "$PWD"              # 校验 + docker load（两批 tar）+ 自动打 mcp 补丁
 cp offline/env/example.env offline/env/company.env && vi offline/env/company.env
+# load 完成后按 docs/company-32c64g-concurrency.md 确认并发预设：
+# 32C/64G 直接走 wrapper（自动 PROFILE=32c64g），见下面命令
 
-./offline/run_batch2.sh oracle               # TB4 离线自检（不需要模型）
-BUNDLE_DIR=$PWD TB4_TASKS=html-js-filter ./offline/run_batch2.sh tb4    # 单题冒烟
-BUNDLE_DIR=$PWD ./offline/run_batch2.sh tb4  # 全子集（默认并发 2）
-BUNDLE_DIR=$PWD NL2REPO_TASKS=aiofiles,humanize ./offline/run_batch2.sh nl2repo
+./offline/run_batch2_32c64g.sh oracle        # TB4 离线自检（不需要模型；n=3）
+BUNDLE_DIR=$PWD TB4_TASKS=html-js-filter ./offline/run_batch2.sh tb4    # 单题冒烟（冒烟不要经 wrapper）
+BUNDLE_DIR=$PWD ./offline/run_batch2_32c64g.sh tb4     # 全子集（32C/64G：n=3、超时倍数 1.0）
+BUNDLE_DIR=$PWD ./offline/run_batch2_32c64g.sh nl2repo # 10 题（pool=3；依赖 NL2Repo 并行补丁）
 ```
 
-分步操作、时间轴与第二批常见错误表见 [`company-day1-checklist-batch2.md`](company-day1-checklist-batch2.md)。
+分步操作、时间轴与第二批常见错误表见 [`company-day1-checklist-batch2.md`](company-day1-checklist-batch2.md)；
+并发取值、容量/工期与降级规则见 [`company-32c64g-concurrency.md`](company-32c64g-concurrency.md)。
 
 ## 9. 已知限制 / 待验证
 
 - **公司断网程度决定任务可用性**：TB4 官方任务默认 `network_mode=public`，部分题目本身依赖公网（下载/查询）。到公司后先跑 `oracle` 自检：oracle 都过不了的题，agent 也过不了，应剔除并在报告标注。
 - **模型格式**：Ark 的推理型模型经 LiteLLM + mini-swe-agent 可能触发工具调用格式问题（第一批 ProgramBench 已踩过）；公司内网模型若有原生 tool-calling 更稳。
-- **NL2Repo 单题成本/时长波动大**（官方不设轮数上限）；默认串行（端口 3000 固定）。
+- **NL2Repo 单题成本/时长波动大**（官方不设轮数上限）；默认串行（`NL2REPO_MAX_POOL=1`、端口基数 3000）。32C/64G 可用 `PROFILE=32c64g` 并发 3（依赖本批并行补丁），10 题从约 2–8h 压到约 1–3h（估算）；并发机制已验证、模型分数需公司 Linux 真实端点首跑确认（见 §11）。
 - **NL2Repo 测试命令改写**属于离线适配，与官方口径有差异，报告引用时需注明。
 - TB4 `oracle` 自检已验证；**agent 真实跑分未在本机完成**（单题 8h 预算，冒烟只验证链路）。
 
@@ -203,3 +206,42 @@ E 盘离线包整包 46.8 GiB；`data/tb4/tasks` 36 个目录。
 
 **磁盘**：扩题再次拉取/构建约 60GB 镜像，本机 Docker vhdx 涨到 118.7GB，需要再执行一次
 “清空 Docker 镜像 + compact vhdx”（流程同第 9 节/维护手册）；在公司端加载不受影响。
+
+## 11. 并发与 32C/64G 预设（2026-10-31 晚）
+
+公司机器规格为 **32 vCPU / 64GB RAM / 1TB 盘**。第二批在原有离线包之上新增一层「宿主机并发预设」，
+不改任何基准口径（题目清单、判分协议、镜像 tar 布局都不变），只把各基准的并发/超时正式值固化成可复用配置
+（TB4/NL2Repo 走 `offline/config/32c64g.env`，DeepSWE 走 Pier YAML，ProgramBench/Automation 为参考命令）。
+
+**新增文件（离线包内路径）**
+
+| 文件 | 作用 |
+| :-- | :-- |
+| `offline/config/32c64g.env` | 32C/64G 并发/超时预设：TB4 `n=3` + 超时倍数 `1.0`；NL2Repo `pool=3`、端口基数 3000、`max_iterations=500`、10 题清单 |
+| `offline/run_batch2_32c64g.sh` | 入口 wrapper：`export PROFILE=32c64g` 后转调 `run_batch2.sh`；依赖同批 `run_batch2.sh` 的 PROFILE 补丁（缺失时报错退出，不会静默按冒烟参数跑） |
+| `offline/deepswe-pier-32c64g.yaml` | DeepSWE 10 题 Pier 模板（3 并发、正式超时、占位符现场替换，不入 git） |
+| `offline/patches/nl2repo_parallel.patch` | NL2Repo harness 并行补丁（`-p1`；另有 `.p0` 变体与 `nl2repo_offline_scripts.patch`） |
+| `offline/nl2repo-harness/README.md`、`apply_parallel_patch.sh` | 并行补丁说明与「应用/校验/回滚」脚本（默认 dry-run，不写盘） |
+| `docs/company-32c64g-concurrency.md` | 容量/工期/降级规则主文档（离线包 `docs/` 由仓库源文件 [`company-32c64g-concurrency.md`](company-32c64g-concurrency.md) 同步） |
+
+**用法（离线包根目录，二选一）**
+
+```bash
+./offline/run_batch2_32c64g.sh tb4|oracle|nl2repo   # 推荐：wrapper 自动 export PROFILE=32c64g
+PROFILE=32c64g ./offline/run_batch2.sh tb4          # 等价写法
+```
+
+加载顺序：先 source `offline/env/company.env`（端点/模型），再 source `offline/config/32c64g.env`
+（并发/超时，**同名变量覆盖前者**）。所以**冒烟不要经过 wrapper**（否则被正式值覆盖），
+冒烟直接调 `./offline/run_batch2.sh` 并显式传 `NL2REPO_MAX_POOL=1` / `TB4_N_CONCURRENT=1` 等冒烟值。
+
+**NL2Repo 并行的机制与验证口径**
+
+- **机制**：单进程 `ThreadPoolExecutor(max_workers=NL2REPO_MAX_POOL)`；每任务独立宿主端口（`NL2REPO_PORT_BASE + i`）、app 容器（`openhands-app-<port>`）、OpenHands state 卷（`.openhands-<port>`，原共享 `.openhands` 已改为 per-port）、工作区、post-process 评测镜像/容器/日志/结果文件；可选 `NL2REPO_CLEANUP=1` 在启动前清理本批次残留容器。默认不设新变量时行为等价于原串行。
+- **验证等级**：**机制通过**——2 题真并发冒烟（pool=2、端口 3100/3101）中两个 app 容器并存、生命周期重叠 10.139s、两条线程并发、两 result JSON 均生成、cleanup 生效。证据随离线包交付：`results/nl2repo-parallel-smoke/`（含 `README.md` 读法与结论口径，以及 `concurrency-summary.md`、`run_parallel.log`、`docker-ps-snapshots.log`、`run-meta.json` 等）；仓库本地的原始证据目录为 `sandbox/nl2repo/parallel-test/evidence/`（开发机本地、不入 git、**不随包交付**，公司同事以离线包 `results/` 为准）。
+- **模型分数不可用**：冒烟在 Windows 宿主 + mock 模型上跑，OpenHands 0.56 的挂载格式限制使「mock 模型 → agent → runtime」路径未跑通（上游限制，与并行补丁无关；公司 Linux 路径以 `/` 开头无此问题）。公司 Linux **首跑建议先用真实端点跑 2 题**确认，再放量到 10 题 pool=3。
+- **预期收益**：10 题串行约 **2–8h** → pool=3 约 **1–3h**（10/3≈4 轮 × 单题 10min–2h 的估算，未在公司 Linux 实测，以首跑日志为准）。
+
+**镜像与磁盘**：**不改 4 个镜像 tar 的布局**——`bench-images.tar`、`bench-images-batch2.tar`、`bench-images-tb4-extra.tar`、`bench-images-runner-v2.tar` 的内容与件数不变（本批未重新打包，现有 SHA256 保持有效）；并发预设只新增脚本/配置/文档（KB 级），**不增加镜像层与磁盘占用**，`load_bundle.sh` 加载流程也不变。跑起来后新增的磁盘占用只来自各基准自己的派生评测镜像与结果（口径同主文档 §5，建议 ≥250GB 空闲）。
+
+> 完整容量推导（TB4 n=3 最坏 56GB、基准之间必须顺序跑）、监控命令与降级规则（OOM/端口冲突/429 → N-1，最低 1）见 `docs/company-32c64g-concurrency.md`；NL2Repo 环境变量表、残余风险与回滚方法见 `offline/nl2repo-harness/README.md`。
