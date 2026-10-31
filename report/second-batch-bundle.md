@@ -137,6 +137,9 @@ ModuleNotFoundError: No module named 'mcp'
 > 备注 3：补丁层构建期间本机 Docker 曾因磁盘写满（vhdx 增长到 101GB）导致 containerd snapshot 状态损坏，
 > 3 个镜像（live-database-cutover / nextjs-performance / html-js-filter）的补丁构建失败；本机已用 `docker commit` 手工验证
 > 其中 html-js-filter 可修复，其余在公司干净环境重跑 `offline/fix_tb4_images.sh` 即可。
+> 备注 4：上表除 tar 完整性外的原始证据已归档到
+> [`report/results/tb4-oracle/`](results/tb4-oracle/)、[`report/results/tb4-agent-smoke/`](results/tb4-agent-smoke/)、
+> [`report/results/nl2repo-smoke/`](results/nl2repo-smoke/)（含 verifier 输出、失败 traceback、评测镜像与 pytest 日志）。
 
 ## 7. 与第一批的关系
 
@@ -149,7 +152,7 @@ ModuleNotFoundError: No module named 'mcp'
 
 ```bash
 cd /mnt/ssd/bench-bundle
-./offline/load_bundle.sh                     # 校验 + docker load（两批 tar）
+./offline/load_bundle.sh "$PWD"              # 校验 + docker load（两批 tar）+ 自动打 mcp 补丁
 cp offline/env/example.env offline/env/company.env && vi offline/env/company.env
 
 ./offline/run_batch2.sh oracle               # TB4 离线自检（不需要模型）
@@ -157,6 +160,8 @@ BUNDLE_DIR=$PWD TB4_TASKS=html-js-filter ./offline/run_batch2.sh tb4    # 单题
 BUNDLE_DIR=$PWD ./offline/run_batch2.sh tb4  # 全子集（默认并发 2）
 BUNDLE_DIR=$PWD NL2REPO_TASKS=aiofiles,humanize ./offline/run_batch2.sh nl2repo
 ```
+
+分步操作、时间轴与第二批常见错误表见 [`company-day1-checklist-batch2.md`](company-day1-checklist-batch2.md)。
 
 ## 9. 已知限制 / 待验证
 

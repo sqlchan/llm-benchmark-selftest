@@ -16,8 +16,9 @@ DeepSeek-V4.1-Flash-1017 模型卡上 **11 个基准**的自测资料包：每�
 | [`report/offline-airgap-plan.md`](report/offline-airgap-plan.md) | **断网环境方案**：把镜像/数据/harness 打成离线包带到公司跑内网模型 |
 | [`report/first-batch-bundle.md`](report/first-batch-bundle.md) | **第一批打包实录**：镜像清单、5.06GB 整包、离线验证结果与经验 |
 | [`report/second-batch-bundle.md`](report/second-batch-bundle.md) | **第二批打包实录**：TB4 v4.0.0 15 题 + NL2Repo 10 题，离线 agent 安装与 ghcr 镜像源迁移 |
-| [`report/company-day1-checklist.md`](report/company-day1-checklist.md) | **到公司后 30 分钟操作清单**：加载→验通→首题判分→启动长任务 |
-| [`report/results/`](report/results/) | **实测证据归档**：Automation-Bench/ProgramBench/DeepSWE 的原始结果、轨迹与冒烟日志 |
+| [`report/company-day1-checklist.md`](report/company-day1-checklist.md) | **到公司后 30 分钟操作清单（第一批）**：加载→验通→首题判分→启动长任务 |
+| [`report/company-day1-checklist-batch2.md`](report/company-day1-checklist-batch2.md) | **到公司后第二批操作清单**：TB4 mcp 补丁自检 / oracle / agent 冒烟 / NL2Repo 端到端 / 正式跑与收尾 |
+| [`report/results/`](report/results/) | **实测证据归档**：两批基准的原始结果、轨迹与冒烟日志（第二批含 TB4 oracle/agent 现场与 NL2Repo 端到端） |
 | [`report/benchmarks.xlsx`](report/benchmarks.xlsx) | 对比表：总览（11 行×24 列）、Harness 工具链、三档自测方案、数据来源 |
 | [`report/runbook.md`](report/runbook.md) | 每个基准的复现命令清单（可直接复制） |
 | [`report/all_benchmarks.json`](report/all_benchmarks.json) | 结构化机读数据（每基准 40+ 字段） |

@@ -1,5 +1,8 @@
 # 到公司后 30 分钟操作清单
 
+> **第二批（TB4 + NL2Repo）见 [`company-day1-checklist-batch2.md`](company-day1-checklist-batch2.md)**；
+> 本清单保持第一批（Automation-Bench / ProgramBench / DeepSWE）内容不变。
+
 > 适用：带着 `E:\bench-bundle`（ZX1 移动固态，5.1 GB）到公司 Linux 机器，用内网模型跑第一批基准。
 > 目标：30 分钟内完成「加载 → 环境验通 → 模型验通 → 第一道真实判分」，并在结束前启动可过夜的长任务。
 
