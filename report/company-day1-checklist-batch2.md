@@ -1,14 +1,14 @@
 # 到公司后第二批操作清单（Terminal-Bench 4.0 + NL2Repo-Bench）
 
 > 承接 [`company-day1-checklist.md`](company-day1-checklist.md)（第一批：Automation-Bench / ProgramBench / DeepSWE）。
-> 本清单只覆盖**第二批**：TB4 15 题 + NL2Repo 10 题，以及两批共用的加载与收尾。
-> 适用介质：`E:\bench-bundle`（两批合计约 **25.6 GB**，其中第二批镜像 21.24 GB）。
-> 目标：约 **1.5–2 小时**内完成「加载 → mcp 自检 → TB4 oracle → TB4 单题 agent → NL2Repo 单题」，
+> 本清单只覆盖**第二批**：TB4 **36 题**（15 基础 + 21 扩题）+ NL2Repo 10 题，以及两批共用的加载与收尾。
+> 适用介质：`E:\bench-bundle`（两批合计约 **46.8 GiB**：第一批 5.04、batch2 19.78、扩题 21.14、runner 0.55）。
+> 目标：约 **2–2.5 小时**内完成「加载 → mcp 自检 → TB4 oracle → TB4 单题 agent → NL2Repo 单题」，
 > 当晚启动正式跑分。
 
 ## 0. 出发前确认（缺一不可）
 
-- [ ] 公司 Linux 磁盘空闲 **≥ 60 GB**（两批 tar 合计 25.6 GB；加载后镜像会再占空间，另需 15 个 mcp 补丁层、任务/评测容器与 build cache）
+- [ ] 公司 Linux 磁盘空闲 **≥ 140 GB**（4 个 tar 合计 46.5 GiB；加载后镜像解压约 2–2.5 倍，另需 mcp 补丁层、任务/评测容器与 build cache）
 - [ ] 允许容器挂载 `docker.sock`（runner 要以兄弟容器方式启动 TB4/OpenHands 容器）
 - [ ] 内网模型端点**从 Docker 容器网络可达**（不只是宿主机可达；见 Step 3 的验证方法）
 - [ ] 拿到内网模型的 `OPENAI_API_BASE` / `OPENAI_API_KEY` / `MODEL_NAME`
@@ -19,13 +19,13 @@
 | 时间 | 做什么 | 完成标志 |
 | :-- | :-- | :-- |
 | 0–5 min | 接 SSD、检查路径/磁盘/Docker | `df -h` ≥ 60G，`docker info` OK |
-| 5–20 min | `load_bundle.sh`：3 个 tar + 自动打 mcp 补丁 | SHA OK + 67 个镜像 tag + 15 个 TB4 镜像补丁完成 |
-| 20–30 min | docker.sock / harbor / buildx / python-on-whales 自检 | `SOCK_OK` + 版本号 |
-| 30–45 min | 配 `company.env`、验证端点与 tool-call 格式 | curl 返回 200；容器内也通 |
-| 45–60 min | TB4 oracle 单题（html-js-filter） | reward=1 |
-| 60–90 min | TB4 agent 单题冒烟（5% 预算） | job 完成、无 `NonZeroAgentExitCodeError` |
-| 90–120 min | NL2Repo 单题冒烟（8 轮） | `All tasks completed!` + result JSON |
-| 当晚 | 正式跑：TB4 15 题 + NL2Repo 10 题 | 后台任务已启动 |
+| 5–25 min | `load_bundle.sh`：4 个 tar + 自动打 mcp 补丁 | SHA OK + 124 个镜像 tag + 36 个 TB4 镜像补丁完成 |
+| 25–35 min | docker.sock / harbor / buildx / python-on-whales 自检 | `SOCK_OK` + 版本号 |
+| 35–50 min | 配 `company.env`、验证端点与 tool-call 格式 | curl 返回 200；容器内也通 |
+| 50–65 min | TB4 oracle 单题（html-js-filter） | reward=1 |
+| 65–95 min | TB4 agent 单题冒烟（5% 预算） | job 完成、无 `NonZeroAgentExitCodeError` |
+| 95–125 min | NL2Repo 单题冒烟（8 轮） | `All tasks completed!` + result JSON |
+| 当晚 | 正式跑：TB4 36 题 + NL2Repo 10 题 | 后台任务已启动 |
 
 > 建议全程用 `tmux`/`screen`：`run_batch2.sh` 用 `docker run -it`，直接 `nohup` 会因没有 TTY 失败。
 > ```bash
@@ -50,25 +50,25 @@ ls -la                      # README.md / manifest.json / images / data / offlin
 
 ```bash
 ./offline/load_bundle.sh "$PWD"
-# 1) sha256sum -c（优先 images/SHA256SUMS）→ 3 个 tar 全 OK
-# 2) 按文件名排序加载：bench-images.tar → bench-images-batch2.tar → bench-images-runner-v2.tar
+# 1) sha256sum -c（优先 images/SHA256SUMS）→ 4 个 tar 全 OK
+# 2) 按文件名排序加载：bench-images-batch2.tar → bench-images-runner-v2.tar → bench-images-tb4-extra.tar → bench-images.tar
 # 3) 自动进入 "== 2.5 TB4 派生镜像 mcp 补丁 =="，逐个 [ok]/构建，最后 "TB4 mcp 补丁完成。"
 ```
 
-镜像数量自检（期望：第二批 53 个 tag，两批合计 67 个）：
+镜像数量自检（期望：第二批基础 53 + 扩题 57 = 110 个 tag，两批合计 124 个）：
 
 ```bash
 docker images --format '{{.Repository}}:{{.Tag}}' > /tmp/imgs.txt
-grep -c '^tb4off/environment:' /tmp/imgs.txt              # 15
-grep -c '^harborframework/terminal-bench:' /tmp/imgs.txt  # 25（15 verifier + 10 sidecar）
+grep -c '^tb4off/environment:' /tmp/imgs.txt              # 36
+grep -c '^harborframework/terminal-bench:' /tmp/imgs.txt  # 61（36 verifier + 25 sidecar）
 grep -c '^ghcr.io/' /tmp/imgs.txt                         # 12（OpenHands×2 + NL2Repo 测试镜像×10）
 grep -c '^bench-eval-runner:' /tmp/imgs.txt               # 2（local + v2）
 grep -c '^programbench/' /tmp/imgs.txt                    # 3（第一批）
 grep -c '^public.ecr.aws/' /tmp/imgs.txt                  # 10（第一批 DeepSWE）
-wc -l < /tmp/imgs.txt                                     # 67（若机器原有其他镜像，以分类计数为准）
+wc -l < /tmp/imgs.txt                                     # 124（若机器原有其他镜像，以分类计数为准）
 ```
 
-**mcp 逐镜像验证**（这是第二批最容易踩的坑，必须 15 个全 OK）：
+**mcp 逐镜像验证**（最容易踩的坑，必须 36 个全 OK；扩题镜像已内置 mcp，基础 15 个由 load_bundle 自动补）：
 
 ```bash
 for t in $(grep '^tb4off/environment:' /tmp/imgs.txt | cut -d: -f2); do
@@ -152,7 +152,7 @@ TB4_TASKS=html-js-filter ./offline/run_batch2.sh oracle
 cat results/tb4/*/html-js-filter__*/verifier/reward.txt    # 期望 1
 ```
 
-单题通过后，跑全部 15 题 oracle（约 30–60 分钟，放 tmux 里）：
+单题通过后，跑全部 36 题 oracle（约 1–2 小时，放 tmux 里）：
 
 ```bash
 mkdir -p logs
@@ -179,7 +179,7 @@ PY
 ```
 
 **判定**：oracle 拿不到 1 的题，说明该题在你们的网络/环境里不可用（常见原因：题目本身需要公网、
-sidecar 端口冲突、资源不足）——把这类题**剔除并记录**，不要让 agent 去跑；正式报告中注明「剔除 N 题，剩余 15-N 题」。
+sidecar 端口冲突、资源不足）——把这类题**剔除并记录**，不要让 agent 去跑；正式报告中注明「剔除 N 题，剩余 36-N 题」。
 
 ## Step 5（60–90 min）TB4 agent 单题冒烟
 
@@ -213,8 +213,8 @@ TB4_AGENT_TIMEOUT_MULTIPLIER=1.0 TB4_N_CONCURRENT=2 \
   ./offline/run_batch2.sh tb4 2>&1 | tee logs/tb4-full.log
 ```
 
-- 15 题 × 单题 agent 预算 **8 小时**（`task.toml [agent] timeout_sec=28800`），并发 2：多数题会提前结束，现实工期约 **1–2 天**（若全部跑满上限约 60 小时）。
-- 若时间不够：先跑 8 题（`TB4_TASKS=` 填前 8 个）过夜，第二天补另外 7 题；不要降超时倍数，否则分数不可比。
+- 36 题 × 单题 agent 预算 **8 小时**（`task.toml [agent] timeout_sec=28800`），并发 2：多数题会提前结束，现实工期约 **2–4 天**（若全部跑满上限约 144 小时）。
+- 若时间不够：按 18 题/晚分两批过夜（`TB4_TASKS=` 填对应任务名）；不要降超时倍数，否则分数不可比。
 - **注意**：`run_batch2.sh` 默认 `TB4_AGENT_TIMEOUT_MULTIPLIER=0.05`（冒烟值），正式跑必须显式设为 `1.0`。
 
 ## Step 7（90–120 min）NL2Repo 单题冒烟
@@ -278,9 +278,9 @@ docker system df                        # 确认磁盘没被评测镜像吃满
 
 ## 验收清单（6 个证据）
 
-- [ ] `sha256sum -c images/SHA256SUMS` 三个 tar 全 OK（包完整）
+- [ ] `sha256sum -c images/SHA256SUMS` 四个 tar 全 OK（包完整）
 - [ ] `SOCK_OK`（容器能用宿主 Docker）
-- [ ] 15 个 TB4 派生镜像 `import mcp` 全 OK（mcp 补丁已生效）
+- [ ] 36 个 TB4 派生镜像 `import mcp` 全 OK（mcp 补丁已生效）
 - [ ] TB4 oracle 单题 `reward.txt = 1`（环境+判分链路通）
 - [ ] TB4 agent 单题 job 完成、无 `NonZeroAgentExitCodeError`（模型链路通）
 - [ ] NL2Repo 单题 `status=completed` + result JSON 落盘（OpenHands 链路通）
@@ -290,7 +290,7 @@ docker system df                        # 确认磁盘没被评测镜像吃满
 | 现象 | 处理 |
 | :-- | :-- |
 | `docker: unknown command: docker buildx` | 用的是旧 runner；确认 `bench-images-runner-v2.tar` 最后加载（`bench-eval-runner:v2`） |
-| `ModuleNotFoundError: No module named 'mcp'` | `BUNDLE_DIR=$PWD ./offline/fix_tb4_images.sh`，确认 15 个 `import mcp` 全 OK |
+| `ModuleNotFoundError: No module named 'mcp'` | `BUNDLE_DIR=$PWD ./offline/fix_tb4_images.sh`（自动枚举全部 tb4off 镜像），确认 36 个 `import mcp` 全 OK |
 | `ValueError: Invalid mount format in sandbox.volumes: ...` | 宿主机路径必须以 `/` 开头；本包要求「容器路径 = 宿主机路径」，用 `run_batch2.sh` 的默认挂载即可 |
 | OpenHands `unrecognized arguments` / `No module named 'dotenv'` | harness 启动必须用 `bash -c`，不要用 `bash -lc`（login shell 会丢 `/app/.venv/bin` 的 PATH；包内已修好） |
 | NL2Repo 后处理 `pip install -e .` 失败、缺构建后端 | 加载的不是派生测试镜像：`docker run --rm ghcr.io/multimodal-art-projection/nl2repobench/aiofiles:1.0 bash -c 'pip list 2>/dev/null | grep -Ei "hatch|setuptools|wheel"'` 应能看到构建相关包 |
