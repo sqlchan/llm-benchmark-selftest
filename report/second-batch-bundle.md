@@ -245,3 +245,29 @@ PROFILE=32c64g ./offline/run_batch2.sh tb4          # 等价写法
 **镜像与磁盘**：**不改 4 个镜像 tar 的布局**——`bench-images.tar`、`bench-images-batch2.tar`、`bench-images-tb4-extra.tar`、`bench-images-runner-v2.tar` 的内容与件数不变（本批未重新打包，现有 SHA256 保持有效）；并发预设只新增脚本/配置/文档（KB 级），**不增加镜像层与磁盘占用**，`load_bundle.sh` 加载流程也不变。跑起来后新增的磁盘占用只来自各基准自己的派生评测镜像与结果（口径同主文档 §5，建议 ≥250GB 空闲）。
 
 > 完整容量推导（TB4 n=3 最坏 56GB、基准之间必须顺序跑）、监控命令与降级规则（OOM/端口冲突/429 → N-1，最低 1）见 `docs/company-32c64g-concurrency.md`；NL2Repo 环境变量表、残余风险与回滚方法见 `offline/nl2repo-harness/README.md`。
+
+## 12. CentOS 7 / Docker 20.10 兼容包（2026-10-31 晚，docker-el7）
+
+公司评测机若是 **CentOS 7**（内核 3.10），Docker 官方在 el7 上最后支持到 **20.10.x**。为此离线包新增
+`docker-el7/` 目录（约 130 MB）与兼容修复：
+
+**包内容**：`rpms/`（docker-ce 20.10.24、docker-ce-cli 20.10.24、containerd.io 1.6.33、
+docker-ce-rootless-extras 20.10.24、docker-compose-plugin 2.27.1）+ `deps/`（23 个依赖：container-selinux、
+SELinux 策略栈、libseccomp、libcgroup、iptables、device-mapper-libs、fuse-overlayfs 等）+
+`install_docker_el7.sh`、`verify_docker_el7.sh`、`SHA256SUMS`、`README.md`。**不需要**单独装 buildx 插件
+（docker-ce-cli 20.10.24 已自带；独立 RPM 会文件冲突）。
+
+**兼容性实测（Windows 构建机 + centos:7 容器）**：
+1. 离线 RPM 安装通过（`yum --disablerepo='*' localinstall`，27 安装 + 2 升级），dockerd 20.10.24 正常启动；
+2. `docker load` 本包 4 个镜像 tar **在 Docker 20.10.24 上成功**（runner-v2 与 batch2 两个 tar 实际 load 验证；
+   本包 tar 为 OCI layout + 兼容 manifest.json）；
+3. runner 工具链在 20.10 上运行通过（harbor 0.25.0 / pier 0.3.1 / python-on-whales / build / buildx / compose）；
+4. **API 兼容修复（重要）**：runner 内置 Docker CLI 29.x 默认 API 1.52，会被 20.10 daemon 拒绝
+   （`client version 1.52 is too new`）。修复：给 runner 容器传 `-e DOCKER_API_VERSION=<宿主 daemon API>`
+   （20.10 即 1.41）。已合入 `offline/run_batch2.sh`（自动探测宿主 API）与 `offline/docker-compose.yml`（默认 1.41）；
+   DeepSWE 等手工 `docker run` 需自行加。
+
+**风险提示**：CentOS 7 内核 3.10 上部分 TB4 任务可能依赖较新内核特性（未实测），先跑 `oracle` 自检剔除；
+SELinux Enforcing / XFS ftype=0 的检查与处理见 `docs/centos7-docker-offline.md` 与 `docker-el7/README.md`。
+
+> 对离线包体积影响：仅新增 ~130 MB（RPM 包 + 脚本），4 个镜像 tar 不变、SHA256 保持有效。

@@ -230,3 +230,4 @@ docker compose -f offline/docker-compose.yml exec runner bash /workspace/offline
 - **并发预设（2026-10-31 晚新增，不改镜像）**：公司 32C/64G 宿主机的并发/超时参数统一放在 `offline/config/32c64g.env`，入口 `./offline/run_batch2_32c64g.sh tb4|oracle|nl2repo`（等价 `PROFILE=32c64g ./offline/run_batch2.sh ...`）；DeepSWE 3 并发用 `offline/deepswe-pier-32c64g.yaml`。
 - **NL2Repo 由串行改并行**：harness 并行补丁 `offline/patches/nl2repo_parallel.patch` + `offline/nl2repo-harness/`（应用/校验/回滚脚本随包），10 题从串行约 2–8h 压到 pool=3 约 1–3h（估算；并发机制已验证，模型分数待公司 Linux 真实端点首跑）。
 - **对离线包体积的影响：无**——上述改动只新增脚本/配置/文档，离线包仍是 4 个镜像 tar，镜像布局、件数与磁盘占用均不变；容量、工期与降级规则见 [company-32c64g-concurrency.md](company-32c64g-concurrency.md)。
+- **CentOS 7 / 旧 Docker（2026-10-31 晚新增，约 +130 MB）**：离线包新增 `docker-el7/`（Docker CE 20.10.24 + containerd 1.6.33 + compose 插件 + 23 个依赖 RPM + 安装/自检脚本），用于内核 3.10、无法联网的 CentOS 7 评测机；同时修复旧 daemon（API 1.41）与 runner 内置新版 Docker CLI 的兼容问题（`DOCKER_API_VERSION` 自动传入）。详见 [centos7-docker-offline.md](centos7-docker-offline.md)。

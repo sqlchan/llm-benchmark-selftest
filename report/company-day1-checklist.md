@@ -3,7 +3,7 @@
 > **第二批（TB4 + NL2Repo）见 [`company-day1-checklist-batch2.md`](company-day1-checklist-batch2.md)**；
 > 本清单保持第一批（Automation-Bench / ProgramBench / DeepSWE）内容不变。
 
-> 适用：带着 `E:\bench-bundle`（ZX1 移动固态，5.1 GB）到公司 Linux 机器，用内网模型跑第一批基准。
+> 适用：带着 `E:\bench-bundle`（ZX1 移动固态，整包约 46.8 GiB，其中第一批 tar 5.04 GiB）到公司 Linux 机器，用内网模型跑第一批基准。
 > 目标：30 分钟内完成「加载 → 环境验通 → 模型验通 → 第一道真实判分」，并在结束前启动可过夜的长任务。
 
 ## 出发前已有条件（确认过）
@@ -11,6 +11,9 @@
 - 公司 Linux + Docker 可用，**允许容器挂载 docker.sock**
 - 内网模型同时支持 OpenAI 兼容 / Anthropic 协议（有 base_url、key、模型名）
 - 目标机器磁盘空闲 ≥ 15 GB；当前用户在 `docker` 组
+- **Docker 版本**：若为 CentOS 7（Docker 版本低/未装），先用离线包 `docker-el7/` 安装 Docker CE 20.10.24
+  （见 [`centos7-docker-offline.md`](centos7-docker-offline.md)）。旧 daemon 的 API 兼容问题已处理：
+  `offline/docker-compose.yml` 默认给 runner 传 `DOCKER_API_VERSION=1.41`，`run_batch2.sh` 自动探测宿主 API。
 
 ## 时间轴
 

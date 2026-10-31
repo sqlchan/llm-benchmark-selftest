@@ -14,6 +14,7 @@
 - [ ] 拿到内网模型的 `OPENAI_API_BASE` / `OPENAI_API_KEY` / `MODEL_NAME`
 - [ ] 当前用户在 `docker` 组；架构为 linux/amd64
 - [ ] 机器为 **32 vCPU / 64GB RAM / 1TB 盘**（本清单的并发预设按此调整；规格不同见 Step 3 后的「并发与机器配置」）
+- [ ] **Docker 版本**：CentOS 7 机器用离线包 `docker-el7/` 安装 Docker CE 20.10.24（见 `docs/centos7-docker-offline.md`）；其它系统确认 Docker ≥ 20.10。**旧 daemon API 1.41 与 runner 内置新版 CLI 的兼容问题已由 `run_batch2.sh` 自动处理**（手工 `docker run` 需加 `-e DOCKER_API_VERSION=1.41`）
 
 ## 1. 时间轴
 
@@ -44,8 +45,13 @@ cd /media/<user>/ZX1/bench-bundle     # 换成实际路径
 
 df -h .                     # 期望 Avail ≥ 140G（建议 ≥250G，口径见 company-32c64g-concurrency.md §5）
 docker info --format 'docker {{.ServerVersion}}'   # 期望有版本号
+docker version --format 'daemon={{.Server.Version}} api={{.Server.APIVersion}}'   # 记下 API 版本（旧 daemon 为 1.41）
 ls -la                      # README.md / manifest.json / images / data / offline / results / docs
 ```
+
+> **CentOS 7 且 Docker 版本偏低/未装**：离线包根目录下有 `docker-el7/`（Docker CE 20.10.24 + 依赖 + 安装/自检脚本，
+> 全程离线）。先按 `docs/centos7-docker-offline.md` 装好，再继续 Step 1。安装后 `verify_docker_el7.sh --bundle "$PWD"`
+> 会验证「docker load 4 个 tar + runner 工具链 + docker.sock + API 兼容」。
 
 ## Step 1（5–20 min）校验 + 加载镜像
 
@@ -100,6 +106,11 @@ docker run --rm bench-eval-runner:v2 bash -lc '
 
 > `SOCK_OK` 不出现 → 公司策略禁止挂载 socket，本批两个基准**都无法运行**（都需要起兄弟容器），
 > 只能退回第一批的宿主机直装方案。
+>
+> **旧 Docker（20.10 / API 1.41）注意**：runner 镜像内置 Docker CLI 29.x 默认 API 1.52，会被旧 daemon 拒绝
+> （`client version 1.52 is too new. Maximum supported API version is 1.41`）。`offline/run_batch2.sh` 会自动探测并
+> 给 runner 传 `DOCKER_API_VERSION=<宿主 API>`；上面手工 `docker run` 的自检命令如果报该错，请加
+> `-e DOCKER_API_VERSION=$(docker version --format '{{.Server.APIVersion}}')`。
 
 ## Step 3（30–45 min）配置内网模型 + 端点可达性
 
@@ -355,6 +366,8 @@ docker system df                        # 确认磁盘没被评测镜像吃满
 
 | 现象 | 处理 |
 | :-- | :-- |
+| `client version 1.52 is too new. Maximum supported API version is 1.41` | 宿主机 Docker 较旧（如 CentOS 7 的 20.10）。`run_batch2.sh` 已自动传 `DOCKER_API_VERSION`；手工 `docker run` 请加 `-e DOCKER_API_VERSION=$(docker version --format '{{.Server.APIVersion}}')` |
+| CentOS 7 机器 Docker 版本低/没装 | 用离线包 `docker-el7/`：`sudo bash install_docker_el7.sh --data-root /data/docker`，再 `bash verify_docker_el7.sh --bundle "$PWD"`；详见 `docs/centos7-docker-offline.md` |
 | `docker: unknown command: docker buildx` | 用的是旧 runner；确认 `bench-images-runner-v2.tar` 最后加载（`bench-eval-runner:v2`） |
 | `ModuleNotFoundError: No module named 'mcp'` | `BUNDLE_DIR=$PWD ./offline/fix_tb4_images.sh`（自动枚举全部 tb4off 镜像），确认 36 个 `import mcp` 全 OK |
 | `ValueError: Invalid mount format in sandbox.volumes: ...` | 宿主机路径必须以 `/` 开头；本包要求「容器路径 = 宿主机路径」，用 `run_batch2.sh` 的默认挂载即可 |
