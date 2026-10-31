@@ -206,3 +206,22 @@ docker compose -f offline/docker-compose.yml exec runner bash /workspace/offline
 - 镜像：runner + 3 个 ProgramBench 任务 + 10 个 DeepSWE 任务（public ECR）。
 - 已验证：docker load / sha256 / 工具链 / docker.sock 兄弟容器 / `--network none` 下 AutomationBench+mock 完整跑通。
 - 详见 [first-batch-bundle.md](first-batch-bundle.md)。
+
+## 12. 第二批打包实测（2026-10-31）
+
+- 范围：Terminal-Bench 4.0（v4.0.0，**15/66 题**，排除 3 个 H100 GPU 题）+ NL2Repo-Bench（**10/104 题**）。
+- 产物（追加到同一离线包）：
+  - `images/bench-images-batch2.tar`：40 个 TB4 镜像（15 派生 env + 15 verifier + 10 sidecar）+ OpenHands 0.56 双镜像 + 10 个 NL2Repo 派生测试镜像 + runner v2（约 **30 GB 级**，单 tar 去重）。
+  - `data/tb4/`：15 个已改写镜像引用的官方任务（107 MB）。
+  - `data/nl2repo/`：patched harness + 104 题文档（8 MB）。
+  - `offline/run_batch2.sh`、`offline/run_batch2_inner.sh`、`offline/Dockerfile.runner.v2`、`offline/patches/`。
+- 新踩的坑与解法（详细见 [second-batch-bundle.md](second-batch-bundle.md)）：
+  1. Harbor 安装 agent 依赖 `curl astral.sh` + `uv tool install` → **派生任务镜像预装载荷 + UV_OFFLINE**；
+  2. Harbor `ca_certificates` 无条件 apt → **runner 内打补丁**；
+  3. TB4 任务包用 `@sha256:` 引用镜像 → **改写为 release tag**；
+  4. NL2Repo 原镜像域名 `docker.all-hands.dev` 已 **NXDOMAIN** → 换 `ghcr.io/all-hands-ai/*`；
+  5. OpenHands 对 bind mount 要求宿主机绝对路径 → **runner 以相同绝对路径挂载离线包** + `NL2REPO_HOST_ROOT`；
+  6. NL2Repo 评测 `pip install -e .` 需构建后端 → **派生测试镜像预装 + `--no-build-isolation --no-index`**。
+- 已验证：TB4 oracle（官方镜像/派生镜像）reward=1；派生镜像断网 agent 安装成功；NL2Repo harness 端到端（容器/模型/挂载/评测）跑通。
+- 打包末期发现的额外坑：LiteLLM 1.106 顶层导入依赖 `mcp`，而 Harbor 安装命令未带 `--with mcp` → TB4 agent 启动即退出。
+  修复方式：给 15 个派生镜像追加 ~5.6MB 的 mcp 补丁层（`offline/fix_tb4_images.sh`，`load_bundle.sh` 自动执行）。

@@ -15,6 +15,7 @@ DeepSeek-V4.1-Flash-1017 模型卡上 **11 个基准**的自测资料包：每�
 | [`report/api-only-5bench-plan.md`](report/api-only-5bench-plan.md) | **API-only 执行方案**：5 个基准的接入矩阵、配置模板、三阶段预算与公平性规则 |
 | [`report/offline-airgap-plan.md`](report/offline-airgap-plan.md) | **断网环境方案**：把镜像/数据/harness 打成离线包带到公司跑内网模型 |
 | [`report/first-batch-bundle.md`](report/first-batch-bundle.md) | **第一批打包实录**：镜像清单、5.06GB 整包、离线验证结果与经验 |
+| [`report/second-batch-bundle.md`](report/second-batch-bundle.md) | **第二批打包实录**：TB4 v4.0.0 15 题 + NL2Repo 10 题，离线 agent 安装与 ghcr 镜像源迁移 |
 | [`report/company-day1-checklist.md`](report/company-day1-checklist.md) | **到公司后 30 分钟操作清单**：加载→验通→首题判分→启动长任务 |
 | [`report/results/`](report/results/) | **实测证据归档**：Automation-Bench/ProgramBench/DeepSWE 的原始结果、轨迹与冒烟日志 |
 | [`report/benchmarks.xlsx`](report/benchmarks.xlsx) | 对比表：总览（11 行×24 列）、Harness 工具链、三档自测方案、数据来源 |
