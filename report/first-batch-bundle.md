@@ -141,3 +141,13 @@ Evaluation Summary
 - 结论：**链路可用，DeepSWE 单题真实耗时在 30 分钟–数小时量级**；正式评估建议 `agent_timeout_multiplier: 0.5–1.0`，10 题可 `n_concurrent_trials: 2–4` 并行（注意本机资源）
 
 **模板**：[`offline/deepswe-pier-job.example.yaml`](deepswe-pier-job.example.yaml)
+
+## 10. 实测证据归档位置（2026-10-31）
+
+原始证据已归档进仓库（此前只在本地 sandbox）：
+
+- `report/results/programbench-zoxide/`：ProgramBench 单题（zoxide）提交、轨迹、`eval.json`（Score 56 / 531 tests）与控制台记录
+- `report/results/deepswe-smoke/`：DeepSWE 单题 6 轮冒烟日志、Pier 配置、最后一轮 job/trial 现场
+- `report/results/*.json`：Automation-Bench simple 5 题两份原始结果（deepseek-v4-flash / glm-5.3-flash）
+
+说明文件见 `report/results/README.md`。

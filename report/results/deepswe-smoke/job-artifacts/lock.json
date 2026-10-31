@@ -1,0 +1,72 @@
+{
+    "schema_version": 1,
+    "created_at": "2026-10-31T06:10:04.024739Z",
+    "pier": {
+        "version": "0.3.1"
+    },
+    "invocation": [
+        "/root/.local/bin/pier",
+        "run",
+        "-c",
+        "/workspace/job.yaml"
+    ],
+    "n_concurrent_trials": 1,
+    "retry": {
+        "max_retries": 0,
+        "exclude_exceptions": [
+            "VerifierOutputParseError",
+            "AgentTimeoutError",
+            "RewardFileNotFoundError",
+            "VerifierTimeoutError",
+            "RewardFileEmptyError"
+        ],
+        "wait_multiplier": 1.0,
+        "min_wait_sec": 1.0,
+        "max_wait_sec": 60.0
+    },
+    "trials": [
+        {
+            "task": {
+                "name": "abs-module-cache-flags",
+                "type": "local",
+                "digest": "sha256:ea4e96a29a8a174b41188998d62a10043f2869bc44cdc70fc1539242c609401e",
+                "source": "tasks",
+                "path": "/workspace/data/deep-swe/tasks/abs-module-cache-flags"
+            },
+            "timeout_multiplier": 1.0,
+            "agent_timeout_multiplier": 0.2,
+            "verifier_timeout_multiplier": 0.5,
+            "agent": {
+                "name": "mini-swe-agent",
+                "model_name": "openai/deepseek-v4-flash",
+                "kwargs": {
+                    "model_class": "litellm",
+                    "extra_python_packages": [
+                        "mcp"
+                    ],
+                    "config_yaml": "agent:\n  step_limit: 60\n  wall_time_limit_seconds: 1500\n",
+                    "model_kwargs": {
+                        "api_base": "https://ark.cn-beijing.volces.com/api/plan/v1",
+                        "max_tokens": 16384,
+                        "drop_params": true
+                    }
+                },
+                "env": {}
+            },
+            "environment": {
+                "type": "docker",
+                "force_build": false,
+                "delete": false,
+                "cpu_enforcement_policy": "ignore",
+                "memory_enforcement_policy": "ignore",
+                "suppress_override_warnings": false,
+                "env": {},
+                "kwargs": {}
+            },
+            "verifier": {
+                "env": {},
+                "disable": false
+            }
+        }
+    ]
+}

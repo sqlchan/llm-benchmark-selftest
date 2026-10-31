@@ -1,0 +1,43 @@
+Traceback (most recent call last):
+  File "/root/.local/share/uv/tools/datacurve-pier/lib/python3.12/site-packages/pier/trial/trial.py", line 1012, in run
+    await self._run_verification()
+  File "/root/.local/share/uv/tools/datacurve-pier/lib/python3.12/site-packages/pier/trial/trial.py", line 328, in _run_verification
+    await self._verify_with_retry()
+  File "/root/.local/share/uv/tools/datacurve-pier/lib/python3.12/site-packages/tenacity/asyncio/__init__.py", line 232, in async_wrapped
+    return await copy(fn, *args, **kwargs)  # type: ignore[type-var]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/.local/share/uv/tools/datacurve-pier/lib/python3.12/site-packages/tenacity/asyncio/__init__.py", line 126, in __call__
+    do = await self.iter(retry_state=retry_state)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/.local/share/uv/tools/datacurve-pier/lib/python3.12/site-packages/tenacity/asyncio/__init__.py", line 171, in iter
+    result = await action(retry_state)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/.local/share/uv/tools/datacurve-pier/lib/python3.12/site-packages/tenacity/_utils.py", line 130, in inner
+    return call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/root/.local/share/uv/tools/datacurve-pier/lib/python3.12/site-packages/tenacity/__init__.py", line 462, in <lambda>
+    self._add_action_func(lambda rs: rs.outcome.result())
+                                     ^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/concurrent/futures/_base.py", line 449, in result
+    return self.__get_result()
+           ^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/concurrent/futures/_base.py", line 401, in __get_result
+    raise self._exception
+  File "/root/.local/share/uv/tools/datacurve-pier/lib/python3.12/site-packages/tenacity/asyncio/__init__.py", line 130, in __call__
+    result = await fn(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/.local/share/uv/tools/datacurve-pier/lib/python3.12/site-packages/pier/trial/trial.py", line 340, in _verify_with_retry
+    self.result.verifier_result = await asyncio.wait_for(
+                                  ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/asyncio/tasks.py", line 520, in wait_for
+    return await fut
+           ^^^^^^^^^
+  File "/root/.local/share/uv/tools/datacurve-pier/lib/python3.12/site-packages/pier/trial/trial.py", line 374, in _verify_once
+    return await self._verify_with_separate_environment(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/.local/share/uv/tools/datacurve-pier/lib/python3.12/site-packages/pier/trial/trial.py", line 438, in _verify_with_separate_environment
+    return await verifier.verify()
+           ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/.local/share/uv/tools/datacurve-pier/lib/python3.12/site-packages/pier/verifier/verifier.py", line 213, in verify
+    raise RewardFileNotFoundError(
+pier.verifier.verifier.RewardFileNotFoundError: No reward file found at /workspace/jobs/ds-smoke-4/abs-module-cache-flags__hTwz9Hx/verifier/reward.txt or /workspace/jobs/ds-smoke-4/abs-module-cache-flags__hTwz9Hx/verifier/reward.json

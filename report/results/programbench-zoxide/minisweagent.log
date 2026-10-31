@@ -1,0 +1,4 @@
+2026-10-31 03:57:19,889 - minisweagent - INFO - Running on 1 instances...
+2026-10-31 03:57:30,555 - minisweagent.environment - DEBUG - Starting container with command: docker run -d --name minisweagent-6168c10d -w /workspace --rm --network none --user agent --cap-drop SYS_PTRACE programbench/ajeetdsouza_1776_zoxide.67ca1bc:task_cleanroom_v6 sleep 7h
+2026-10-31 03:57:30,786 - minisweagent.environment - INFO - Started container minisweagent-6168c10d with ID 9a1d44cfee7d513c0758b6ba7ad60bce31c192ceee4d5665c9132b30f6b81002
+2026-10-31 04:10:17,688 - minisweagent - INFO - Saved trajectory to 'programbench_results_1793419039/ajeetdsouza__zoxide.67ca1bc/ajeetdsouza__zoxide.67ca1bc.traj.json'

@@ -1,0 +1,25 @@
+job_name: ds-smoke-2
+jobs_dir: /workspace/jobs
+n_attempts: 1
+n_concurrent_trials: 1
+agent_timeout_multiplier: 0.08
+verifier_timeout_multiplier: 0.5
+environment:
+  type: docker
+  cpu_enforcement_policy: ignore
+  memory_enforcement_policy: ignore
+  delete: false
+agents:
+  - name: mini-swe-agent
+    model_name: openai/deepseek-v4-flash
+    kwargs:
+      model_class: litellm
+      model_kwargs:
+        api_base: https://ark.cn-beijing.volces.com/api/plan/v1
+        max_tokens: 16384
+        drop_params: true
+datasets:
+  - path: /workspace/data/deep-swe/tasks
+    task_names:
+      - abs-module-cache-flags
+    n_tasks: 1
