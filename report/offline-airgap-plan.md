@@ -198,3 +198,11 @@ docker compose -f offline/docker-compose.yml exec runner bash /workspace/offline
 2. 内网模型的具体地址、是否需要自签证书、限流（QPS/TPM）。
 3. 公司是否允许外带硬盘/笔记本，是否有镜像白名单（走 IT 流程）。
 4. 第一批是否就按 Automation + ProgramBench 5 题 + DeepSWE 10 题（默认建议）。
+
+## 11. 第一批打包实测（2026-10-31）
+
+- 产物：`E:\bench-bundle`（移动 SSD），整包 **5.06 GB**；`images/bench-images.tar` **5.01 GB**，含 14 个镜像。
+- 关键点：**单 tar `docker save` 去重共享层**，否则逐个 save 会膨胀到 ~50GB。
+- 镜像：runner + 3 个 ProgramBench 任务 + 10 个 DeepSWE 任务（public ECR）。
+- 已验证：docker load / sha256 / 工具链 / docker.sock 兄弟容器 / `--network none` 下 AutomationBench+mock 完整跑通。
+- 详见 [first-batch-bundle.md](first-batch-bundle.md)。

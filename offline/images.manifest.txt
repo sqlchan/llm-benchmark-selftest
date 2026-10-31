@@ -1,23 +1,19 @@
-# 需要打包的 Docker 镜像清单（每行一个 image:tag；# 开头为注释）
-# 体积敏感，MVP 先只放必需项；每个镜像会 docker pull 后 docker save 到 bundle/images/。
-#
-# TODO verify：以下镜像名/任务 ID 只是示例，按你选定的子集替换。
-# —— ProgramBench：固定 5 个任务镜像（任务 ID 见 Docker Hub programbench 组织，共 200 个）
-# 命名格式：programbench/<owner>_1776_<project>.<hash>:task_cleanroom_v6；单镜像实测约 4.2GB
+﻿# 第一批实际打包镜像（2026-10-31，已验证；单 tar docker save 后整包 5.01GB）
+# —— ProgramBench：3 题（命名规则 instance_id.replace('__','_1776_')）
 programbench/ajeetdsouza_1776_zoxide.67ca1bc:task_cleanroom_v6
-# 其余 4 个示例（需自行确认存在）：从 https://hub.docker.com/v2/repositories/programbench/ 选取
-# programbench/<owner>_1776_<project>.<hash>:task_cleanroom_v6
-
-# —— DeepSWE：10 个任务的预构建镜像（镜像仓库前缀以任务 task.toml/Dockerfile 为准）
-# TODO verify: deep-swe 任务镜像的实际 registry/命名
-# <registry>/<deep-swe-task-image>:<tag>
-
-# —— Terminal-Bench 4.0：官方以 prebuilt 镜像发布（不是逐个 pull），见 build 脚本 data 段
-# TODO verify: 66 题镜像的导入方式（release 里的 prebuilt tar）
-
-# —— NL2Repo：OpenHands 0.56 双镜像（第二批再带）
-# docker.all-hands.dev/all-hands-ai/openhands:0.56
-# docker.all-hands.dev/all-hands-ai/runtime:0.56-nikolaik
-
-# —— 通用工具镜像（可选，离线排障用）
-# curlimages/curl:latest
+programbench/abishekvashok_1776_cmatrix.5c082c6:task_cleanroom_v6
+programbench/agourlay_1776_zip-password-finder.704700d:task_cleanroom_v6
+# —— DeepSWE：10 题（public ECR；镜像单题约 800MB 层，共享 base 后总量小）
+public.ecr.aws/d3j8x8q7/swe-bench-202605:kh73dq4n55jdxasppe6jjmth4183d47n-v1.1
+public.ecr.aws/d3j8x8q7/swe-bench-202605:kh75rc2q0zhmsqwk7wewfwwtrx830v2n-v1.1
+public.ecr.aws/d3j8x8q7/swe-bench-202605:kh75679ajj3b8dtd7se3h7z0a1833y6r-v1.1
+public.ecr.aws/d3j8x8q7/swe-bench-202605:kh7d5m4ed35zfp7gyhx7wdahed82yw72-v1.1
+public.ecr.aws/d3j8x8q7/swe-bench-202605:kh771gpr8crkjsnt9pj81bafgs8229em-v1.1
+public.ecr.aws/d3j8x8q7/swe-bench-202605:kh70bg8gy4xks4eyh1s71ecmk9822p9c-v1.1
+public.ecr.aws/d3j8x8q7/swe-bench-202605:kh72qraccnjwdet6ynagsccr4x82y65c-v1.1
+public.ecr.aws/d3j8x8q7/swe-bench-202605:kh7fkjmy67qny9z98mt6bj52m182ygdy-v1.1
+public.ecr.aws/d3j8x8q7/swe-bench-202605:kh71kat2v58yys3pnyybkgycax832vj2-v1.1
+public.ecr.aws/d3j8x8q7/swe-bench-202605:kh79s1ny2ab454f8caet44rv5n82za06-v1.1
+# —— runner 镜像（本地构建；构建上下文需 data/ 与 offline/）
+# bench-eval-runner:local
+# —— 说明：日常拉取/重打包请用 docker save -o out.tar @(image-list.txt) 单 tar 形式，避免共享层重复占空间
