@@ -1,17 +1,19 @@
-# 评测 runner 镜像（模板）
+# 评测 runner 镜像（仓库版模板；第一批实测版本见离线包/ first-batch-bundle.md）
 # 构建（在仓库根目录）：docker build -f offline/Dockerfile.runner -t bench-eval-runner:local .
 #
 # 说明：
 # - 只装工具链，不烘焙数据；数据由 docker-compose 挂载（离线，无需联网）。
-# - 版本号为 2026-10-30 调研值，安装前请核对 PyPI（TODO verify）。
 # - 需要 Python 3.12：Harbor/Pier/ALE 要求 >=3.12；Ubuntu 24.04 默认 3.12。
+# - 实测坑（2026-10-31）：
+#   * 容器内 pip 不可用（返回 no versions），全部改用 uv
+#   * mini-extra programbench 需要 programbench 与 mini-swe-agent 在同一环境（--with）
+#   * LiteLLM 1.106 + mini-swe 需要 mcp 包，否则 ModuleNotFoundError
 FROM ubuntu:24.04
 
 ENV DEBIAN_FRONTEND=noninteractive \
     PYTHONUNBUFFERED=1 \
     PIP_NO_CACHE_DIR=1 \
-    HF_HUB_OFFLINE=1 \
-    PIP_NO_INDEX=1
+    HF_HUB_OFFLINE=1
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
         ca-certificates curl git jq unzip xz-utils zstd \
@@ -23,18 +25,11 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 RUN curl -LsSf https://astral.sh/uv/install.sh | sh
 ENV PATH="/root/.local/bin:$PATH"
 
-# 官方 harness（TODO verify：版本号按 PyPI 实际可用版本调整）
+# 官方 harness（版本为 2026-10-30 实测值）
 RUN uv tool install harbor==0.25.0 \
  && uv tool install datacurve-pier==0.3.1 \
- && uv tool install mini-swe-agent==2.4.6
-
-# 通用框架与工具
-RUN pip3 install --break-system-packages --no-cache-dir \
-        "evalscope==1.14.1" \
-        "inspect-ai==0.3.286" \
-        "inspect-evals==0.27.0" \
-        "huggingface_hub[cli]" \
-        openpyxl
+ && uv tool install mini-swe-agent==2.4.6 --with programbench==1.2.5 --with mcp \
+ && uv tool install programbench==1.2.5
 
 # 评测脚本（仓库根目录为 build context）
 COPY offline/run_stage1.sh /workspace/offline/run_stage1.sh

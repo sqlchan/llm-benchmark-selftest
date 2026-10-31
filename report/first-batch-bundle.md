@@ -78,3 +78,21 @@ docker compose -f offline/docker-compose.yml exec runner bash /workspace/offline
 ```
 
 详细说明见离线包内 `README.md`。
+
+## 7. 端到端冒烟实录（2026-10-31）：基础设施通，模型格式待调
+
+用 Ark `deepseek-v4-flash` 跑 ProgramBench 单题（`ajeetdsouza__zoxide`），依次暴露并修复了 4 个问题：
+
+| # | 现象 | 原因 | 修复 |
+| :-: | :-- | :-- | :-- |
+| 1 | `docker run ... exit 125: range of CPUs is from 0.01 to 16.00` | ProgramBench 默认要求 20 CPU / 60GB，本机 16 CPU / 16GB | 覆盖 `environment.run_args`，去掉 `--cpus/--memory/--memory-swap`（公司机器可能同样需要） |
+| 2 | `ModuleNotFoundError: No module named 'programbench'` | `mini-extra programbench` 要求 programbench 在 mini-swe-agent 的同一 Python 环境 | `uv tool install mini-swe-agent --with programbench==1.2.5` |
+| 3 | `ModuleNotFoundError: No module named 'mcp'` | LiteLLM 1.106 懒加载 `mcp` | 同上 `--with mcp` |
+| 4 | `litellm.InternalServerError: Missing credentials` / `LLM Provider NOT provided` | LiteLLM 只读 `OPENAI_API_KEY`；裸模型名无法判断 provider | 容器加 `-e OPENAI_API_KEY`；模型名用 `openai/<model>` 前缀 |
+
+**最终状态**：任务容器启动 ✅、模型 API 调用 ✅、agent 跑了 13 分钟 ✅、`submission.tar.gz` + 轨迹已生成 ✅；但 Ark `deepseek-v4-flash` 是推理型模型，经 LiteLLM 输出的内容反复无法被 mini-swe-agent 解析（`RepeatedFormatError`），ProgramBench 判分未完成。
+
+**结论**：
+- 离线包与容器链路**没有阻塞问题**；卡点在「推理模型的 tool-call 输出格式」与 scaffold 的适配。
+- 到公司用内网模型时，建议先跑 `run_stage1.sh` 的 Automation simple 1 题；若模型也有 reasoning/tool-call 格式问题，需要按 `report/api-only-5bench-plan.md` 的做法调 `format_error_template` / 换非推理模型 / 用支持原生 tool-calling 的模型。
+- DeepSWE（Pier + mini-swe-agent）同样会受此影响，建议先用 1 题验证模型格式兼容性再放量。
