@@ -25,8 +25,9 @@
 #       > "$BUNDLE/jobs/deepswe-32c64g.local.yaml"
 #   docker run --rm -it \
 #     -v /var/run/docker.sock:/var/run/docker.sock -v "$BUNDLE:$BUNDLE" -w "$BUNDLE" \
-#     -e OPENAI_API_KEY \
+#     -e OPENAI_API_KEY -e DOCKER_API_VERSION=1.41 \
 #     bench-eval-runner:v2 pier run -c "$BUNDLE/jobs/deepswe-32c64g.local.yaml"
+# （CentOS 7 / Docker 20.10 必须带 DOCKER_API_VERSION=1.41，否则 runner 内的新 CLI 会报 client version too new）
 # 说明：模型 key 只通过环境变量传给 Pier（LiteLLM 读 OPENAI_API_KEY），不写进 YAML；
 # api_base 必须写进 YAML 才能被 LiteLLM 使用，所以用「包内本地副本」运行、该副本
 # 不入 git（放 jobs/ 下即可）。

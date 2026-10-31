@@ -57,12 +57,23 @@ fi
 : "${OPENAI_API_BASE:?company.env 需要 OPENAI_API_BASE}"
 : "${MODEL_NAME:?company.env 需要 MODEL_NAME}"
 
+# 宿主机 Docker 较旧时（如 CentOS 7 的 Docker 20.10），runner 镜像里较新的 Docker CLI
+# 会因默认 API 版本过新被 daemon 拒绝（client version too new, max 1.41）。
+# 这里按宿主机 daemon 的 API 版本显式指定；探测不到时用 1.41 兜底（兼容 20.10+）。
+HOST_DOCKER_API="$(docker version --format '{{.Server.APIVersion}}' 2>/dev/null || true)"
+if [ -z "${HOST_DOCKER_API:-}" ]; then
+  HOST_DOCKER_API=1.41
+  echo "[batch2] WARN: 无法探测宿主 Docker API 版本，按 1.41 兜底" >&2
+fi
+echo "[batch2] host docker API=$HOST_DOCKER_API"
+
 docker run --rm -it \
   --name bench-eval-runner-batch2 \
   -v /var/run/docker.sock:/var/run/docker.sock \
   -v "$BUNDLE:$BUNDLE" \
   -w "$BUNDLE" \
   --add-host host.docker.internal:host-gateway \
+  -e DOCKER_API_VERSION="$HOST_DOCKER_API" \
   -e BUNDLE_DIR="$BUNDLE" \
   -e NL2REPO_HOST_ROOT="$BUNDLE/data/nl2repo/harness" \
   -e OPENAI_API_BASE -e OPENAI_API_KEY -e MODEL_NAME \
