@@ -16,6 +16,8 @@ offline/
 ├─ run_batch2.sh         # 第二批入口：TB4 + NL2Repo（runner 以相同绝对路径挂载离线包）
 ├─ run_batch2_inner.sh   # 第二批入口（容器内执行）
 ├─ fix_tb4_images.sh     # 给 15 个 TB4 派生镜像追加 mcp 补丁层（load_bundle.sh 自动调用）
+├─ save_tb4_extra_tar.ps1  # 扩题：导出第三批 tar
+├─ build_tb4_derived_extra.ps1  # 扩题：构建派生 env 镜像
 ├─ patches/
 │   └─ harbor_offline_patch.py  # Harbor 0.25.0 离线补丁（apt/agent 安装）
 ├─ tb4-agent-payload/    # TB4 离线 agent 载荷 Dockerfile（派生任务镜像用）

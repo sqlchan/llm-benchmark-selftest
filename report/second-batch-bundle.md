@@ -1,9 +1,10 @@
 # 第二批离线包：Terminal-Bench 4.0 + NL2Repo-Bench 打包实录（2026-10-31）
 
-> 目标：把 **Terminal-Bench 4.0（v4.0.0）15 题** 与 **NL2Repo-Bench 10 题** 做成断网 Linux + Docker 可运行的离线包，模型走公司内网 OpenAI 兼容端点。
+> 目标：把 **Terminal-Bench 4.0（v4.0.0，15 → 36 题）** 与 **NL2Repo-Bench 10 题** 做成断网 Linux + Docker 可运行的离线包，模型走公司内网 OpenAI 兼容端点。
 > 产物：`E:\bench-bundle\images\bench-images-batch2.tar`（**21.24 GB**，SHA256 `f91f4d9b70e9dcb5b86836df914f9cc873787a507fcf020fd8b3cde95e4faba9`）、
+> `images/bench-images-tb4-extra.tar`（**21.14 GiB / 22.70 GB**，SHA256 `113bc3edadd235222a764b14ec1e7e7eaf81db1ff5e959a0f91acd6df29d3997`，扩题至 36 题）、
 > `images/bench-images-runner-v2.tar`（0.59 GB，SHA256 `1d167439805f7ad05866fdddae0e91f8683208e9c7e8d4b19e46c3c5da04eb34`）、
-> `data/tb4/`、`data/nl2repo/`、`offline/run_batch2*.sh`。离线包整包约 25.6 GB。
+> `data/tb4/`（36 题）、`data/nl2repo/`、`offline/run_batch2*.sh`。离线包整包约 46.8 GiB。
 > 结论：**两个基准的离线链路都已打通**（详见第 6 节验证矩阵）。
 
 ## 1. 为什么第二批难在第一批之上
@@ -130,6 +131,8 @@ ModuleNotFoundError: No module named 'mcp'
 | NL2Repo harness 端到端（容器 + Ark） | ✅ app/runtime 容器启动、LLM 调用、workspace 挂载写文件、后处理构建评测镜像、pytest 运行与结果 JSON |
 | OpenHands 0.56 双镜像 | ✅ `ghcr.io/all-hands-ai/openhands:0.56`(1.8GB)、`runtime:0.56-nikolaik`(3.0GB) |
 | batch2 tar 完整性 | ✅ `tar -tf` 716 entries / 0 error（Docker 29 的 OCI archive 格式） |
+| **扩题**：TB4 oracle（`interleaved-vigenere`，派生镜像 + verifier tag） | ✅ **reward=1.0**（59 秒） |
+| **扩题**：tb4-extra tar | ✅ 22.70 GB，SHA256 `113bc3ed…3997`；含 21 env 派生 + 21 verifier + 15 sidecar |
 
 > 备注 1：NL2Repo 冒烟把 `max_iterations` 降到 8 是为了快速验证链路（agent 8 轮后停止，得分很低属正常）；
 > workspace 挂载/写文件已单独用 "写 hello.txt" 验证通过。
@@ -170,3 +173,33 @@ BUNDLE_DIR=$PWD NL2REPO_TASKS=aiofiles,humanize ./offline/run_batch2.sh nl2repo
 - **NL2Repo 单题成本/时长波动大**（官方不设轮数上限）；默认串行（端口 3000 固定）。
 - **NL2Repo 测试命令改写**属于离线适配，与官方口径有差异，报告引用时需注明。
 - TB4 `oracle` 自检已验证；**agent 真实跑分未在本机完成**（单题 8h 预算，冒烟只验证链路）。
+
+## 10. 扩题：TB4 15 → 36 题（2026-10-31 晚）
+
+**范围**：把 TB4 子集从 15 题扩到 **36 题**，覆盖全部与软件开发相关的 CPU 任务
+（Software 18 + Operations 9 + Security 5 + Media 4）；仍排除 3 个 H100 GPU 任务，
+以及 Science(14) / ML(8 CPU) / Hardware(5) —— 与开发场景相关度低、且部分任务依赖公网。
+
+新增 21 题：
+
+| 领域 | 新增任务 |
+| :-- | :-- |
+| Software（6） | `data-anonymization`、`distributed-dedup`、`ontology-kg-querying`、`photonic-waveguide-routing`、`rs-archive-clone`、`telecom-entity-resolution` |
+| Operations（8） | `cargo-flight-dispatch`、`ctr-optimization`、`fin-saccr-rwa`、`freight-dispatch-shift`、`heat-pump-warranty`、`intrastat-meldung`、`medical-claims-processing`、`production-planning` |
+| Security（3） | `formal-crypto`、`interleaved-vigenere`、`uefi-bootkit` |
+| Media（4） | `layout-config-recreation`、`layout-config-recreation2`、`music-harmony`、`satb-audio-transcription` |
+
+**新增镜像（57 个）**：21 个派生 environment（官方镜像 + 离线 agent 载荷，载荷已含 mcp、
+`LITELLM_LOCAL_MODEL_COST_MAP=True`）+ 21 个官方 verifier + 15 个 sidecar（均按 release tag）。
+
+**产物**：`images/bench-images-tb4-extra.tar` **21.14 GiB（22.70 GB）**，
+SHA256 `113bc3edadd235222a764b14ec1e7e7eaf81db1ff5e959a0f91acd6df29d3997`。
+E 盘离线包整包 46.8 GiB；`data/tb4/tasks` 36 个目录。
+
+**验证**：`interleaved-vigenere` 用派生镜像 + verifier tag 跑 oracle → **reward=1.0**（59 秒）。
+
+**加载与运行**：`load_bundle.sh` 按文件名排序加载（batch2 → tb4-extra → runner-v2），
+任务目录已是 36 个；`run_batch2.sh tb4` 默认跑全部 36 题（可用 `TB4_TASKS` 限定）。
+
+**磁盘**：扩题再次拉取/构建约 60GB 镜像，本机 Docker vhdx 涨到 118.7GB，需要再执行一次
+“清空 Docker 镜像 + compact vhdx”（流程同第 9 节/维护手册）；在公司端加载不受影响。

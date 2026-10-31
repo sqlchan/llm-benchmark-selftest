@@ -224,5 +224,6 @@ docker compose -f offline/docker-compose.yml exec runner bash /workspace/offline
   5. OpenHands 对 bind mount 要求宿主机绝对路径 → **runner 以相同绝对路径挂载离线包** + `NL2REPO_HOST_ROOT`；
   6. NL2Repo 评测 `pip install -e .` 需构建后端 → **派生测试镜像预装 + `--no-build-isolation --no-index`**。
 - 已验证：TB4 oracle（官方镜像/派生镜像）reward=1；派生镜像断网 agent 安装成功；NL2Repo harness 端到端（容器/模型/挂载/评测）跑通。
+- 扩题（2026-10-31 晚）：TB4 从 15 题扩到 36 题（Software/Operations/Security/Media 全量 CPU 题），新增 `images/bench-images-tb4-extra.tar`（22.70 GB，SHA256 `113bc3ed…3997`），oracle 验证 reward=1。
 - 打包末期发现的额外坑：LiteLLM 1.106 顶层导入依赖 `mcp`，而 Harbor 安装命令未带 `--with mcp` → TB4 agent 启动即退出。
   修复方式：给 15 个派生镜像追加 ~5.6MB 的 mcp 补丁层（`offline/fix_tb4_images.sh`，`load_bundle.sh` 自动执行）。
