@@ -59,14 +59,14 @@ cd sandbox\AutomationBench
 
 # 3) 先 5 题（deepseek-v4-flash）
 uv run auto-bench --model deepseek-v4-flash `
-  --base-url https://ark.cn-beijing.volces.com/api/v3 `
+  --base-url https://ark.cn-beijing.volces.com/api/plan/v1 `
   --api-key-var OPENAI_API_KEY --api chat_completions `
   --domains simple --num-examples 5 --max-concurrent 4 `
   --export-json ..\ark_deepseek_v4_flash_simple5.json
 
 # 4) 再 5 题（glm-5.3-flash），每条命令只换 model 与输出文件
 uv run auto-bench --model glm-5.3-flash `
-  --base-url https://ark.cn-beijing.volces.com/api/v3 `
+  --base-url https://ark.cn-beijing.volces.com/api/plan/v1 `
   --api-key-var OPENAI_API_KEY --api chat_completions `
   --domains simple --num-examples 5 --max-concurrent 4 `
   --export-json ..\ark_glm_5_3_flash_simple5.json
@@ -77,13 +77,23 @@ uv run auto-bench --model glm-5.3-flash `
 - 想让成本进报告：用 `--input-cost/--output-cost`（每 token 美元），否则未知模型可能提示无法计价。
 - `--tasks <task_name>` 可精确锁定题目；`--export-json` 便于跨模型对比。
 
-## 5. 当前阻塞
+## 5. 已解决：Ark 端点不是 `/api/v3`
 
-- 你之前提供的 Ark key 请求返回 **401 AuthenticationError**（`The API key or AK/SK in the request is missing or invalid`），大概率是已经轮换/停用。需要一个新的有效 key 才能跑真实分数。
-- 好消息：除模型服务外，本机链路已全部验证通过；拿到 key 后直接命令即可出分。
+- 用同一把 key 探测发现：`POST https://ark.cn-beijing.volces.com/api/v3/chat/completions` 返回 **401**，但 **`POST https://ark.cn-beijing.volces.com/api/plan/v1/chat/completions` 返回 200**。
+- 即 ArK 的 OpenAI 兼容 base 是 **`https://ark.cn-beijing.volces.com/api/plan/v1`**（用户最初给的 `/api/plan` 是正确前缀）。
+- 两个模型都验证可用：`deepseek-v4-flash`（支持 tool_calls）、`glm-5.3-flash`（推理型，注意给足 max_tokens）。
 
-## 6. 下一步
+## 6. 真实 Ark 实测结果（2026-10-31）
 
-1. 提供有效 Ark key（或你自己按上面命令跑，把 JSON 给我，我来做对比与分析）；
-2. 5 题 simple 跑通后 → 扩到 `--domains sales --num-examples 20`；
-3. 同时开始打包第一批离线包（ProgramBench 5 题 + DeepSWE 10 题），流程见 `offline/README.md`。
+| 模型 | simple 5 题 | 输入/输出 tokens | 工具调用 | 墙钟 | 错误 |
+| :-- | :-- | :-- | --: | --: | --: |
+| deepseek-v4-flash | **5/5 (100%)** | 754,874 / 35,387 | 90 | 489.6 s | 0 |
+| glm-5.3-flash | **5/5 (100%)** | 352,978 / 11,422 | 77 | 322.6 s | 0 |
+
+完整对比与分析见 [`report/ark-simple5-comparison.md`](ark-simple5-comparison.md)，原始 JSON 在 [`report/results/`](results/)。
+
+## 7. 下一步
+
+1. 换有区分度的域：`--domains sales --num-examples 20`（两模型各一轮）；
+2. 补 Ark 单价（`--input-cost/--output-cost`）后写成本列；
+3. 开始打包第一批离线包（ProgramBench 5 题 + DeepSWE 10 题）；Docker Desktop 已启动（daemon 29.9.2）。
