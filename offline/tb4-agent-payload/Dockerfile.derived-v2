@@ -1,0 +1,22 @@
+# TB4 派生任务镜像 v2（扩题用）：预装离线 agent 工具链（载荷已含 mcp）
+# 与 Dockerfile.derived 的差异：USER 0（部分任务镜像的 /etc/passwd 无 root 用户名条目）
+ARG BASE_IMAGE
+FROM ${BASE_IMAGE}
+
+USER 0
+COPY tb4-agent-payload.tar.gz /tmp/tb4-agent-payload.tar.gz
+COPY uv /usr/local/bin/uv
+
+RUN set -eux; \
+    chmod 0755 /usr/local/bin/uv; \
+    tar xzf /tmp/tb4-agent-payload.tar.gz -C /; \
+    rm -f /tmp/tb4-agent-payload.tar.gz; \
+    ln -sf /opt/tb4-agent/bin/mini-swe-agent /usr/local/bin/mini-swe-agent; \
+    chmod -R a+rX /opt/tb4-agent
+
+ENV UV_CACHE_DIR=/opt/tb4-agent/uv-cache \
+    UV_PYTHON_INSTALL_DIR=/opt/tb4-agent/python \
+    UV_TOOL_DIR=/opt/tb4-agent/tools \
+    UV_TOOL_BIN_DIR=/opt/tb4-agent/bin \
+    UV_OFFLINE=1 \
+    LITELLM_LOCAL_MODEL_COST_MAP=True
