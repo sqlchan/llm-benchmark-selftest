@@ -1,0 +1,19 @@
+# TB4 离线 agent 载荷（备选构建：基于已加载的 runner 镜像，避免再次拉 ubuntu:24.04）
+# 目标：产物 /payload/{tb4-agent-payload.tar.gz, uv}，随后 COPY 进每个 TB4 任务镜像。
+FROM bench-eval-runner:local
+
+ENV UV_CACHE_DIR=/opt/tb4-agent/uv-cache \
+    UV_PYTHON_INSTALL_DIR=/opt/tb4-agent/python \
+    UV_TOOL_DIR=/opt/tb4-agent/tools \
+    UV_TOOL_BIN_DIR=/opt/tb4-agent/bin
+
+RUN uv python install 3.12 \
+ && uv tool install --python 3.12 mini-swe-agent==2.4.6 \
+        --with litellm --with orjson --with fastapi --with mcp
+
+RUN mkdir -p /payload \
+ && tar czf /payload/tb4-agent-payload.tar.gz -C / opt/tb4-agent \
+ && install -m 0755 /root/.local/bin/uv /payload/uv \
+ && du -sh /payload/*
+
+CMD ["true"]

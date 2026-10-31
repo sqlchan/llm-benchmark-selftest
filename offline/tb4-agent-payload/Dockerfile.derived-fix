@@ -1,0 +1,22 @@
+# TB4 派生任务镜像修正层：在已构建的 tb4off/environment:<task> 之上重放 agent 载荷
+# （载荷补齐 mcp：LiteLLM 1.106 顶层导入需要它，否则 agent 启动即 ModuleNotFoundError）
+ARG BASE_IMAGE
+FROM ${BASE_IMAGE}
+
+USER root
+COPY tb4-agent-payload.tar.gz /tmp/tb4-agent-payload.tar.gz
+COPY uv /usr/local/bin/uv
+
+RUN set -eux; \
+    chmod 0755 /usr/local/bin/uv; \
+    rm -rf /opt/tb4-agent; \
+    tar xzf /tmp/tb4-agent-payload.tar.gz -C /; \
+    rm -f /tmp/tb4-agent-payload.tar.gz; \
+    ln -sf /opt/tb4-agent/bin/mini-swe-agent /usr/local/bin/mini-swe-agent; \
+    chmod -R a+rX /opt/tb4-agent
+
+ENV UV_CACHE_DIR=/opt/tb4-agent/uv-cache \
+    UV_PYTHON_INSTALL_DIR=/opt/tb4-agent/python \
+    UV_TOOL_DIR=/opt/tb4-agent/tools \
+    UV_TOOL_BIN_DIR=/opt/tb4-agent/bin \
+    UV_OFFLINE=1

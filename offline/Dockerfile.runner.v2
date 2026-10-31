@@ -1,0 +1,50 @@
+# 评测 runner 镜像 v2（第二批：TB4 + NL2Repo 支持）
+# 构建（仓库根目录）：
+#   docker build -f offline/Dockerfile.runner.v2 -t bench-eval-runner:local .
+#
+# 相比第一批模板新增：
+#   - docker-buildx（NL2Repo 后处理需要 `docker build`，pier/harbor 之外唯一缺失）
+#   - python-on-whales venv（NL2Repo harness 依赖）
+#   - Harbor 离线补丁：
+#       1) ca_certificates 的 always_install 关闭（断网时不再 apt-get update）
+#       2) mini-swe-agent 若已在任务镜像里预装（/opt/tb4-agent），跳过联网安装
+FROM ubuntu:24.04
+
+ENV DEBIAN_FRONTEND=noninteractive \
+    PYTHONUNBUFFERED=1 \
+    PIP_NO_CACHE_DIR=1 \
+    HF_HUB_OFFLINE=1
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+        ca-certificates curl git jq unzip xz-utils zstd \
+        python3 python3-pip python3-venv \
+        docker.io docker-compose-v2 docker-buildx \
+    && rm -rf /var/lib/apt/lists/*
+
+# uv（提供隔离的 Python 环境；Harbor/Pier 需要 3.12）
+RUN curl -LsSf https://astral.sh/uv/install.sh | sh
+ENV PATH="/root/.local/bin:$PATH"
+
+# 官方 harness（版本为 2026-10-30 实测值）
+RUN uv tool install harbor==0.25.0 \
+ && uv tool install datacurve-pier==0.3.1 \
+ && uv tool install mini-swe-agent==2.4.6 --with programbench==1.2.5 --with mcp \
+ && uv tool install programbench==1.2.5
+
+# NL2Repo harness 依赖（python-on-whales 驱动宿主机 docker）
+RUN uv venv /opt/nl2repo-venv --python 3.12 \
+ && uv pip install --python /opt/nl2repo-venv/bin/python python-on-whales
+
+# Harbor 离线补丁（断网 agent 安装）
+COPY offline/patches/harbor_offline_patch.py /opt/harbor_offline_patch.py
+RUN python3 /opt/harbor_offline_patch.py
+
+# 评测脚本（仓库根目录为 build context）
+COPY offline/run_stage1.sh /workspace/offline/run_stage1.sh
+RUN chmod +x /workspace/offline/run_stage1.sh
+
+WORKDIR /workspace
+# Harbor 离线补丁读取该变量：依赖安装失败时只告警不中断
+ENV HARBOR_OFFLINE=1
+# 用宿主机的 docker.sock 跑任务容器（docker-outside-of-docker），容器内不启动 dockerd
+CMD ["sleep", "infinity"]

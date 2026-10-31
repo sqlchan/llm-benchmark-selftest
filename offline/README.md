@@ -10,8 +10,16 @@ offline/
 ├─ build_bundle.ps1      # 有外网的 Windows 机器：拉镜像/数据 → 导出 tar → 生成校验和
 ├─ load_bundle.ps1       # Windows 机器加载（家里自测用）
 ├─ load_bundle.sh        # 公司 Linux 机器加载：校验 → docker load → 写配置
-├─ Dockerfile.runner     # 评测 runner 镜像（harness + 数据）
+├─ Dockerfile.runner     # 评测 runner 镜像 v1（第一批）
+├─ Dockerfile.runner.v2  # 评测 runner 镜像 v2（第二批：+buildx / NL2Repo venv / Harbor 离线补丁）
 ├─ docker-compose.yml    # runner 服务（挂载宿主机 docker.sock）
+├─ run_batch2.sh         # 第二批入口：TB4 + NL2Repo（runner 以相同绝对路径挂载离线包）
+├─ run_batch2_inner.sh   # 第二批入口（容器内执行）
+├─ fix_tb4_images.sh     # 给 15 个 TB4 派生镜像追加 mcp 补丁层（load_bundle.sh 自动调用）
+├─ patches/
+│   └─ harbor_offline_patch.py  # Harbor 0.25.0 离线补丁（apt/agent 安装）
+├─ tb4-agent-payload/    # TB4 离线 agent 载荷 Dockerfile（派生任务镜像用）
+├─ nl2repo-test-fix/     # NL2Repo 离线测试镜像 Dockerfile（预装构建后端/依赖）
 ├─ tools/
 │   └─ mock_openai_server.py  # 无 key 时验证链路的本地 mock 端点
 ├─ images.manifest.txt   # 需要打包的镜像清单（MVP 先填少量）

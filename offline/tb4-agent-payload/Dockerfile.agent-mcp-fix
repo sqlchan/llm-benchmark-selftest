@@ -1,0 +1,16 @@
+# TB4 派生任务镜像补丁层：补齐 mcp 及其依赖（LiteLLM 1.106 顶层导入需要）
+# 构建上下文 = sandbox/batch2/payload（含 agent-extra.tar.gz）
+ARG BASE_IMAGE
+FROM ${BASE_IMAGE}
+
+USER 0
+COPY agent-extra.tar.gz /tmp/agent-extra.tar.gz
+
+RUN set -eux; \
+    SP=/opt/tb4-agent/tools/mini-swe-agent/lib/python3.12/site-packages; \
+    tar xzf /tmp/agent-extra.tar.gz -C "$SP"; \
+    rm -f /tmp/agent-extra.tar.gz; \
+    chmod -R a+rX "$SP"
+
+# LiteLLM 启动时会尝试联网拉取 model cost map；离线环境直接使用本地备份
+ENV LITELLM_LOCAL_MODEL_COST_MAP=True
