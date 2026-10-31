@@ -1,4 +1,4 @@
-﻿# 公司（断网）机器上执行：校验 SHA256 → docker load 镜像 → 生成配置模板
+# 公司（断网）机器上执行：校验 SHA256 → docker load 镜像 → 生成配置模板
 #
 # 用法：
 #   .\load_bundle.ps1 -Bundle E:\bench-bundle
@@ -14,15 +14,31 @@ $imagesDir = Join-Path $Bundle "images"
 if (-not (Test-Path $imagesDir)) { throw "找不到 $imagesDir，确认 Bundle 路径" }
 
 # ---------- 1) SHA256 校验 ----------
-$sumFile = Join-Path $Bundle "SHA256SUMS"
-if (-not $SkipVerify -and (Test-Path $sumFile)) {
-    Write-Host "== 校验 SHA256 ==" -ForegroundColor Cyan
+# 优先用 images/SHA256SUMS（路径相对 images/）；否则用包根 SHA256SUMS（路径相对包根）
+$sumInImages = Join-Path $imagesDir "SHA256SUMS"
+$sumAtRoot = Join-Path $Bundle "SHA256SUMS"
+if (-not $SkipVerify -and (Test-Path $sumInImages)) {
+    Write-Host "== 校验 SHA256（images/SHA256SUMS） ==" -ForegroundColor Cyan
     $bad = 0
-    Get-Content $sumFile | ForEach-Object {
+    Get-Content $sumInImages | ForEach-Object {
         $parts = $_ -split '\s+', 2
         if ($parts.Count -ne 2) { return }
         $expected, $name = $parts[0], $parts[1].Trim()
         $path = Join-Path $imagesDir $name
+        if (-not (Test-Path $path)) { Write-Host "[missing] $name" -ForegroundColor Yellow; $bad++; return }
+        $actual = (Get-FileHash -Algorithm SHA256 -Path $path).Hash.ToLower()
+        if ($actual -ne $expected) { Write-Host "[bad] $name" -ForegroundColor Red; $bad++ }
+        else { Write-Host "[ok]  $name" -ForegroundColor Green }
+    }
+    if ($bad -gt 0) { throw "校验失败 $bad 个文件，停止加载" }
+} elseif (-not $SkipVerify -and (Test-Path $sumAtRoot)) {
+    Write-Host "== 校验 SHA256（SHA256SUMS） ==" -ForegroundColor Cyan
+    $bad = 0
+    Get-Content $sumAtRoot | ForEach-Object {
+        $parts = $_ -split '\s+', 2
+        if ($parts.Count -ne 2) { return }
+        $expected, $name = $parts[0], $parts[1].Trim()
+        $path = Join-Path $Bundle $name
         if (-not (Test-Path $path)) { Write-Host "[missing] $name" -ForegroundColor Yellow; $bad++; return }
         $actual = (Get-FileHash -Algorithm SHA256 -Path $path).Hash.ToLower()
         if ($actual -ne $expected) { Write-Host "[bad] $name" -ForegroundColor Red; $bad++ }

@@ -21,11 +21,16 @@ docker info --format 'docker daemon: {{.ServerVersion}}' >/dev/null 2>&1 || {
 }
 echo "docker daemon OK"
 
-if [ "${SKIP_VERIFY:-}" != "1" ] && [ -f "$BUNDLE/SHA256SUMS" ]; then
-  echo "== 1. SHA256 校验 =="
-  ( cd "$IMAGES" && sha256sum -c "$BUNDLE/SHA256SUMS" )
-elif [ "${SKIP_VERIFY:-}" = "1" ]; then
+if [ "${SKIP_VERIFY:-}" = "1" ]; then
   echo "== 1. 已跳过 SHA256 校验 =="
+elif [ -f "$IMAGES/SHA256SUMS" ]; then
+  # images/SHA256SUMS 里的路径相对 images/ 目录
+  echo "== 1. SHA256 校验（images/SHA256SUMS） =="
+  ( cd "$IMAGES" && sha256sum -c SHA256SUMS )
+elif [ -f "$BUNDLE/SHA256SUMS" ]; then
+  # 包根 SHA256SUMS 里的路径相对包根目录
+  echo "== 1. SHA256 校验（SHA256SUMS） =="
+  ( cd "$BUNDLE" && sha256sum -c SHA256SUMS )
 else
   echo "== 1. 未找到 SHA256SUMS，跳过校验 =="
 fi
