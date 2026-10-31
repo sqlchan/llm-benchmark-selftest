@@ -678,7 +678,7 @@
     },
     "self_test": {
       "feasibility": "medium",
-      "quick_smoke_subset": "先跑 1 个中等任务（如 ffmpeg__ffmpeg.360a402 或 jqlang__jq.b33a763）：用 dockerhub task_cleanroom_v6 镜像做推理，提交 submission.tar.gz 后 programbench eval 单实例目录",
+      "quick_smoke_subset": "先跑 1 个任务：Docker 镜像命名形如 programbench/<owner>_1776_<project>.<hash>:task_cleanroom_v6（2026-10-31 实测 ajeetdsouza_1776_zoxide.67ca1bc 可拉取，约 4.2GB）；任务/测试数据从 HF programbench/ProgramBench-Tests 获取，提交 submission.tar.gz 后 programbench eval 单实例目录",
       "setup_commands": [
         "# TODO verify（以下命令引自官方 README/docs，未在本机执行）",
         "uvx programbench --help",
@@ -686,7 +686,7 @@
         "uv run programbench eval /path/to/my-amazing-agent-run",
         "uv run programbench blob sync   # 预下载 HF 上的测试 blob（可选）"
       ],
-      "gotchas": "① 所有镜像只构建 linux/amd64，Windows/macOS 不能原生跑（QEMU 模拟很慢），需 WSL2 或远程 Linux；② 推理容器必须断网，二进制只可执行不可读（objdump/strings/hexdump 会失败）；③ 每题平均 API 成本高（Opus 5.5 $36/题，200 题约 $7k）；④ eval 会按需拉 Docker 镜像和 HF 测试 blob，磁盘/带宽消耗大；⑤ 2026-10 时公开提交入口尚未开放（coming soon）。"
+      "gotchas": "① 所有镜像只构建 linux/amd64，Windows/macOS 不能原生跑（QEMU 模拟很慢），需 WSL2 或远程 Linux；② 推理容器必须断网，二进制只可执行不可读（objdump/strings/hexdump 会失败）；③ 每题平均 API 成本高（Opus 5.5 $36/题，200 题约 $7k）；④ eval 会按需拉 Docker 镜像和 HF 测试 blob，磁盘/带宽消耗大；⑤ 2026-10 时公开提交入口尚未开放（coming soon）；⑥ 镜像名不是 ffmpeg__ffmpeg.360a402 这种格式，需从 Docker Hub programbench 组织（每页 100 个、共 200 个）或 HF 实例列表取真实实例名；单任务镜像实测约 4.2GB（ajeetdsouza_1776_zoxide.67ca1bc），离线打包 5 题约 21GB。"
     },
     "sources": [
       {
@@ -708,6 +708,10 @@
       {
         "url": "https://huggingface.co/api/datasets/programbench/ProgramBench-Tests",
         "note": "HF 测试集元数据：license=mit、非 gated"
+      },
+      {
+        "url": "https://hub.docker.com/v2/repositories/programbench/",
+        "note": "2026-10-31 核实：programbench 组织共 200 个镜像仓库，命名形如 <owner>_1776_<project>.<hash>；tag 含 task_cleanroom_v6/task_v6/task_cleanroom；拉取 ajeetdsouza_1776_zoxide.67ca1bc 实测镜像约 4.2GB"
       },
       {
         "url": "https://arxiv.org/abs/2605.03546",

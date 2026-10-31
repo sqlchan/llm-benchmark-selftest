@@ -2,9 +2,11 @@
 # 体积敏感，MVP 先只放必需项；每个镜像会 docker pull 后 docker save 到 bundle/images/。
 #
 # TODO verify：以下镜像名/任务 ID 只是示例，按你选定的子集替换。
-# —— ProgramBench：固定 5–10 个任务镜像（任务 ID 见 ProgramBench 榜单/数据）
-programbench/ffmpeg__ffmpeg.360a402:task_cleanroom_v6
-programbench/jqlang__jq.b33a763:task_cleanroom_v6
+# —— ProgramBench：固定 5 个任务镜像（任务 ID 见 Docker Hub programbench 组织，共 200 个）
+# 命名格式：programbench/<owner>_1776_<project>.<hash>:task_cleanroom_v6；单镜像实测约 4.2GB
+programbench/ajeetdsouza_1776_zoxide.67ca1bc:task_cleanroom_v6
+# 其余 4 个示例（需自行确认存在）：从 https://hub.docker.com/v2/repositories/programbench/ 选取
+# programbench/<owner>_1776_<project>.<hash>:task_cleanroom_v6
 
 # —— DeepSWE：10 个任务的预构建镜像（镜像仓库前缀以任务 task.toml/Dockerfile 为准）
 # TODO verify: deep-swe 任务镜像的实际 registry/命名

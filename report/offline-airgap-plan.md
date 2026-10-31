@@ -56,13 +56,13 @@ docker run --rm --privileged bench-eval-runner:local true   # 一般会失败，
 | :-: | :-- | --: | :-- |
 | P0 | runner 镜像（Python3.12 + uv + docker CLI + 5 个 harness + 数据） | 3–8 GB | 一个镜像内含 Pier/Harbor/OpenHands/mini-swe/evalscope，任务数据一起 COPY 进去 |
 | P0 | Automation-Bench 数据（仓库，无任务镜像） | <1 GB | 纯 API，最省事 |
-| P0 | ProgramBench：选定 5–10 个任务镜像 + 测试 blob | 5–20 GB | 官方设计无网，离线最稳 |
+| P0 | ProgramBench：选定 3–5 个任务镜像 + 测试 blob | **约 4.2 GB/题**（实测，5 题≈21 GB） | 官方设计无网，离线最稳；镜像命名形如 `programbench/<owner>_1776_<project>.<hash>:task_cleanroom_v6` |
 | P1 | DeepSWE：选定 10 个任务的预构建镜像 + tasks 目录 | 5–15 GB | 任务定义在 GitHub；镜像需要预拉 |
 | P1 | Terminal-Bench 4.0：数据集 + prebuilt 镜像 | 5–20 GB | 66 题镜像；3 题需 H100，离线包排除 |
 | P2 | NL2Repo：OpenHands 0.56 双镜像 + 仓库 | 5–10 GB | 容器内调模型 + 无轮数上限，离线难度最高 |
 | — | HF gated 数据集（DeepSWE parquet 等） | <1 GB | 打包时用 token 下载并烘进镜像，到公司不需要 HF 权限 |
 
-> 全量 5 个基准的镜像总量可能 50–120GB，**不建议一次全带**；先做 MVP（Automation + ProgramBench 5 题 + DeepSWE 10 题），验证公司环境后再补包。
+> 全量 5 个基准的镜像总量可能 50–120GB，**不建议一次全带**；先做 MVP（Automation + ProgramBench 3–5 题 + DeepSWE 10 题），验证公司环境后再补包。ProgramBench 单题镜像实测约 4.2GB（`ajeetdsouza_1776_zoxide.67ca1bc`），这是体积估算的变化点。
 
 ## 3. 「第一批」是什么意思 / 第一批带什么
 
@@ -70,7 +70,7 @@ docker run --rm --privileged bench-eval-runner:local true   # 一般会失败，
 
 | 批次 | 带什么 | 预估体积 | 目的 |
 | :-- | :-- | --: | :-- |
-| **第一批（MVP）** | Automation-Bench（simple 200 + sales 100）+ ProgramBench 固定 5 题 + DeepSWE 10 题 | **~15–25 GB** | 三个场景各一个代表（工具调用 / 从零实现 / 真实修 bug），体积可控，1–2 天跑完 |
+| **第一批（MVP）** | Automation-Bench（simple 200 + sales 100）+ ProgramBench 3–5 题 + DeepSWE 10 题 | **~20–30 GB**（ProgramBench 实测 4.2 GB/题） | 三个场景各一个代表（工具调用 / 从零实现 / 真实修 bug），体积可控，1–2 天跑完 |
 | 第二批 | Terminal-Bench 4.0（先 10–20 题，排除 3 个 H100 题）+ NL2Repo 10 题 | +15–40 GB | 补「终端 Agent 能力」和「规格→仓库」；离线可用性需先验证 |
 | 第三批（可选） | TB4 全量 66 题、ProgramBench 扩到 20–30 题、NL2Repo 全量 | +50–100 GB | 只在前面批次证明有意义、且公司环境允许时再做 |
 

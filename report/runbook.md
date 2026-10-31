@@ -115,7 +115,7 @@ python main.py
 - **数据入口**：测试集（MIT）：https://huggingface.co/datasets/programbench/ProgramBench-Tests ；运行镜像（tag task_cleanroom_v6）：https://hub.docker.com/orgs/programbench/repositories ；代码/评测 CLI：https://github.com/facebookresearch/ProgramBench
 - **指标/判分**：Resolved（该题全部测试通过的比例，主指标）；辅助 Almost resolved（≥95% 测试通过）与平均测试通过率；judge=unit-tests
 - **官方 harness**：programbench eval /path/to/run（uvx programbench 或 pip 安装后）；推理基线用 mini-extra programbench（mini-swe-agent）
-- **自测难度**：medium；快速子集：先跑 1 个中等任务（如 ffmpeg__ffmpeg.360a402 或 jqlang__jq.b33a763）：用 dockerhub task_cleanroom_v6 镜像做推理，提交 submission.tar.gz 后 programbench eval 单实例目录
+- **自测难度**：medium；快速子集：先跑 1 个任务：Docker 镜像命名形如 programbench/<owner>_1776_<project>.<hash>:task_cleanroom_v6（2026-10-31 实测 ajeetdsouza_1776_zoxide.67ca1bc 可拉取，约 4.2GB）；任务/测试数据从 HF programbench/ProgramBench-Tests 获取，提交 submission.tar.gz 后 programbench eval 单实例目录
 - **整轮成本**：平均 $36.36/题（Opus 5.5）→ 200 题约 $7.3k；官方 FAQ 称个别 run 总成本达 $5k；耗时：unknown（官方未给；单题允许较长步数/时间，几乎不受 step 限制）
 
 命令：
@@ -128,7 +128,7 @@ uv run programbench eval /path/to/my-amazing-agent-run
 uv run programbench blob sync   # 预下载 HF 上的测试 blob（可选）
 ```
 
-坑：① 所有镜像只构建 linux/amd64，Windows/macOS 不能原生跑（QEMU 模拟很慢），需 WSL2 或远程 Linux；② 推理容器必须断网，二进制只可执行不可读（objdump/strings/hexdump 会失败）；③ 每题平均 API 成本高（Opus 5.5 $36/题，200 题约 $7k）；④ eval 会按需拉 Docker 镜像和 HF 测试 blob，磁盘/带宽消耗大；⑤ 2026-10 时公开提交入口尚未开放（coming soon）。
+坑：① 所有镜像只构建 linux/amd64，Windows/macOS 不能原生跑（QEMU 模拟很慢），需 WSL2 或远程 Linux；② 推理容器必须断网，二进制只可执行不可读（objdump/strings/hexdump 会失败）；③ 每题平均 API 成本高（Opus 5.5 $36/题，200 题约 $7k）；④ eval 会按需拉 Docker 镜像和 HF 测试 blob，磁盘/带宽消耗大；⑤ 2026-10 时公开提交入口尚未开放（coming soon）；⑥ 镜像名不是 ffmpeg__ffmpeg.360a402 这种格式，需从 Docker Hub programbench 组织（每页 100 个、共 200 个）或 HF 实例列表取真实实例名；单任务镜像实测约 4.2GB（ajeetdsouza_1776_zoxide.67ca1bc），离线打包 5 题约 21GB。
 
 官方来源：
 - <https://programbench.com/>
@@ -136,7 +136,7 @@ uv run programbench blob sync   # 预下载 HF 上的测试 blob（可选）
 - <https://raw.githubusercontent.com/facebookresearch/ProgramBench/main/docs/README.md>
 - <https://raw.githubusercontent.com/facebookresearch/ProgramBench/main/LICENSE>
 - <https://huggingface.co/api/datasets/programbench/ProgramBench-Tests>
-- <https://arxiv.org/abs/2605.03546>
+- <https://hub.docker.com/v2/repositories/programbench/>
 
 
 ## Agent / 自动化
