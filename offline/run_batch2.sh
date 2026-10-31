@@ -12,6 +12,11 @@
 #   ./offline/run_batch2.sh nl2repo         # 跑 NL2Repo 选中子集
 #   ./offline/run_batch2.sh shell           # 进 runner 交互 shell（自检/调试）
 #   ./offline/run_batch2.sh oracle          # TB4 oracle 自检（不需要模型）
+#
+# 可选 PROFILE：在 company.env 之后叠加离线包内的并发 profile，例如
+#   PROFILE=32c64g ./offline/run_batch2.sh nl2repo
+# 会依次 source offline/env/company.env（端点/模型）和 offline/config/32c64g.env
+# （并发/超时等参数）；后者覆盖前者同名变量。profile 文件不存在时报错退出。
 set -euo pipefail
 
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -26,6 +31,29 @@ fi
 
 # shellcheck disable=SC1091
 set -a; . "$BUNDLE/offline/env/company.env"; set +a
+
+# 可选 profile：company.env 提供端点/模型，profile 覆盖并发/超时等运行参数。
+PROFILE="${PROFILE:-}"
+if [ -n "$PROFILE" ]; then
+  PROFILE_FILE="$BUNDLE/offline/config/$PROFILE.env"
+  if [ ! -f "$PROFILE_FILE" ]; then
+    echo "缺少 profile 文件: $PROFILE_FILE" >&2
+    echo "PROFILE=$PROFILE 需要在离线包 offline/config/ 下有对应 .env（可用 profile：）" >&2
+    if compgen -G "$BUNDLE/offline/config/*.env" >/dev/null 2>&1; then
+      for f in "$BUNDLE"/offline/config/*.env; do
+        echo "  - $(basename "$f" .env)" >&2
+      done
+    else
+      echo "  （offline/config/ 下没有任何 .env）" >&2
+    fi
+    echo "检查 PROFILE 拼写，或先准备 offline/config/$PROFILE.env（参考 offline/config/README 或 report/company-32c64g-concurrency.md）" >&2
+    exit 2
+  fi
+  echo "[batch2] 加载 profile: $PROFILE ($PROFILE_FILE)"
+  # shellcheck disable=SC1090
+  set -a; . "$PROFILE_FILE"; set +a
+fi
+
 : "${OPENAI_API_BASE:?company.env 需要 OPENAI_API_BASE}"
 : "${MODEL_NAME:?company.env 需要 MODEL_NAME}"
 
@@ -44,6 +72,8 @@ docker run --rm -it \
   -e NL2REPO_TASKS="${NL2REPO_TASKS:-}" \
   -e NL2REPO_MAX_POOL="${NL2REPO_MAX_POOL:-1}" \
   -e NL2REPO_MAX_ITERATIONS="${NL2REPO_MAX_ITERATIONS:-500}" \
+  -e NL2REPO_PORT_BASE="${NL2REPO_PORT_BASE:-3000}" \
+  -e NL2REPO_CLEANUP="${NL2REPO_CLEANUP:-0}" \
   "$RUNNER_IMAGE" \
   bash -lc "exec bash '$BUNDLE/offline/run_batch2_inner.sh' '$MODE'"
 

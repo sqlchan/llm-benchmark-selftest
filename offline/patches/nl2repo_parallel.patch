@@ -1,0 +1,208 @@
+diff -ruN a/openhands/openhands_app.py b/openhands/openhands_app.py
+--- a/openhands/openhands_app.py	2026-10-31 15:52:03.122440200 +0800
++++ b/openhands/openhands_app.py	2026-10-31 20:20:40.563513600 +0800
+@@ -1,3 +1,16 @@
++"""OpenHands 并发调度入口。
++
++并发相关环境变量（也可由 config.json 中同名字段覆盖，config 优先）：
++- ``NL2REPO_PORT_BASE``：宿主端口基数，默认 3000；第 i 个任务的宿主端口 = base + i，
++  容器名 ``openhands-app-<port>``。多个 harness 进程并行时给不同基数即可错开端口。
++- ``NL2REPO_CLEANUP``：设为 1/true 时，启动线程池前清理本批次任务名对应的残留容器
++  （``openhands-app-<port>`` / ``python-test-<task_uuid>``，默认关闭，仅清理本批次名字）。
++- ``NL2REPO_HOST_ROOT``：本 harness 在宿主机上的绝对路径（harness 自身跑在容器里时必填）。
++
++并发隔离设计：每个任务的 OpenHands state 卷为 ``.openhands-<port>``，workspace 为
++``workspaces/<task_uuid>``，post-process 镜像/容器名为 ``python-test-<task_uuid>``，
++因此并发任务之间没有共享可变目录。
++"""
+ import concurrent.futures
+ import json
+ import os
+@@ -33,6 +46,50 @@
+     return os.path.join(_host_root(), *parts).replace("\\", "/")
+ 
+ 
++DEFAULT_PORT_BASE = 3000
++
++
++def _env_int(name: str, default: int) -> int:
++    """Read an integer environment variable, warn + fall back on bad values."""
++    raw = os.environ.get(name)
++    if raw is None or str(raw).strip() == "":
++        return default
++    try:
++        return int(str(raw).strip())
++    except ValueError:
++        logger.warning(f"环境变量 {name}={raw!r} 不是整数，使用默认值 {default}")
++        return default
++
++
++_TRUE_VALUES = ("1", "true", "yes", "on")
++
++
++def _as_bool(value) -> bool:
++    if isinstance(value, bool):
++        return value
++    return str(value).strip().lower() in _TRUE_VALUES
++
++
++def _resolve_port_base(config: dict) -> int:
++    """端口基数：config.json 的 port_base > 环境变量 NL2REPO_PORT_BASE > 3000。"""
++    if config.get("port_base") not in (None, ""):
++        try:
++            return int(config["port_base"])
++        except (TypeError, ValueError):
++            logger.warning(f"config.json 中 port_base={config.get('port_base')!r} 不是整数，回退到环境变量")
++    return _env_int("NL2REPO_PORT_BASE", DEFAULT_PORT_BASE)
++
++
++def _resolve_cleanup(config: dict) -> bool:
++    """是否在启动前清理残留容器：config.json 的 cleanup > 环境变量 NL2REPO_CLEANUP > 关闭。"""
++    if config.get("cleanup") is not None:
++        return _as_bool(config["cleanup"])
++    raw = os.environ.get("NL2REPO_CLEANUP")
++    if raw is None or str(raw).strip() == "":
++        return False
++    return _as_bool(raw)
++
++
+ 
+ # Single App Data Object
+ class AppData:
+@@ -109,6 +166,48 @@
+     return container.id
+ 
+ 
++def cleanup_stale_containers(task_list) -> None:
++    """清理上一轮中断运行遗留的本批次容器（对应 ``NL2REPO_CLEANUP=1``）。
++
++    只按「本批次任务计算出的精确容器名」清理，不会误删：
++    - 其他 harness 进程的容器（端口基数不同 → 名字不同）；
++    - 用户自己的容器。
++    清理对象为 app 容器（--rm 残留，例如 docker 守护进程重启/进程被 kill）
++    和 post-process 测试容器（``python-test-<task_uuid>``）。
++    """
++    targets = set()
++    for app_data in task_list:
++        for pro_name in app_data.pro_name_list:
++            targets.add(f"python-test-{pro_name}_bo{app_data.bo_size}")
++        targets.add(f"openhands-app-{app_data.port}")
++    if not targets:
++        return
++
++    logger.info(f"NL2REPO_CLEANUP 已开启：检查 {len(targets)} 个本批次残留容器名: {sorted(targets)}")
++    try:
++        client = create_docker_client(get_local_host_info())
++        containers = client.container.list(all=True)
++    except Exception as e:
++        logger.warning(f"列出容器失败，跳过残留清理: {e}")
++        return
++
++    removed = 0
++    for container in containers:
++        try:
++            name = container.name
++        except Exception:
++            continue
++        if name not in targets:
++            continue
++        try:
++            logger.warning(f"清理残留容器: {name} (id={container.id})")
++            client.container.remove(container, force=True, volumes=True)
++            removed += 1
++        except Exception as e:
++            logger.warning(f"清理残留容器失败: {name}: {e}")
++    logger.info(f"NL2REPO_CLEANUP 完成：本次清理 {removed} 个残留容器")
++
++
+ # Single App Task Start
+ def start_app(app_data: AppData):
+     # Headless mode
+@@ -118,7 +217,7 @@
+         return None
+ 
+     task_uuid = app_data.pro_name_list[0] + "_bo" + str(app_data.bo_size)
+-    logger.info(f"Task UUID: {task_uuid}")
++    logger.info(f"Task UUID: {task_uuid} (host port {app_data.port}, container openhands-app-{app_data.port})")
+ 
+ 
+     workspaces_base_path = "workspaces"
+@@ -205,11 +304,14 @@
+     
+     config_full_path = os.path.abspath(os.path.join(task_workspace_path, "config.toml"))
+     config_host_path = _host_path("workspaces", task_uuid, "config.toml")
+-    openhands_state_path = _host_path(".openhands")
++    # 并发隔离：每个 app 容器用独立的 OpenHands state 目录（按宿主端口区分），
++    # 避免所有并发实例共享同一个 `/.openhands` 卷而互相踩状态文件。首跑自动创建。
++    openhands_state_path = _host_path(f".openhands-{app_data.port}")
+     try:
+         os.makedirs(openhands_state_path, exist_ok=True)
+-    except OSError:
+-        pass
++        logger.info(f"OpenHands state dir: {openhands_state_path}")
++    except OSError as e:
++        logger.warning(f"创建 OpenHands state dir 失败（继续）: {openhands_state_path}: {e}")
+ 
+     volumes = [
+         (config_host_path, "/custom/path/config.toml", "ro"),  
+@@ -345,9 +447,21 @@
+     else:
+         logger.info(f"Configuration not found: max_pool_size, using default value: {max_pool_size}")
+ 
++    # 并发隔离：端口基数与残留清理开关（config.json 优先，其次环境变量）
++    port_base = _resolve_port_base(config)
++    cleanup_enabled = _resolve_cleanup(config)
++    logger.info(
++        f"Concurrency configuration: port_base={port_base}, "
++        f"cleanup={cleanup_enabled}, max_pool_size={max_pool_size}"
++    )
++    if not (1 <= port_base <= 65535):
++        logger.error(f"非法端口基数 port_base={port_base}（允许 1-65535），终止")
++        return
++
+     # 先对数据进行分组，每组一个数据
+     startPro = config["startPro"]
+     task_list = []
++    seen_pro_names = set()
+     for pro in startPro:
+         module_name = pro.get("moduleName", "")
+         pro_name_list = pro.get("proNameList", [])
+@@ -355,12 +469,37 @@
+         sk = pro.get("sk", "")
+ 
+         for pro_name in pro_name_list:
+-            app_data = AppData(module_name, base_url, sk, len(task_list) + 3000, bo_size=1)
++            # 并发布局下同名任务会复用 workspaces/<name>_bo1、result/<uuid>.json、
++            # openhands-app-<port>、python-test-<uuid>，必须去重（串行实现会静默互相覆盖）。
++            if pro_name in seen_pro_names:
++                logger.warning(f"任务 {pro_name} 重复出现，已跳过（避免工作区/容器名冲突）")
++                continue
++            seen_pro_names.add(pro_name)
++            app_data = AppData(module_name, base_url, sk, port_base + len(task_list), bo_size=1)
+             app_data.pro_name_list.append(pro_name)
+             task_list.append(app_data)
+             logger.info(
+                 f"Query configuration: module_name: {module_name} - Found {len(pro_name_list)} projects, list: {json.dumps(pro_name_list)}")
+ 
++    if not task_list:
++        logger.error("解析 config 后没有可运行的任务，终止")
++        return
++    last_port = port_base + len(task_list) - 1
++    if last_port > 65535:
++        logger.error(
++            f"端口越界：port_base={port_base} 共 {len(task_list)} 个任务，最大端口 {last_port} > 65535；"
++            f"请调小 NL2REPO_PORT_BASE"
++        )
++        return
++    logger.info(
++        "Task/port plan: "
++        + ", ".join(f"{t.pro_name_list[0]}->{t.port}" for t in task_list)
++    )
++
++    # 可选：启动前清理上一轮中断遗留的容器（默认关闭，只清理本批次任务名）
++    if cleanup_enabled:
++        cleanup_stale_containers(task_list)
++
+     rest_list = []
+ 
+     with concurrent.futures.ThreadPoolExecutor(max_workers=max_pool_size) as executor:

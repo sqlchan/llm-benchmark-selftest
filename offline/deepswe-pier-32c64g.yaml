@@ -1,0 +1,90 @@
+# DeepSWE v1.1 × 32C/64GB 公司宿主机 Pier job 模板：10 题、3 并发、正式超时
+# ---------------------------------------------------------------------------
+# 字段结构沿用 offline/deepswe-pier-job.example.yaml（2026-10-31 本机冒烟验证过）；
+# task_names 取自离线包 data/deepswe_selected.json（10 题：python/go/typescript/
+# javascript/rust 各 2 题，镜像已在 images/bench-images.tar 里）。
+#
+# 使用前替换占位符（不要把公司端点写死进仓库）：
+#   REPLACE_ME_MODEL             → 内网模型名（只填裸模型名，例如 company-model-x；
+#                                  openai/ 前缀已在 model_name 里，sed 只命中占位符）
+#   REPLACE_ME_OPENAI_API_BASE   → 内网 OpenAI 兼容 base URL（通常 .../v1）。
+#                                  注意：这是「任务容器」去访问的地址，不要写
+#                                  host.docker.internal（Pier 不会给任务容器加该映射），
+#                                  用内网地址或 docker0 网关反代 http://172.17.0.1:<port>/v1
+#   jobs_dir / datasets.path     → 与你的挂载点不一致时一并替换（见下面运行示例）
+#
+# 建议：在公司机器上改「本地副本」，不要把带真实端点/路径的文件提交进 git。
+# 运行（batch2 runner 以「相同绝对路径」挂离线包，jobs 也放包内；见主文档 §6.3）：
+#   BUNDLE=/mnt/ssd/bench-bundle     # 离线包根目录（按实际改）
+#   mkdir -p "$BUNDLE/jobs"
+#   export OPENAI_API_KEY=...        # 宿主先 export；不要写进命令历史/文件
+#   sed -e 's#REPLACE_ME_MODEL#company-model-x#' \
+#       -e "s#REPLACE_ME_OPENAI_API_BASE#http://10.0.0.1:8080/v1#" \
+#       -e "s#/workspace/jobs#$BUNDLE/jobs#; s#/workspace/data#$BUNDLE/data#" \
+#       "$BUNDLE/offline/deepswe-pier-32c64g.yaml" \
+#       > "$BUNDLE/jobs/deepswe-32c64g.local.yaml"
+#   docker run --rm -it \
+#     -v /var/run/docker.sock:/var/run/docker.sock -v "$BUNDLE:$BUNDLE" -w "$BUNDLE" \
+#     -e OPENAI_API_KEY \
+#     bench-eval-runner:v2 pier run -c "$BUNDLE/jobs/deepswe-32c64g.local.yaml"
+# 说明：模型 key 只通过环境变量传给 Pier（LiteLLM 读 OPENAI_API_KEY），不写进 YAML；
+# api_base 必须写进 YAML 才能被 LiteLLM 使用，所以用「包内本地副本」运行、该副本
+# 不入 git（放 jobs/ 下即可）。
+# ---------------------------------------------------------------------------
+job_name: deepswe-32c64g
+jobs_dir: /workspace/jobs
+n_attempts: 1
+n_concurrent_trials: 3        # 每个 trial 约 2C/8GB → 3 并发峰值约 6C/24GB
+
+# 正式跑用官方单题预算（DeepSWE 单题 agent 预算 3 小时）；0.2 只是冒烟值
+agent_timeout_multiplier: 1.0
+verifier_timeout_multiplier: 1.0
+
+environment:
+  type: docker
+  # 任务声明资源（2C/8GB 等）是参考值：Pier 默认会按声明限制容器，而 DeepSWE/
+  # ProgramBench 这类任务在 32C/64G 单机上可能声明超过可分配值（ProgramBench
+  # 默认 20C/60G，已在第一批踩过）。ignore 后不按声明值卡资源，实际内存由
+  # Docker/宿主机兜底；配合 n_concurrent_trials=3 使用，不要盲目再加并发。
+  cpu_enforcement_policy: ignore
+  memory_enforcement_policy: ignore
+  delete: false               # 失败保留环境/trial 目录，便于排查
+
+agents:
+  - name: mini-swe-agent
+    # openai/ 前缀：Pier 的 mini-swe 适配器按前缀分流，没有它 LiteLLM 可能无法
+    # 判断 provider；也正因前缀会倾向 Responses API，必须配 model_class: litellm。
+    model_name: openai/REPLACE_ME_MODEL
+    kwargs:
+      # 关键：公司内网网关一般是 Chat Completions，没有 Responses API
+      model_class: litellm
+      extra_python_packages:
+        # 关键：LiteLLM 1.106 懒加载 mcp，任务镜像里现装 mini-swe 时不会带它
+        - mcp
+      model_kwargs:
+        api_base: REPLACE_ME_OPENAI_API_BASE
+        max_tokens: 16384     # 推理模型输出被截断会触发 RepeatedFormatError
+        drop_params: true
+      # 超时/步数是 agent_timeout_multiplier 之外的第二道保险：
+      # - step_limit 200：官方榜单 avg steps 29–166，200 不会截断多数题；
+      #   冒烟用过的 60 会提前结束、patch 为空（RewardFileNotFoundError）。
+      # - wall_time_limit_seconds 10800 = 官方 3 小时单题预算。
+      config_yaml: |
+        agent:
+          step_limit: 200
+          wall_time_limit_seconds: 10800
+
+datasets:
+  - path: /workspace/data/deep-swe/tasks
+    n_tasks: 10
+    task_names:
+      - adaptix-name-mapping-aliases
+      - aiomonitor-task-snapshots-diff
+      - abs-module-cache-flags
+      - abs-stepped-slices
+      - arktype-json-schema-refs-dependencies
+      - awilix-async-container-initialization
+      - csstree-shorthand-expansion-compression
+      - katex-multicolumn-array-spans
+      - boa-hierarchical-evaluation-cancellation
+      - fd-deterministic-multi-key-sorting

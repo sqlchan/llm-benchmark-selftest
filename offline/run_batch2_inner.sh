@@ -35,12 +35,23 @@ run_tb4() {
 run_nl2repo() {
   local harness="$BUNDLE_DIR/data/nl2repo/harness"
   local tasks="${NL2REPO_TASKS:-aiofiles,humanize,sqlparse}"
+  local pool="${NL2REPO_MAX_POOL:-1}"
+  local iters="${NL2REPO_MAX_ITERATIONS:-500}"
+  local port_base="${NL2REPO_PORT_BASE:-3000}"
+  local cleanup="${NL2REPO_CLEANUP:-0}"
+  # 说明：容器内 venv 固定为 /opt/nl2repo-venv；NL2REPO_PYTHON 仅便于本机/CI 冒烟替换解释器。
+  local py="${NL2REPO_PYTHON:-/opt/nl2repo-venv/bin/python}"
   local names
   IFS=',' read -ra names <<< "$tasks"
+  echo "[NL2Repo] tasks=$tasks max_pool=$pool max_iterations=$iters port_base=$port_base cleanup=$cleanup"
   python3 - "$harness" "$MODEL_NAME" "$OPENAI_API_BASE" "${OPENAI_API_KEY:-}" \
-    "$NL2REPO_MAX_POOL" "$NL2REPO_MAX_ITERATIONS" "${names[@]}" <<'PY'
+    "$pool" "$iters" "$port_base" "$cleanup" "${names[@]}" <<'PY'
 import json, sys
-harness, model, base_url, key, pool, iters, *tasks = sys.argv[1:]
+harness, model, base_url, key, pool, iters, port_base, cleanup, *tasks = sys.argv[1:]
+
+def _truthy(v: str) -> bool:
+    return str(v).strip().lower() in ("1", "true", "yes", "on")
+
 cfg = {
     "startPro": [{
         "moduleName": f"openai/{model}" if "/" not in model else model,
@@ -49,18 +60,22 @@ cfg = {
         "proNameList": tasks,
     }],
     "max_pool_size": int(pool),
+    # 并发隔离参数（harness 优先读 config.json，其次读同名环境变量）
+    "port_base": int(port_base),
+    "cleanup": _truthy(cleanup),
 }
 with open(f"{harness}/config.json", "w", encoding="utf-8") as f:
     json.dump(cfg, f, ensure_ascii=False, indent=2)
+print("config.json ready, tasks:", tasks, "port_base:", port_base, "max_pool_size:", pool)
 # max_iterations 写进 config 模板（harness 会复制该模板到每个任务）
 tpl = f"{harness}/template/config.template.toml"
 text = open(tpl, encoding="utf-8").read()
 import re
 text = re.sub(r"^#?max_iterations = \d+", f"max_iterations = {int(iters)}", text, count=1, flags=re.M)
 open(tpl, "w", encoding="utf-8").write(text)
-print("config.json ready, tasks:", tasks)
+print("template max_iterations =", int(iters))
 PY
-  ( cd "$harness" && /opt/nl2repo-venv/bin/python main.py )
+  ( cd "$harness" && "$py" main.py )
 }
 
 case "$MODE" in
