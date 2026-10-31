@@ -1,7 +1,9 @@
 # 第二批离线包：Terminal-Bench 4.0 + NL2Repo-Bench 打包实录（2026-10-31）
 
 > 目标：把 **Terminal-Bench 4.0（v4.0.0）15 题** 与 **NL2Repo-Bench 10 题** 做成断网 Linux + Docker 可运行的离线包，模型走公司内网 OpenAI 兼容端点。
-> 产物：`E:\bench-bundle\images\bench-images-batch2.tar`（镜像）、`data/tb4/`、`data/nl2repo/`、`offline/run_batch2*.sh`。
+> 产物：`E:\bench-bundle\images\bench-images-batch2.tar`（**21.24 GB**，SHA256 `f91f4d9b70e9dcb5b86836df914f9cc873787a507fcf020fd8b3cde95e4faba9`）、
+> `images/bench-images-runner-v2.tar`（0.59 GB，SHA256 `1d167439805f7ad05866fdddae0e91f8683208e9c7e8d4b19e46c3c5da04eb34`）、
+> `data/tb4/`、`data/nl2repo/`、`offline/run_batch2*.sh`。离线包整包约 25.6 GB。
 > 结论：**两个基准的离线链路都已打通**（详见第 6 节验证矩阵）。
 
 ## 1. 为什么第二批难在第一批之上

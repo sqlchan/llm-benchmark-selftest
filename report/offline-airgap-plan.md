@@ -211,7 +211,8 @@ docker compose -f offline/docker-compose.yml exec runner bash /workspace/offline
 
 - 范围：Terminal-Bench 4.0（v4.0.0，**15/66 题**，排除 3 个 H100 GPU 题）+ NL2Repo-Bench（**10/104 题**）。
 - 产物（追加到同一离线包）：
-  - `images/bench-images-batch2.tar`：40 个 TB4 镜像（15 派生 env + 15 verifier + 10 sidecar）+ OpenHands 0.56 双镜像 + 10 个 NL2Repo 派生测试镜像 + runner v2（约 **30 GB 级**，单 tar 去重）。
+  - `images/bench-images-batch2.tar`：40 个 TB4 镜像（15 派生 env + 15 verifier + 10 sidecar）+ OpenHands 0.56 双镜像 + 10 个 NL2Repo 派生测试镜像 + runner v2（**21.24 GB**，单 tar 去重；SHA256 `f91f4d9b…faba9`）。
+  - `images/bench-images-runner-v2.tar`：单独的 runner 镜像（0.59 GB；SHA256 `1d167439…eb34`）。
   - `data/tb4/`：15 个已改写镜像引用的官方任务（107 MB）。
   - `data/nl2repo/`：patched harness + 104 题文档（8 MB）。
   - `offline/run_batch2.sh`、`offline/run_batch2_inner.sh`、`offline/Dockerfile.runner.v2`、`offline/patches/`。
