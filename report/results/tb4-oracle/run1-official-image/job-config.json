@@ -1,0 +1,10 @@
+{
+    "job_name": "2026-10-31__15-39-48",
+    "jobs_dir": "D:\\ai\\code\\git\\bench\\sandbox\\tb4\\jobs2",
+    "n_concurrent_trials": 1,
+    "tasks": [
+        {
+            "path": "D:\\ai\\code\\git\\bench\\sandbox\\tb4\\bundle\\tasks\\html-js-filter"
+        }
+    ]
+}

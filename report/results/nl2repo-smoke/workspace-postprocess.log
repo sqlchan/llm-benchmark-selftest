@@ -1,0 +1,492 @@
+=== Post Process Log Started at 2026-10-31 08:12:50 ===
+2026-10-31 08:12:50 - INFO - 开始执行任务后处理流程，任务UUID: aiofiles_bo1
+2026-10-31 08:12:50 - INFO - Start creating zip file: workspaces/aiofiles_bo1/workspace
+2026-10-31 08:12:50 - INFO - Successfully created zip file: workspaces/aiofiles_bo1/workspace.zip
+2026-10-31 08:12:50 - INFO - Start removing package files
+2026-10-31 08:12:50 - INFO - 共删除了 0 个包管理文件
+2026-10-31 08:12:50 - INFO - 开始删除测试文件，共 1 个文件/文件夹
+2026-10-31 08:12:50 - WARNING - File or directory does not exist: workspaces/aiofiles_bo1/workspace/tests
+2026-10-31 08:12:50 - INFO - Successfully deleted 0 files/directories
+2026-10-31 08:12:50 - INFO - Start creating Dockerfile
+2026-10-31 08:12:50 - INFO - Successfully created Dockerfile: workspaces/aiofiles_bo1/Dockerfile
+2026-10-31 08:12:50 - INFO - Start building test image: python-test-aiofiles_bo1
+2026-10-31 08:12:53 - INFO - Successfully build image: python-test-aiofiles_bo1, ID: sha256:dc51dcab5daba1bdd3422b20e677e05404d57ae8fcea1c7a3f7600412bb8d7b9
+2026-10-31 08:12:53 - INFO - Start running test commands, total 2 commands
+2026-10-31 08:12:53 - INFO - Successfully create test container: python-test-aiofiles_bo1
+2026-10-31 08:12:54 - INFO - Executing command 1/2: pip install -e .
+2026-10-31 08:13:01 - INFO - Command executed successfully, exit code: 1
+2026-10-31 08:13:01 - INFO - Command output: The command executed was `/usr/bin/docker exec --workdir /workspace python-test-aiofiles_bo1 pip install -e .`.
+It returned with code 1
+The content of stdout is 'Obtaining file:///workspace
+  Installing build dependencies: started
+  Installing build dependencies: finished with status 'done'
+  Checking if build backend supports build_editable: started
+  Checking if build backend supports build_editable: finished with status 'done'
+  Getting requirements to build editable: started
+  Getting requirements to build editable: finished with status 'done'
+  Installing backend dependencies: started
+  Installing backend dependencies: finished with status 'done'
+  Preparing editable metadata (pyproject.toml): started
+  Preparing editable metadata (pyproject.toml): finished with status 'error'
+'
+The content of stderr is '  error: subprocess-exited-with-error
+  
+  × Preparing editable metadata (pyproject.toml) did not run successfully.
+  │ exit code: 1
+  ╰─> [55 lines of output]
+      Traceback (most recent call last):
+        File "/usr/local/lib/python3.11/site-packages/pip/_vendor/pyproject_hooks/_in_process/_in_process.py", line 167, in prepare_metadata_for_build_editable
+          hook = backend.prepare_metadata_for_build_editable
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+      AttributeError: module 'hatchling.build' has no attribute 'prepare_metadata_for_build_editable'
+      
+      During handling of the above exception, another exception occurred:
+      
+      Traceback (most recent call last):
+        File "/usr/local/lib/python3.11/site-packages/pip/_vendor/pyproject_hooks/_in_process/_in_process.py", line 353, in <module>
+          main()
+        File "/usr/local/lib/python3.11/site-packages/pip/_vendor/pyproject_hooks/_in_process/_in_process.py", line 335, in main
+          json_out['return_val'] = hook(**hook_input['kwargs'])
+                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        File "/usr/local/lib/python3.11/site-packages/pip/_vendor/pyproject_hooks/_in_process/_in_process.py", line 176, in prepare_metadata_for_build_editable
+          whl_basename = build_hook(metadata_directory, config_settings)
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        File "/tmp/pip-build-env-tle08wps/overlay/lib/python3.11/site-packages/hatchling/build.py", line 83, in build_editable
+          return os.path.basename(next(builder.build(directory=wheel_directory, versions=["editable"])))
+                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        File "/tmp/pip-build-env-tle08wps/overlay/lib/python3.11/site-packages/hatchling/builders/plugin/interface.py", line 166, in build
+          artifact = version_api[version](directory, **build_data)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        File "/tmp/pip-build-env-tle08wps/overlay/lib/python3.11/site-packages/hatchling/builders/wheel.py", line 547, in build_editable
+          return self.build_editable_detection(directory, **build_data)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        File "/tmp/pip-build-env-tle08wps/overlay/lib/python3.11/site-packages/hatchling/builders/wheel.py", line 559, in build_editable_detection
+          for included_file in self.recurse_selected_project_files():
+        File "/tmp/pip-build-env-tle08wps/overlay/lib/python3.11/site-packages/hatchling/builders/plugin/interface.py", line 191, in recurse_selected_project_files
+          if self.config.only_include:
+             ^^^^^^^^^^^^^^^^^^^^^^^^
+        File "/usr/local/lib/python3.11/functools.py", line 1001, in __get__
+          val = self.func(instance)
+                ^^^^^^^^^^^^^^^^^^^
+        File "/tmp/pip-build-env-tle08wps/overlay/lib/python3.11/site-packages/hatchling/builders/config.py", line 715, in only_include
+          only_include = only_include_config.get("only-include", self.default_only_include()) or self.packages
+                                                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        File "/tmp/pip-build-env-tle08wps/overlay/lib/python3.11/site-packages/hatchling/builders/wheel.py", line 293, in default_only_include
+          return self.default_file_selection_options.only_include
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        File "/usr/local/lib/python3.11/functools.py", line 1001, in __get__
+          val = self.func(instance)
+                ^^^^^^^^^^^^^^^^^^^
+        File "/tmp/pip-build-env-tle08wps/overlay/lib/python3.11/site-packages/hatchling/builders/wheel.py", line 281, in default_file_selection_options
+          raise ValueError(message)
+      ValueError: Unable to determine which files to ship inside the wheel using the following heuristics: https://hatch.pypa.io/latest/plugins/builder/wheel/#default-file-selection
+      
+      The most likely cause of this is that there is no directory that matches the name of your project (aiofiles).
+      
+      At least one file selection option must be defined in the `tool.hatch.build.targets.wheel` table, see: https://hatch.pypa.io/latest/config/build/
+      
+      As an example, if you intend to ship a directory named `foo` that resides within a `src` directory located at the root of your project, you can define the following:
+      
+      [tool.hatch.build.targets.wheel]
+      packages = ["src/foo"]
+      [end of output]
+  
+  note: This error originates from a subprocess, and is likely not a problem with pip.
+error: metadata-generation-failed
+
+× Encountered error while generating package metadata.
+╰─> See above for output.
+
+note: This is an issue with the package mentioned above, not pip.
+hint: See above for details.
+
+[notice] A new release of pip is available: 23.2.1 -> 26.2.2
+[notice] To update, run: pip install --upgrade pip
+'
+
+2026-10-31 08:13:01 - INFO - Executing command 2/2: pytest --continue-on-collection-errors tests
+2026-10-31 08:13:02 - INFO - Command executed successfully, exit code: 1
+2026-10-31 08:13:02 - INFO - Command output: The command executed was `/usr/bin/docker exec --workdir /workspace python-test-aiofiles_bo1 pytest --continue-on-collection-errors tests`.
+It returned with code 1
+The content of stdout is '============================= test session starts ==============================
+platform linux -- Python 3.11.7, pytest-8.4.1, pluggy-1.6.0
+rootdir: /workspace
+configfile: pyproject.toml
+plugins: asyncio-1.1.0
+asyncio: mode=Mode.AUTO, asyncio_default_fixture_loop_scope=function, asyncio_default_test_loop_scope=function
+collected 29 items / 6 errors
+
+tests/test_simple.py .F                                                  [  6%]
+tests/test_stdio.py FF                                                   [ 13%]
+tests/test_tempfile.py FFFFFFFFssssssssFFFFFFFFF                         [100%]
+
+==================================== ERRORS ====================================
+______________________ ERROR collecting tests/test_os.py _______________________
+ImportError while importing test module '/workspace/tests/test_os.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/usr/local/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_os.py:12: in <module>
+    import aiofiles.os
+E   ModuleNotFoundError: No module named 'aiofiles'
+_______________ ERROR collecting tests/threadpool/test_binary.py _______________
+ImportError while importing test module '/workspace/tests/threadpool/test_binary.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/usr/local/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/threadpool/test_binary.py:8: in <module>
+    from aiofiles.threadpool import open as aioopen
+E   ModuleNotFoundError: No module named 'aiofiles'
+____________ ERROR collecting tests/threadpool/test_concurrency.py _____________
+ImportError while importing test module '/workspace/tests/threadpool/test_concurrency.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/usr/local/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/threadpool/test_concurrency.py:7: in <module>
+    import aiofiles.threadpool
+E   ModuleNotFoundError: No module named 'aiofiles'
+________________ ERROR collecting tests/threadpool/test_open.py ________________
+ImportError while importing test module '/workspace/tests/threadpool/test_open.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/usr/local/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/threadpool/test_open.py:6: in <module>
+    from aiofiles.threadpool import open as aioopen
+E   ModuleNotFoundError: No module named 'aiofiles'
+________________ ERROR collecting tests/threadpool/test_text.py ________________
+ImportError while importing test module '/workspace/tests/threadpool/test_text.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/usr/local/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/threadpool/test_text.py:8: in <module>
+    from aiofiles.threadpool import open as aioopen
+E   ModuleNotFoundError: No module named 'aiofiles'
+________________ ERROR collecting tests/threadpool/test_wrap.py ________________
+ImportError while importing test module '/workspace/tests/threadpool/test_wrap.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/usr/local/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/threadpool/test_wrap.py:5: in <module>
+    from aiofiles.threadpool import wrap
+E   ModuleNotFoundError: No module named 'aiofiles'
+=================================== FAILURES ===================================
+__________________________ test_serve_small_bin_file ___________________________
+
+tmpdir = local('/tmp/pytest-of-root/pytest-0/test_serve_small_bin_file0')
+unused_tcp_port = 51069
+
+    async def test_serve_small_bin_file(tmpdir, unused_tcp_port):
+        """Fire up a small simple file server, and fetch a file."""
+        # First we'll write a small file.
+        filename = "test.bin"
+        file_content = b"0123456789"
+        file = tmpdir.join(filename)
+        file.write_binary(file_content)
+>       from aiofiles import threadpool
+E       ModuleNotFoundError: No module named 'aiofiles'
+
+tests/test_simple.py:44: ModuleNotFoundError
+__________________________________ test_stdio __________________________________
+
+capsys = <_pytest.capture.CaptureFixture object at 0x7efe86f31250>
+
+    async def test_stdio(capsys):
+>       from aiofiles import stderr, stderr_bytes, stdin, stdin_bytes, stdout, stdout_bytes
+E       ModuleNotFoundError: No module named 'aiofiles'
+
+tests/test_stdio.py:7: ModuleNotFoundError
+_______________________________ test_stdio_bytes _______________________________
+
+capsysbinary = <_pytest.capture.CaptureFixture object at 0x7efe870fe750>
+
+    async def test_stdio_bytes(capsysbinary):
+>       from aiofiles import stderr, stderr_bytes, stdin, stdin_bytes, stdout, stdout_bytes
+E       ModuleNotFoundError: No module named 'aiofiles'
+
+tests/test_stdio.py:18: ModuleNotFoundError
+___________________________ test_temporary_file[r+] ____________________________
+
+mode = 'r+'
+
+    @pytest.mark.parametrize("mode", ["r+", "w+", "rb+", "wb+"])
+    async def test_temporary_file(mode):
+        """Test temporary file."""
+        data = b"Hello World!\n" if "b" in mode else "Hello World!\n"
+>       from aiofiles import tempfile
+E       ModuleNotFoundError: No module named 'aiofiles'
+
+tests/test_tempfile.py:15: ModuleNotFoundError
+___________________________ test_temporary_file[w+] ____________________________
+
+mode = 'w+'
+
+    @pytest.mark.parametrize("mode", ["r+", "w+", "rb+", "wb+"])
+    async def test_temporary_file(mode):
+        """Test temporary file."""
+        data = b"Hello World!\n" if "b" in mode else "Hello World!\n"
+>       from aiofiles import tempfile
+E       ModuleNotFoundError: No module named 'aiofiles'
+
+tests/test_tempfile.py:15: ModuleNotFoundError
+___________________________ test_temporary_file[rb+] ___________________________
+
+mode = 'rb+'
+
+    @pytest.mark.parametrize("mode", ["r+", "w+", "rb+", "wb+"])
+    async def test_temporary_file(mode):
+        """Test temporary file."""
+        data = b"Hello World!\n" if "b" in mode else "Hello World!\n"
+>       from aiofiles import tempfile
+E       ModuleNotFoundError: No module named 'aiofiles'
+
+tests/test_tempfile.py:15: ModuleNotFoundError
+___________________________ test_temporary_file[wb+] ___________________________
+
+mode = 'wb+'
+
+    @pytest.mark.parametrize("mode", ["r+", "w+", "rb+", "wb+"])
+    async def test_temporary_file(mode):
+        """Test temporary file."""
+        data = b"Hello World!\n" if "b" in mode else "Hello World!\n"
+>       from aiofiles import tempfile
+E       ModuleNotFoundError: No module named 'aiofiles'
+
+tests/test_tempfile.py:15: ModuleNotFoundError
+________________________ test_named_temporary_file[r+] _________________________
+
+mode = 'r+'
+
+    @pytest.mark.parametrize("mode", ["r+", "w+", "rb+", "wb+"])
+    @pytest.mark.skipif(
+        sys.version_info >= (3, 12),
+        reason=("3.12+ doesn't support tempfile.NamedTemporaryFile.delete"),
+    )
+    async def test_named_temporary_file(mode):
+        data = b"Hello World!" if "b" in mode else "Hello World!"
+        filename = None
+>       from aiofiles import tempfile
+E       ModuleNotFoundError: No module named 'aiofiles'
+
+tests/test_tempfile.py:35: ModuleNotFoundError
+________________________ test_named_temporary_file[w+] _________________________
+
+mode = 'w+'
+
+    @pytest.mark.parametrize("mode", ["r+", "w+", "rb+", "wb+"])
+    @pytest.mark.skipif(
+        sys.version_info >= (3, 12),
+        reason=("3.12+ doesn't support tempfile.NamedTemporaryFile.delete"),
+    )
+    async def test_named_temporary_file(mode):
+        data = b"Hello World!" if "b" in mode else "Hello World!"
+        filename = None
+>       from aiofiles import tempfile
+E       ModuleNotFoundError: No module named 'aiofiles'
+
+tests/test_tempfile.py:35: ModuleNotFoundError
+________________________ test_named_temporary_file[rb+] ________________________
+
+mode = 'rb+'
+
+    @pytest.mark.parametrize("mode", ["r+", "w+", "rb+", "wb+"])
+    @pytest.mark.skipif(
+        sys.version_info >= (3, 12),
+        reason=("3.12+ doesn't support tempfile.NamedTemporaryFile.delete"),
+    )
+    async def test_named_temporary_file(mode):
+        data = b"Hello World!" if "b" in mode else "Hello World!"
+        filename = None
+>       from aiofiles import tempfile
+E       ModuleNotFoundError: No module named 'aiofiles'
+
+tests/test_tempfile.py:35: ModuleNotFoundError
+________________________ test_named_temporary_file[wb+] ________________________
+
+mode = 'wb+'
+
+    @pytest.mark.parametrize("mode", ["r+", "w+", "rb+", "wb+"])
+    @pytest.mark.skipif(
+        sys.version_info >= (3, 12),
+        reason=("3.12+ doesn't support tempfile.NamedTemporaryFile.delete"),
+    )
+    async def test_named_temporary_file(mode):
+        data = b"Hello World!" if "b" in mode else "Hello World!"
+        filename = None
+>       from aiofiles import tempfile
+E       ModuleNotFoundError: No module named 'aiofiles'
+
+tests/test_tempfile.py:35: ModuleNotFoundError
+_______________________ test_spooled_temporary_file[r+] ________________________
+
+mode = 'r+'
+
+    @pytest.mark.parametrize("mode", ["r+", "w+", "rb+", "wb+"])
+    async def test_spooled_temporary_file(mode):
+        """Test spooled temporary file."""
+        data = b"Hello World!" if "b" in mode else "Hello World!"
+>       from aiofiles import tempfile
+E       ModuleNotFoundError: No module named 'aiofiles'
+
+tests/test_tempfile.py:103: ModuleNotFoundError
+_______________________ test_spooled_temporary_file[w+] ________________________
+
+mode = 'w+'
+
+    @pytest.mark.parametrize("mode", ["r+", "w+", "rb+", "wb+"])
+    async def test_spooled_temporary_file(mode):
+        """Test spooled temporary file."""
+        data = b"Hello World!" if "b" in mode else "Hello World!"
+>       from aiofiles import tempfile
+E       ModuleNotFoundError: No module named 'aiofiles'
+
+tests/test_tempfile.py:103: ModuleNotFoundError
+_______________________ test_spooled_temporary_file[rb+] _______________________
+
+mode = 'rb+'
+
+    @pytest.mark.parametrize("mode", ["r+", "w+", "rb+", "wb+"])
+    async def test_spooled_temporary_file(mode):
+        """Test spooled temporary file."""
+        data = b"Hello World!" if "b" in mode else "Hello World!"
+>       from aiofiles import tempfile
+E       ModuleNotFoundError: No module named 'aiofiles'
+
+tests/test_tempfile.py:103: ModuleNotFoundError
+_______________________ test_spooled_temporary_file[wb+] _______________________
+
+mode = 'wb+'
+
+    @pytest.mark.parametrize("mode", ["r+", "w+", "rb+", "wb+"])
+    async def test_spooled_temporary_file(mode):
+        """Test spooled temporary file."""
+        data = b"Hello World!" if "b" in mode else "Hello World!"
+>       from aiofiles import tempfile
+E       ModuleNotFoundError: No module named 'aiofiles'
+
+tests/test_tempfile.py:103: ModuleNotFoundError
+________________ test_spooled_temporary_file_newlines[LF\n-\n] _________________
+
+test_string = 'LF\n', newlines = '\n'
+
+    @pytest.mark.skipif(
+        platform.system() == "Windows", reason="Doesn't work on Win properly"
+    )
+    @pytest.mark.parametrize(
+        "test_string, newlines", [("LF\n", "\n"), ("CRLF\r\n", "\r\n")]
+    )
+    async def test_spooled_temporary_file_newlines(test_string, newlines):
+        """
+        Test `newlines` property in spooled temporary file.
+        issue https://github.com/Tinche/aiofiles/issues/118
+        """
+>       from aiofiles import tempfile
+E       ModuleNotFoundError: No module named 'aiofiles'
+
+tests/test_tempfile.py:130: ModuleNotFoundError
+_____________ test_spooled_temporary_file_newlines[CRLF\r\n-\r\n] ______________
+
+test_string = 'CRLF\r\n', newlines = '\r\n'
+
+    @pytest.mark.skipif(
+        platform.system() == "Windows", reason="Doesn't work on Win properly"
+    )
+    @pytest.mark.parametrize(
+        "test_string, newlines", [("LF\n", "\n"), ("CRLF\r\n", "\r\n")]
+    )
+    async def test_spooled_temporary_file_newlines(test_string, newlines):
+        """
+        Test `newlines` property in spooled temporary file.
+        issue https://github.com/Tinche/aiofiles/issues/118
+        """
+>       from aiofiles import tempfile
+E       ModuleNotFoundError: No module named 'aiofiles'
+
+tests/test_tempfile.py:130: ModuleNotFoundError
+________________________ test_temporary_directory[a-b] _________________________
+
+prefix = 'a', suffix = 'b'
+tmp_path = PosixPath('/tmp/pytest-of-root/pytest-0/test_temporary_directory_a_b_0')
+
+    @pytest.mark.parametrize("prefix, suffix", [("a", "b"), ("c", "d"), ("e", "f")])
+    async def test_temporary_directory(prefix, suffix, tmp_path):
+        """Test temporary directory."""
+        dir_path = None
+>       from aiofiles import tempfile
+E       ModuleNotFoundError: No module named 'aiofiles'
+
+tests/test_tempfile.py:147: ModuleNotFoundError
+________________________ test_temporary_directory[c-d] _________________________
+
+prefix = 'c', suffix = 'd'
+tmp_path = PosixPath('/tmp/pytest-of-root/pytest-0/test_temporary_directory_c_d_0')
+
+    @pytest.mark.parametrize("prefix, suffix", [("a", "b"), ("c", "d"), ("e", "f")])
+    async def test_temporary_directory(prefix, suffix, tmp_path):
+        """Test temporary directory."""
+        dir_path = None
+>       from aiofiles import tempfile
+E       ModuleNotFoundError: No module named 'aiofiles'
+
+tests/test_tempfile.py:147: ModuleNotFoundError
+________________________ test_temporary_directory[e-f] _________________________
+
+prefix = 'e', suffix = 'f'
+tmp_path = PosixPath('/tmp/pytest-of-root/pytest-0/test_temporary_directory_e_f_0')
+
+    @pytest.mark.parametrize("prefix, suffix", [("a", "b"), ("c", "d"), ("e", "f")])
+    async def test_temporary_directory(prefix, suffix, tmp_path):
+        """Test temporary directory."""
+        dir_path = None
+>       from aiofiles import tempfile
+E       ModuleNotFoundError: No module named 'aiofiles'
+
+tests/test_tempfile.py:147: ModuleNotFoundError
+=========================== short test summary info ============================
+FAILED tests/test_simple.py::test_serve_small_bin_file - ModuleNotFoundError:...
+FAILED tests/test_stdio.py::test_stdio - ModuleNotFoundError: No module named...
+FAILED tests/test_stdio.py::test_stdio_bytes - ModuleNotFoundError: No module...
+FAILED tests/test_tempfile.py::test_temporary_file[r+] - ModuleNotFoundError:...
+FAILED tests/test_tempfile.py::test_temporary_file[w+] - ModuleNotFoundError:...
+FAILED tests/test_tempfile.py::test_temporary_file[rb+] - ModuleNotFoundError...
+FAILED tests/test_tempfile.py::test_temporary_file[wb+] - ModuleNotFoundError...
+FAILED tests/test_tempfile.py::test_named_temporary_file[r+] - ModuleNotFound...
+FAILED tests/test_tempfile.py::test_named_temporary_file[w+] - ModuleNotFound...
+FAILED tests/test_tempfile.py::test_named_temporary_file[rb+] - ModuleNotFoun...
+FAILED tests/test_tempfile.py::test_named_temporary_file[wb+] - ModuleNotFoun...
+FAILED tests/test_tempfile.py::test_spooled_temporary_file[r+] - ModuleNotFou...
+FAILED tests/test_tempfile.py::test_spooled_temporary_file[w+] - ModuleNotFou...
+FAILED tests/test_tempfile.py::test_spooled_temporary_file[rb+] - ModuleNotFo...
+FAILED tests/test_tempfile.py::test_spooled_temporary_file[wb+] - ModuleNotFo...
+FAILED tests/test_tempfile.py::test_spooled_temporary_file_newlines[LF\n-\n]
+FAILED tests/test_tempfile.py::test_spooled_temporary_file_newlines[CRLF\r\n-\r\n]
+FAILED tests/test_tempfile.py::test_temporary_directory[a-b] - ModuleNotFound...
+FAILED tests/test_tempfile.py::test_temporary_directory[c-d] - ModuleNotFound...
+FAILED tests/test_tempfile.py::test_temporary_directory[e-f] - ModuleNotFound...
+ERROR tests/test_os.py
+ERROR tests/threadpool/test_binary.py
+ERROR tests/threadpool/test_concurrency.py
+ERROR tests/threadpool/test_open.py
+ERROR tests/threadpool/test_text.py
+ERROR tests/threadpool/test_wrap.py
+============== 20 failed, 1 passed, 8 skipped, 6 errors in 0.41s ===============
+'
+The content of stderr is ''
+
+2026-10-31 08:13:03 - INFO - Start analyzing pytest results
+2026-10-31 08:13:03 - INFO - Analyzing pytest command: pytest --continue-on-collection-errors tests
+2026-10-31 08:13:03 - INFO - pytest analysis results: {'passed': 1, 'failed': 20, 'errors': 12, 'total': 211, 'success_rate': 0.004739336492890996}
+2026-10-31 08:13:03 - INFO - Using total test case count from testData: 211
+2026-10-31 08:13:06 - INFO - Test container removed: python-test-aiofiles_bo1
+2026-10-31 08:13:06 - INFO - Post-Process task done

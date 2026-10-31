@@ -1,0 +1,13 @@
+{
+  "startPro": [
+    {
+      "moduleName": "openai/deepseek-v4-flash",
+      "baseUrl": "https://ark.cn-beijing.volces.com/api/plan/v1",
+      "sk": "<REDACTED>",
+      "proNameList": [
+        "aiofiles"
+      ]
+    }
+  ],
+  "max_pool_size": 1
+}

@@ -1,0 +1,1326 @@
+=== bun-sourcemap-leak
+docker : #0 building with "desktop-linux" instance using docker driver
+At D:\ai\code\git\bench\offline\build_tb4_mcp_fix.ps1:11 char:5
++     docker build --pull=false --build-arg "BASE_IMAGE=$tag" -f "$BASE ...
++     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (#0 building wit...g docker driver:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+
+#1 [internal] load build definition from Dockerfile.agent-mcp-fix
+#1 transferring dockerfile: 513B done
+#1 WARN: InvalidDefaultArgInFrom: Default value for ARG ${BASE_IMAGE} results in empty or invalid base image name (line
+ 4)
+#1 DONE 0.0s
+
+#2 [internal] load metadata for docker.io/tb4off/environment:bun-sourcemap-leak
+#2 DONE 0.2s
+
+#3 [internal] load .dockerignore
+#3 transferring context: 2B done
+#3 DONE 0.0s
+
+#4 [1/3] FROM docker.io/tb4off/environment:bun-sourcemap-leak@sha256:b1c61458b40c3b1b6d3904b8a8e4676da7cf4d31e9414e1a47
+ea10387206e4a9
+#4 resolve docker.io/tb4off/environment:bun-sourcemap-leak@sha256:b1c61458b40c3b1b6d3904b8a8e4676da7cf4d31e9414e1a47ea1
+0387206e4a9 0.0s done
+#4 DONE 0.1s
+
+#5 [internal] load build context
+#5 transferring context: 5.66MB 0.3s done
+#5 DONE 0.3s
+
+#6 [2/3] COPY agent-extra.tar.gz /tmp/agent-extra.tar.gz
+#6 DONE 0.0s
+
+#7 [3/3] RUN set -eux;     SP=/opt/tb4-agent/tools/mini-swe-agent/lib/python3.12/site-packages;     tar xzf /tmp/agent-
+extra.tar.gz -C "$SP";     rm -f /tmp/agent-extra.tar.gz;     chmod -R a+rX "$SP"
+#7 0.225 + SP=/opt/tb4-agent/tools/mini-swe-agent/lib/python3.12/site-packages
+#7 0.225 + tar xzf /tmp/agent-extra.tar.gz -C /opt/tb4-agent/tools/mini-swe-agent/lib/python3.12/site-packages
+#7 0.383 + rm -f /tmp/agent-extra.tar.gz
+#7 0.385 + chmod -R a+rX /opt/tb4-agent/tools/mini-swe-agent/lib/python3.12/site-packages
+#7 DONE 26.2s
+
+#8 exporting to image
+#8 exporting layers
+#8 exporting layers 0.8s done
+#8 exporting manifest sha256:7b752ffba49f913dd4d423460d22534e9d5c2df3fb34c313a19d83bf3c5dcf97 0.0s done
+#8 exporting config sha256:20a31def3c1cac3b23c0050a503bfd529e66e039a69610c7cb655c6cd7d3fe60 0.0s done
+#8 exporting attestation manifest sha256:c376c831e38b97bff1a3d31ce16fa02473b634239c7205e142ad1ed877032928 0.0s done
+#8 exporting manifest list sha256:5b742d4678a77475182dfdac81e139f6beb78cd0448ee8378dad503f0a297d36 0.0s done
+#8 naming to docker.io/tb4off/environment:bun-sourcemap-leak done
+#8 unpacking to docker.io/tb4off/environment:bun-sourcemap-leak 0.0s done
+#8 DONE 1.0s
+
+ 1 warning found (use docker --debug to expand):
+ - InvalidDefaultArgInFrom: Default value for ARG ${BASE_IMAGE} results in empty or invalid base image name (line 4
+)
+
+View build details: docker-desktop://dashboard/build/desktop-linux/desktop-linux/6yunyxcdfb2z6qtbsh4tt8iuo
+OK bun-sourcemap-leak
+=== session-window-debug
+docker : #0 building with "desktop-linux" instance using docker driver
+At D:\ai\code\git\bench\offline\build_tb4_mcp_fix.ps1:11 char:5
++     docker build --pull=false --build-arg "BASE_IMAGE=$tag" -f "$BASE ...
++     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (#0 building wit...g docker driver:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+
+#1 [internal] load build definition from Dockerfile.agent-mcp-fix
+#1 transferring dockerfile: 513B done
+#1 WARN: InvalidDefaultArgInFrom: Default value for ARG ${BASE_IMAGE} results in empty or invalid base image name (line
+ 4)
+#1 DONE 0.0s
+
+#2 [internal] load metadata for docker.io/tb4off/environment:session-window-debug
+#2 DONE 0.0s
+
+#3 [internal] load .dockerignore
+#3 transferring context: 2B done
+#3 DONE 0.0s
+
+#4 [internal] load build context
+#4 transferring context: 42B done
+#4 DONE 0.0s
+
+#5 [1/3] FROM docker.io/tb4off/environment:session-window-debug@sha256:17f1997b03fc8ea7d08b59137353327634e483841d1710c0
+a24e8a80bd811bc0
+#5 resolve docker.io/tb4off/environment:session-window-debug@sha256:17f1997b03fc8ea7d08b59137353327634e483841d1710c0a24
+e8a80bd811bc0 0.0s done
+#5 DONE 0.1s
+
+#6 [2/3] COPY agent-extra.tar.gz /tmp/agent-extra.tar.gz
+#6 DONE 0.0s
+
+#7 [3/3] RUN set -eux;     SP=/opt/tb4-agent/tools/mini-swe-agent/lib/python3.12/site-packages;     tar xzf /tmp/agent-
+extra.tar.gz -C "$SP";     rm -f /tmp/agent-extra.tar.gz;     chmod -R a+rX "$SP"
+#7 0.231 + SP=/opt/tb4-agent/tools/mini-swe-agent/lib/python3.12/site-packages
+#7 0.231 + tar xzf /tmp/agent-extra.tar.gz -C /opt/tb4-agent/tools/mini-swe-agent/lib/python3.12/site-packages
+#7 0.406 + rm -f /tmp/agent-extra.tar.gz
+#7 0.407 + chmod -R a+rX /opt/tb4-agent/tools/mini-swe-agent/lib/python3.12/site-packages
+#7 DONE 25.9s
+
+#8 exporting to image
+#8 exporting layers
+#8 exporting layers 0.8s done
+#8 exporting manifest sha256:1e60e804af7e354fb27413366f5f3cef16fdb8919cb5a9e6233fdf879c6f0ee6 0.0s done
+#8 exporting config sha256:f7e40946ba7f4634c0a063ecffb7ba70eadfc5b4c7d221625039c6d07e81c2e4 done
+#8 exporting attestation manifest sha256:00180cf6a0704f5373910d2aa030cb4a82e997c58fdef794166d713146276f8d 0.0s done
+#8 exporting manifest list sha256:93405d0d414e09423b63026f0d6c9fa84992be0558ddd82de6be56942d99f168 done
+#8 naming to docker.io/tb4off/environment:session-window-debug done
+#8 unpacking to docker.io/tb4off/environment:session-window-debug 0.0s done
+#8 DONE 0.9s
+
+ 1 warning found (use docker --debug to expand):
+ - InvalidDefaultArgInFrom: Default value for ARG ${BASE_IMAGE} results in empty or invalid base image name (line 4
+)
+
+View build details: docker-desktop://dashboard/build/desktop-linux/desktop-linux/7a7zgejbutjpvy0emjt7yacm9
+OK session-window-debug
+=== kv-live-surgery
+docker : #0 building with "desktop-linux" instance using docker driver
+At D:\ai\code\git\bench\offline\build_tb4_mcp_fix.ps1:11 char:5
++     docker build --pull=false --build-arg "BASE_IMAGE=$tag" -f "$BASE ...
++     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (#0 building wit...g docker driver:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+
+#1 [internal] load build definition from Dockerfile.agent-mcp-fix
+#1 transferring dockerfile: 513B done
+#1 WARN: InvalidDefaultArgInFrom: Default value for ARG ${BASE_IMAGE} results in empty or invalid base image name (line
+ 4)
+#1 DONE 0.0s
+
+#2 [internal] load metadata for docker.io/tb4off/environment:kv-live-surgery
+#2 DONE 0.0s
+
+#3 [internal] load .dockerignore
+#3 transferring context: 2B done
+#3 DONE 0.0s
+
+#4 [internal] load build context
+#4 transferring context: 42B done
+#4 DONE 0.0s
+
+#5 [1/3] FROM docker.io/tb4off/environment:kv-live-surgery@sha256:ccb506b6e8f85e40347333e83ea0980ace18b7140a0b4e2856e35
+8104671d50e
+#5 resolve docker.io/tb4off/environment:kv-live-surgery@sha256:ccb506b6e8f85e40347333e83ea0980ace18b7140a0b4e2856e35810
+4671d50e 0.0s done
+#5 DONE 0.0s
+
+#6 [2/3] COPY agent-extra.tar.gz /tmp/agent-extra.tar.gz
+#6 DONE 0.0s
+
+#7 [3/3] RUN set -eux;     SP=/opt/tb4-agent/tools/mini-swe-agent/lib/python3.12/site-packages;     tar xzf /tmp/agent-
+extra.tar.gz -C "$SP";     rm -f /tmp/agent-extra.tar.gz;     chmod -R a+rX "$SP"
+#7 0.235 + SP=/opt/tb4-agent/tools/mini-swe-agent/lib/python3.12/site-packages
+#7 0.235 + tar xzf /tmp/agent-extra.tar.gz -C /opt/tb4-agent/tools/mini-swe-agent/lib/python3.12/site-packages
+#7 0.386 + rm -f /tmp/agent-extra.tar.gz
+#7 0.388 + chmod -R a+rX /opt/tb4-agent/tools/mini-swe-agent/lib/python3.12/site-packages
+#7 DONE 23.2s
+
+#8 exporting to image
+#8 exporting layers
+#8 exporting layers 0.7s done
+#8 exporting manifest sha256:0ba670144a755238cfb650cf81bf9e3b295ab52fb581f22160de2cd09c1eacdc 0.0s done
+#8 exporting config sha256:144b2bac35a7afe2be08e536400a173e88dbea914a17c807bcfd7d2e99ff5be5 done
+#8 exporting attestation manifest sha256:630ac80a8314ad4c41cda9231524d26e695a1806b8df4442607f2fbd8b4f8c8c 0.0s done
+#8 exporting manifest list sha256:5d0c8a0e3dc9691ed1e93369dafa3015b468622e89ca2713bb8d8e937b9f2922 done
+#8 naming to docker.io/tb4off/environment:kv-live-surgery done
+#8 unpacking to docker.io/tb4off/environment:kv-live-surgery 0.0s done
+#8 DONE 0.9s
+
+ 1 warning found (use docker --debug to expand):
+ - InvalidDefaultArgInFrom: Default value for ARG ${BASE_IMAGE} results in empty or invalid base image name (line 4
+)
+
+View build details: docker-desktop://dashboard/build/desktop-linux/desktop-linux/kguyr01agt0p8hmypfz1ir7f4
+OK kv-live-surgery
+=== live-database-cutover
+docker : #0 building with "desktop-linux" instance using docker driver
+At D:\ai\code\git\bench\offline\build_tb4_mcp_fix.ps1:11 char:5
++     docker build --pull=false --build-arg "BASE_IMAGE=$tag" -f "$BASE ...
++     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (#0 building wit...g docker driver:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+
+#1 [internal] load build definition from Dockerfile.agent-mcp-fix
+#1 transferring dockerfile: 513B done
+#1 WARN: InvalidDefaultArgInFrom: Default value for ARG ${BASE_IMAGE} results in empty or invalid base image name (line
+ 4)
+#1 DONE 0.0s
+
+#2 [internal] load metadata for docker.io/tb4off/environment:live-database-cutover
+#2 DONE 0.0s
+
+#3 [internal] load .dockerignore
+#3 transferring context: 2B done
+#3 DONE 0.0s
+
+#4 [1/3] FROM docker.io/tb4off/environment:live-database-cutover@sha256:2616bef62e6c91398befa32ea707753fe96e8be941b8ecf
+9c647668edd1c4622
+#4 resolve docker.io/tb4off/environment:live-database-cutover@sha256:2616bef62e6c91398befa32ea707753fe96e8be941b8ecf9c6
+47668edd1c4622 0.0s done
+#4 CACHED
+
+#5 [internal] load build context
+#5 transferring context: 42B done
+#5 DONE 0.0s
+
+#6 [2/3] COPY agent-extra.tar.gz /tmp/agent-extra.tar.gz
+#6 DONE 0.0s
+
+#7 [3/3] RUN set -eux;     SP=/opt/tb4-agent/tools/mini-swe-agent/lib/python3.12/site-packages;     tar xzf /tmp/agent-
+extra.tar.gz -C "$SP";     rm -f /tmp/agent-extra.tar.gz;     chmod -R a+rX "$SP"
+#7 0.229 exec /bin/sh: exec format error
+#7 ERROR: process "/bin/sh -c set -eux;     SP=/opt/tb4-agent/tools/mini-swe-agent/lib/python3.12/site-packages;     ta
+r xzf /tmp/agent-extra.tar.gz -C \"$SP\";     rm -f /tmp/agent-extra.tar.gz;     chmod -R a+rX \"$SP\"" did not complet
+e successfully: exit code: 255
+------
+ > [3/3] RUN set -eux;     SP=/opt/tb4-agent/tools/mini-swe-agent/lib/python3.12/site-packages;     tar xzf /tmp/agent-
+extra.tar.gz -C "$SP";     rm -f /tmp/agent-extra.tar.gz;     chmod -R a+rX "$SP":
+0.229 exec /bin/sh: exec format error
+------
+
+ 1 warning found (use docker --debug to expand):
+ - InvalidDefaultArgInFrom: Default value for ARG ${BASE_IMAGE} results in empty or invalid base image name (line 4
+)
+Dockerfile.agent-mcp-fix:9
+--------------------
+   8 |     
+   9 | >>> RUN set -eux; \
+  10 | >>>     SP=/opt/tb4-agent/tools/mini-swe-agent/lib/python3.12/site-packages; \
+  11 | >>>     tar xzf /tmp/agent-extra.tar.gz -C "$SP"; \
+  12 | >>>     rm -f /tmp/agent-extra.tar.gz; \
+  13 | >>>     chmod -R a+rX "$SP"
+  14 |     
+--------------------
+ERROR: failed to build: failed to solve: process "/bin/sh -c set -eux;     SP=/opt/tb4-agent/tools/mini-swe-agent/lib/p
+ython3.12/site-packages;     tar xzf /tmp/agent-extra.tar.gz -C \"$SP\";     rm -f /tmp/agent-extra.tar.gz;     chmod -
+R a+rX \"$SP\"" did not complete successfully: exit code: 255
+
+View build details: docker-desktop://dashboard/build/desktop-linux/desktop-linux/sddnza2r5nk1wbc57g3u65679
+FAIL live-database-cutover
+=== mvcc-lsm-compaction
+docker : #0 building with "desktop-linux" instance using docker driver
+At D:\ai\code\git\bench\offline\build_tb4_mcp_fix.ps1:11 char:5
++     docker build --pull=false --build-arg "BASE_IMAGE=$tag" -f "$BASE ...
++     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (#0 building wit...g docker driver:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+
+#1 [internal] load build definition from Dockerfile.agent-mcp-fix
+#1 transferring dockerfile: 513B done
+#1 WARN: InvalidDefaultArgInFrom: Default value for ARG ${BASE_IMAGE} results in empty or invalid base image name (line
+ 4)
+#1 DONE 0.0s
+
+#2 [internal] load metadata for docker.io/tb4off/environment:mvcc-lsm-compaction
+#2 DONE 0.0s
+
+#3 [internal] load .dockerignore
+#3 transferring context: 2B done
+#3 DONE 0.0s
+
+#4 [1/3] FROM docker.io/tb4off/environment:mvcc-lsm-compaction@sha256:4960d6a9f6095e76cbd18e5173a34818e3590e1badda21ac5
+d85394059f5788f
+#4 resolve docker.io/tb4off/environment:mvcc-lsm-compaction@sha256:4960d6a9f6095e76cbd18e5173a34818e3590e1badda21ac5d85
+394059f5788f 0.0s done
+#4 CACHED
+
+#5 [internal] load build context
+#5 transferring context: 42B done
+#5 DONE 0.0s
+
+#6 [2/3] COPY agent-extra.tar.gz /tmp/agent-extra.tar.gz
+#6 DONE 0.0s
+
+#7 [3/3] RUN set -eux;     SP=/opt/tb4-agent/tools/mini-swe-agent/lib/python3.12/site-packages;     tar xzf /tmp/agent-
+extra.tar.gz -C "$SP";     rm -f /tmp/agent-extra.tar.gz;     chmod -R a+rX "$SP"
+#7 0.246 + SP=/opt/tb4-agent/tools/mini-swe-agent/lib/python3.12/site-packages
+#7 0.246 + tar xzf /tmp/agent-extra.tar.gz -C /opt/tb4-agent/tools/mini-swe-agent/lib/python3.12/site-packages
+#7 0.348 + rm -f /tmp/agent-extra.tar.gz
+#7 0.349 + chmod -R a+rX /opt/tb4-agent/tools/mini-swe-agent/lib/python3.12/site-packages
+#7 DONE 23.2s
+
+#8 exporting to image
+#8 exporting layers
+#8 exporting layers 1.2s done
+#8 exporting manifest sha256:05a4cb71aa7894464d8eb9c6d6c7e10aeefe4f771db92be3c330a1d2a95ffcd9 0.0s done
+#8 exporting config sha256:6d27febd2b1c20e509a7d026ce327a73f9a84cadcb628434722ce7a6ef32db9a 0.0s done
+#8 exporting attestation manifest sha256:8f2433f4c4f675b4616e8c895d5888209e5ea9e280752b53e3f49558660cfea6 0.0s done
+#8 exporting manifest list sha256:0338256a0fd0f3cc4490563bfefb85a15b3331871f008d5c32060b6f69060eb5 done
+#8 naming to docker.io/tb4off/environment:mvcc-lsm-compaction done
+#8 unpacking to docker.io/tb4off/environment:mvcc-lsm-compaction
+#8 unpacking to docker.io/tb4off/environment:mvcc-lsm-compaction 0.2s done
+#8 DONE 1.4s
+
+ 1 warning found (use docker --debug to expand):
+ - InvalidDefaultArgInFrom: Default value for ARG ${BASE_IMAGE} results in empty or invalid base image name (line 4
+)
+
+View build details: docker-desktop://dashboard/build/desktop-linux/desktop-linux/cwmyig6aejwbk1g0m4ajrzp0g
+OK mvcc-lsm-compaction
+=== wal-recovery-ordering
+docker : #0 building with "desktop-linux" instance using docker driver
+At D:\ai\code\git\bench\offline\build_tb4_mcp_fix.ps1:11 char:5
++     docker build --pull=false --build-arg "BASE_IMAGE=$tag" -f "$BASE ...
++     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (#0 building wit...g docker driver:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+
+#1 [internal] load build definition from Dockerfile.agent-mcp-fix
+#1 transferring dockerfile: 513B done
+#1 WARN: InvalidDefaultArgInFrom: Default value for ARG ${BASE_IMAGE} results in empty or invalid base image name (line
+ 4)
+#1 DONE 0.0s
+
+#2 [internal] load metadata for docker.io/tb4off/environment:wal-recovery-ordering
+#2 DONE 0.0s
+
+#3 [internal] load .dockerignore
+#3 transferring context: 2B done
+#3 DONE 0.0s
+
+#4 [internal] load build context
+#4 transferring context: 42B done
+#4 DONE 0.0s
+
+#5 [1/3] FROM docker.io/tb4off/environment:wal-recovery-ordering@sha256:d7834ba931d152262f144efdaa2f9cd5b55f0c597d01c93
+3125f4c26c7a6ae74
+#5 resolve docker.io/tb4off/environment:wal-recovery-ordering@sha256:d7834ba931d152262f144efdaa2f9cd5b55f0c597d01c93312
+5f4c26c7a6ae74 0.0s done
+#5 DONE 0.1s
+
+#5 [1/3] FROM docker.io/tb4off/environment:wal-recovery-ordering@sha256:d7834ba931d152262f144efdaa2f9cd5b55f0c597d01c93
+3125f4c26c7a6ae74
+#5 extracting sha256:ff86ea2e5edce334d19a34fbc65d1a511aa1fc823dba1110422f991aa56b44d4
+#5 extracting sha256:ff86ea2e5edce334d19a34fbc65d1a511aa1fc823dba1110422f991aa56b44d4 0.5s done
+#5 DONE 0.7s
+
+#5 [1/3] FROM docker.io/tb4off/environment:wal-recovery-ordering@sha256:d7834ba931d152262f144efdaa2f9cd5b55f0c597d01c93
+3125f4c26c7a6ae74
+#5 extracting sha256:1019bb5834114590693b1f4f92671390d54c95d53917d7a5733106b6109ccd68 0.1s done
+#5 extracting sha256:4bba476d8c6bc56b6dc7bac565e077cf2ba37b45b2e14a123b2c8adf5fd38c98
+#5 extracting sha256:4bba476d8c6bc56b6dc7bac565e077cf2ba37b45b2e14a123b2c8adf5fd38c98 0.3s done
+#5 DONE 1.0s
+
+#5 [1/3] FROM docker.io/tb4off/environment:wal-recovery-ordering@sha256:d7834ba931d152262f144efdaa2f9cd5b55f0c597d01c93
+3125f4c26c7a6ae74
+#5 extracting sha256:3fc9d9ab5045181fbd49d1d30a2dbad144172d4c3c141f70117ddb0b918d8357 0.0s done
+#5 extracting sha256:e344cbc243004390bac8f09275a412dbdaa55db060094e979f8732b6f32b8b66 0.0s done
+#5 extracting sha256:3d5addb693f7ebe5f74201b743ff09292951751a19753fa75308711c38e7f59d 0.0s done
+#5 extracting sha256:a8f79e6c5f4d9b1237e13656018fbef355bad92b2d81758dd5fa611ceee388f3
+#5 extracting sha256:a8f79e6c5f4d9b1237e13656018fbef355bad92b2d81758dd5fa611ceee388f3 0.7s done
+#5 DONE 1.7s
+
+#5 [1/3] FROM docker.io/tb4off/environment:wal-recovery-ordering@sha256:d7834ba931d152262f144efdaa2f9cd5b55f0c597d01c93
+3125f4c26c7a6ae74
+#5 extracting sha256:62b0a89908162a2bc856e6897b78e94c7103dc4eb25c31703a7134272a7255e1
+#5 extracting sha256:62b0a89908162a2bc856e6897b78e94c7103dc4eb25c31703a7134272a7255e1 0.2s done
+#5 DONE 1.9s
+
+#5 [1/3] FROM docker.io/tb4off/environment:wal-recovery-ordering@sha256:d7834ba931d152262f144efdaa2f9cd5b55f0c597d01c93
+3125f4c26c7a6ae74
+#5 extracting sha256:ab67c06431c6ca31dd1ae4defc177fe31f6b32392a390baa3eda6e439060a4a2
+#5 extracting sha256:ab67c06431c6ca31dd1ae4defc177fe31f6b32392a390baa3eda6e439060a4a2 5.8s done
+#5 DONE 7.7s
+
+#6 [2/3] COPY agent-extra.tar.gz /tmp/agent-extra.tar.gz
+#6 DONE 0.6s
+
+#7 [3/3] RUN set -eux;     SP=/opt/tb4-agent/tools/mini-swe-agent/lib/python3.12/site-packages;     tar xzf /tmp/agent-
+extra.tar.gz -C "$SP";     rm -f /tmp/agent-extra.tar.gz;     chmod -R a+rX "$SP"
+#7 0.213 + SP=/opt/tb4-agent/tools/mini-swe-agent/lib/python3.12/site-packages
+#7 0.213 + tar xzf /tmp/agent-extra.tar.gz -C /opt/tb4-agent/tools/mini-swe-agent/lib/python3.12/site-packages
+#7 0.323 + rm -f /tmp/agent-extra.tar.gz
+#7 0.324 + chmod -R a+rX /opt/tb4-agent/tools/mini-swe-agent/lib/python3.12/site-packages
+#7 DONE 19.4s
+
+#8 exporting to image
+#8 exporting layers
+#8 exporting layers 1.2s done
+#8 exporting manifest sha256:797c507a14047f57b3236b1ae9164f2df8f63d44e294c50242c355f49e9e6040 0.0s done
+#8 exporting config sha256:c29b88e77a3bc0771446fa3598df1ad36fab127553c1647d02093150eb3c3e99 done
+#8 exporting attestation manifest sha256:b37dc6d9cc12cf6cdd6845748cf53f06ef917723b3332c7a48370d20a400e97e 0.0s done
+#8 exporting manifest list sha256:957a1a18612f00f5e0083eb55f980bf98b518c7a16a7aee108348630c9620ddb 0.0s done
+#8 naming to docker.io/tb4off/environment:wal-recovery-ordering done
+#8 unpacking to docker.io/tb4off/environment:wal-recovery-ordering
+#8 unpacking to docker.io/tb4off/environment:wal-recovery-ordering 0.2s done
+#8 DONE 1.4s
+
+ 1 warning found (use docker --debug to expand):
+ - InvalidDefaultArgInFrom: Default value for ARG ${BASE_IMAGE} results in empty or invalid base image name (line 4
+)
+
+View build details: docker-desktop://dashboard/build/desktop-linux/desktop-linux/tfs0avpz6hyc9sssag973tl7a
+OK wal-recovery-ordering
+=== cumulative-layout-shift
+docker : #0 building with "desktop-linux" instance using docker driver
+At D:\ai\code\git\bench\offline\build_tb4_mcp_fix.ps1:11 char:5
++     docker build --pull=false --build-arg "BASE_IMAGE=$tag" -f "$BASE ...
++     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (#0 building wit...g docker driver:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+
+#1 [internal] load build definition from Dockerfile.agent-mcp-fix
+#1 transferring dockerfile: 513B done
+#1 WARN: InvalidDefaultArgInFrom: Default value for ARG ${BASE_IMAGE} results in empty or invalid base image name (line
+ 4)
+#1 DONE 0.0s
+
+#2 [internal] load metadata for docker.io/tb4off/environment:cumulative-layout-shift
+#2 DONE 0.0s
+
+#3 [internal] load .dockerignore
+#3 transferring context: 2B done
+#3 DONE 0.0s
+
+#4 [internal] load build context
+#4 transferring context: 42B done
+#4 DONE 0.0s
+
+#5 [1/3] FROM docker.io/tb4off/environment:cumulative-layout-shift@sha256:fa7c63709854886b89b5299371a93a2afd9da26d27859
+1873ec9830f41ed1f8d
+#5 resolve docker.io/tb4off/environment:cumulative-layout-shift@sha256:fa7c63709854886b89b5299371a93a2afd9da26d27859187
+3ec9830f41ed1f8d 0.0s done
+#5 DONE 0.2s
+
+#5 [1/3] FROM docker.io/tb4off/environment:cumulative-layout-shift@sha256:fa7c63709854886b89b5299371a93a2afd9da26d27859
+1873ec9830f41ed1f8d
+#5 extracting sha256:abf56b2f87242de589f03ea56779358079c07c4c099bd1e454d083538eb6666d
+#5 extracting sha256:abf56b2f87242de589f03ea56779358079c07c4c099bd1e454d083538eb6666d 0.8s done
+#5 DONE 1.1s
+
+#5 [1/3] FROM docker.io/tb4off/environment:cumulative-layout-shift@sha256:fa7c63709854886b89b5299371a93a2afd9da26d27859
+1873ec9830f41ed1f8d
+#5 extracting sha256:08457856946d74c8aede7d750e185d1e479a79b8123d1b805182a580d224a6e2
+#5 extracting sha256:08457856946d74c8aede7d750e185d1e479a79b8123d1b805182a580d224a6e2 0.3s done
+#5 DONE 1.4s
+
+#5 [1/3] FROM docker.io/tb4off/environment:cumulative-layout-shift@sha256:fa7c63709854886b89b5299371a93a2afd9da26d27859
+1873ec9830f41ed1f8d
+#5 extracting sha256:8cab6ce149c24516f80b26a762b6b9aaebcaf4fbe51d4c6844af7d7dbc372f2d
+#5 extracting sha256:8cab6ce149c24516f80b26a762b6b9aaebcaf4fbe51d4c6844af7d7dbc372f2d 1.1s done
+#5 DONE 2.5s
+
+#5 [1/3] FROM docker.io/tb4off/environment:cumulative-layout-shift@sha256:fa7c63709854886b89b5299371a93a2afd9da26d27859
+1873ec9830f41ed1f8d
+#5 extracting sha256:01a6a9ffe665b63ea18491fedb646423413ae3fdefcf7776ee25a2eaff8a673e
+#5 extracting sha256:01a6a9ffe665b63ea18491fedb646423413ae3fdefcf7776ee25a2eaff8a673e 3.1s done
+#5 DONE 5.6s
+
+#5 [1/3] FROM docker.io/tb4off/environment:cumulative-layout-shift@sha256:fa7c63709854886b89b5299371a93a2afd9da26d27859
+1873ec9830f41ed1f8d
+#5 extracting sha256:af703174360b79186c7ebccfc234e81cbe896a87e1058123134ca7e934d8a941 0.0s done
+#5 extracting sha256:f99278e21c7714d2d15a87e2ac0026681ca76fa18c137e3337087623259b5aad
+#5 extracting sha256:f99278e21c7714d2d15a87e2ac0026681ca76fa18c137e3337087623259b5aad 1.2s done
+#5 DONE 6.8s
+
+#5 [1/3] FROM docker.io/tb4off/environment:cumulative-layout-shift@sha256:fa7c63709854886b89b5299371a93a2afd9da26d27859
+1873ec9830f41ed1f8d
+#5 extracting sha256:7d81ded9d9d91300a049431a3130956a89c86eb93b66adc2a0e0d4da6944b576 0.0s done
+#5 extracting sha256:736dd3f75c3cb794a01a2a33a1fb9cac98e4b2ac97f24674c141cd84836472c0 0.0s done
+#5 extracting sha256:206d45ac5b8467364c5e1624a4589ea6ab637763475dd59ae001d7b083b512d3 0.1s done
+#5 extracting sha256:dfa55a9856a85b6368b85ceda55ee36ff6b0aad3e6580762f42834216890c2ca 0.0s done
+#5 extracting sha256:0d443ea3fd60075a56cab4c74f109030f0a3f550e1f4f5110e43d63e99298822 0.0s done
+#5 extracting sha256:2ce1b977e72111397589a962d7204a61490c4fedffa9f32d7a7478749771b9ab
+#5 extracting sha256:2ce1b977e72111397589a962d7204a61490c4fedffa9f32d7a7478749771b9ab 8.8s done
+#5 DONE 15.8s
+
+#5 [1/3] FROM docker.io/tb4off/environment:cumulative-layout-shift@sha256:fa7c63709854886b89b5299371a93a2afd9da26d27859
+1873ec9830f41ed1f8d
+#5 extracting sha256:04acb981d1ff9edb8438aaec2e3d533e858aa76fd2fa0413a2cab65a4784f326 0.0s done
+#5 extracting sha256:9aaf97ac902fa5119a0846f54447722a1abaad12961ca037b9fc237fff7fd902
+#5 extracting sha256:9aaf97ac902fa5119a0846f54447722a1abaad12961ca037b9fc237fff7fd902 0.7s done
+#5 DONE 16.6s
+
+#5 [1/3] FROM docker.io/tb4off/environment:cumulative-layout-shift@sha256:fa7c63709854886b89b5299371a93a2afd9da26d27859
+1873ec9830f41ed1f8d
+#5 extracting sha256:d17818355edf57bc7c18f65e634442e35e0e0819da0bcc70d73e639f0f882d85
+#5 extracting sha256:d17818355edf57bc7c18f65e634442e35e0e0819da0bcc70d73e639f0f882d85 0.2s done
+#5 DONE 16.8s
+
+#5 [1/3] FROM docker.io/tb4off/environment:cumulative-layout-shift@sha256:fa7c63709854886b89b5299371a93a2afd9da26d27859
+1873ec9830f41ed1f8d
+#5 extracting sha256:b16b863486aa76738179c6bca3a44c4f0a305a620456ddc37e5ba38003840ed8
+#5 extracting sha256:b16b863486aa76738179c6bca3a44c4f0a305a620456ddc37e5ba38003840ed8 5.8s done
+#5 DONE 22.6s
+
+#6 [2/3] COPY agent-extra.tar.gz /tmp/agent-extra.tar.gz
+#6 DONE 2.4s
+
+#7 [3/3] RUN set -eux;     SP=/opt/tb4-agent/tools/mini-swe-agent/lib/python3.12/site-packages;     tar xzf /tmp/agent-
+extra.tar.gz -C "$SP";     rm -f /tmp/agent-extra.tar.gz;     chmod -R a+rX "$SP"
+#7 0.231 + SP=/opt/tb4-agent/tools/mini-swe-agent/lib/python3.12/site-packages
+#7 0.231 + tar xzf /tmp/agent-extra.tar.gz -C /opt/tb4-agent/tools/mini-swe-agent/lib/python3.12/site-packages
+#7 0.337 + rm -f /tmp/agent-extra.tar.gz
+#7 0.337 + chmod -R a+rX /opt/tb4-agent/tools/mini-swe-agent/lib/python3.12/site-packages
+#7 DONE 44.4s
+
+#8 exporting to image
+#8 exporting layers
+#8 exporting layers 1.3s done
+#8 exporting manifest sha256:ac25b5f23fcdd06732af529a88df4b682586adb4ab3f9dab399612cbc1619cf9 0.0s done
+#8 exporting config sha256:44ea30f3bfd2dd8f1a6118e8d9f453143527aa6a5f28d8c0595179472c776cae 0.0s done
+#8 exporting attestation manifest sha256:15cdf23721553f6d2019f76d7b601311c24a073edd4dd2c635a9116052d7aed8 0.0s done
+#8 exporting manifest list sha256:3f22908b6d802feed7c84628f2179c8d756dfc8c7b835e9f4f5923270ffca579
+#8 exporting manifest list sha256:3f22908b6d802feed7c84628f2179c8d756dfc8c7b835e9f4f5923270ffca579 0.0s done
+#8 naming to docker.io/tb4off/environment:cumulative-layout-shift done
+#8 unpacking to docker.io/tb4off/environment:cumulative-layout-shift
+#8 unpacking to docker.io/tb4off/environment:cumulative-layout-shift 0.2s done
+#8 DONE 1.7s
+
+ 1 warning found (use docker --debug to expand):
+ - InvalidDefaultArgInFrom: Default value for ARG ${BASE_IMAGE} results in empty or invalid base image name (line 4
+)
+
+View build details: docker-desktop://dashboard/build/desktop-linux/desktop-linux/6vhpsyizvx7s1a1s1kdc8mi7a
+OK cumulative-layout-shift
+=== react-lead-form
+docker : #0 building with "desktop-linux" instance using docker driver
+At D:\ai\code\git\bench\offline\build_tb4_mcp_fix.ps1:11 char:5
++     docker build --pull=false --build-arg "BASE_IMAGE=$tag" -f "$BASE ...
++     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (#0 building wit...g docker driver:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+
+#1 [internal] load build definition from Dockerfile.agent-mcp-fix
+#1 transferring dockerfile: 513B done
+#1 WARN: InvalidDefaultArgInFrom: Default value for ARG ${BASE_IMAGE} results in empty or invalid base image name (line
+ 4)
+#1 DONE 0.0s
+
+#2 [internal] load metadata for docker.io/tb4off/environment:react-lead-form
+#2 DONE 0.0s
+
+#3 [internal] load .dockerignore
+#3 transferring context: 2B done
+#3 DONE 0.0s
+
+#4 [internal] load build context
+#4 transferring context: 42B done
+#4 DONE 0.1s
+
+#5 [1/3] FROM docker.io/tb4off/environment:react-lead-form@sha256:fc847ac8b72acdc6f78282e364d4349e9a36cdd79f0b9907fea8f
+ebb098e16bb
+#5 resolve docker.io/tb4off/environment:react-lead-form@sha256:fc847ac8b72acdc6f78282e364d4349e9a36cdd79f0b9907fea8febb
+098e16bb 0.0s done
+#5 DONE 0.5s
+
+#5 [1/3] FROM docker.io/tb4off/environment:react-lead-form@sha256:fc847ac8b72acdc6f78282e364d4349e9a36cdd79f0b9907fea8f
+ebb098e16bb
+#5 extracting sha256:e54aec64c365815cd7b91e718f00ac6e625562b1de09036b38614621b42c7582 0.0s done
+#5 extracting sha256:804d4d68057cbb26cbcde9a735148ebc6589911bad32cf9dbddb5b0ba878bf1f
+#5 extracting sha256:804d4d68057cbb26cbcde9a735148ebc6589911bad32cf9dbddb5b0ba878bf1f 0.6s done
+#5 DONE 1.2s
+
+#5 [1/3] FROM docker.io/tb4off/environment:react-lead-form@sha256:fc847ac8b72acdc6f78282e364d4349e9a36cdd79f0b9907fea8f
+ebb098e16bb
+#5 extracting sha256:64cfb949317c9824fd081d55c59a7225bfe1f650c6395ba42d7ed0ccf51993d2 0.1s done
+#5 extracting sha256:3c02fd806613748139b8b8a14a69ae3518a1b0e863c57c35aada3b92ed87fb31 0.0s done
+#5 extracting sha256:eaf30c9bce7c4fa24daf6353d15f739f79e876a6842842045d4277bc6a110674 0.0s done
+#5 DONE 1.3s
+
+#5 [1/3] FROM docker.io/tb4off/environment:react-lead-form@sha256:fc847ac8b72acdc6f78282e364d4349e9a36cdd79f0b9907fea8f
+ebb098e16bb
+#5 extracting sha256:f55bf2753f16af4d981c49c9242e029c4d1212c9f5677111295f2e3c0605bddf 0.0s done
+#5 extracting sha256:5777080a2300fcb836b3d088d487db0cde48a0b5077a82b3ff88226f46ccb1ad 0.0s done
+#5 extracting sha256:83b33d7f9e489bc032d1c1761bcf126591be94be633f5baabb85ec14adb4f349
+#5 extracting sha256:83b33d7f9e489bc032d1c1761bcf126591be94be633f5baabb85ec14adb4f349 1.1s done
+#5 DONE 2.5s
+
+#5 [1/3] FROM docker.io/tb4off/environment:react-lead-form@sha256:fc847ac8b72acdc6f78282e364d4349e9a36cdd79f0b9907fea8f
+ebb098e16bb
+#5 extracting sha256:5f952c7effbe6570fa5a13c38af2c5743242eda060901976ce46ecf3609b25a0 0.0s done
+#5 extracting sha256:93bdfa79ed8e3693589bff0b005ca166bae07a66ce6d9361fb59b261fb22caca
+#5 extracting sha256:93bdfa79ed8e3693589bff0b005ca166bae07a66ce6d9361fb59b261fb22caca 0.8s done
+#5 DONE 3.4s
+
+#5 [1/3] FROM docker.io/tb4off/environment:react-lead-form@sha256:fc847ac8b72acdc6f78282e364d4349e9a36cdd79f0b9907fea8f
+ebb098e16bb
+#5 extracting sha256:0a1482acc7adc6385f986e103ae82ba514c0d8a743c01014e470533a98d7e47c
+#5 extracting sha256:0a1482acc7adc6385f986e103ae82ba514c0d8a743c01014e470533a98d7e47c 0.2s done
+#5 DONE 3.6s
+
+#5 [1/3] FROM docker.io/tb4off/environment:react-lead-form@sha256:fc847ac8b72acdc6f78282e364d4349e9a36cdd79f0b9907fea8f
+ebb098e16bb
+#5 extracting sha256:20766b6d9c81fce98db1a870aa598448bdb87bdc6e0012012599108bbf3489c0
+#5 extracting sha256:20766b6d9c81fce98db1a870aa598448bdb87bdc6e0012012599108bbf3489c0 5.1s done
+#5 DONE 8.7s
+
+#6 [2/3] COPY agent-extra.tar.gz /tmp/agent-extra.tar.gz
+#6 DONE 1.5s
+
+#7 [3/3] RUN set -eux;     SP=/opt/tb4-agent/tools/mini-swe-agent/lib/python3.12/site-packages;     tar xzf /tmp/agent-
+extra.tar.gz -C "$SP";     rm -f /tmp/agent-extra.tar.gz;     chmod -R a+rX "$SP"
+#7 0.201 + SP=/opt/tb4-agent/tools/mini-swe-agent/lib/python3.12/site-packages
+#7 0.201 + tar xzf /tmp/agent-extra.tar.gz -C /opt/tb4-agent/tools/mini-swe-agent/lib/python3.12/site-packages
+#7 0.340 + rm -f /tmp/agent-extra.tar.gz
+#7 0.340 + chmod -R a+rX /opt/tb4-agent/tools/mini-swe-agent/lib/python3.12/site-packages
+#7 DONE 19.9s
+
+#8 exporting to image
+#8 exporting layers
+#8 exporting layers 1.5s done
+#8 exporting manifest sha256:3700e8e6c8e6590ac606dff8471ba38d0a58d4cf534bf70f86339e01784051c7 0.0s done
+#8 exporting config sha256:4f795167a2bc0518917ea3422f7f38c82bff4b3b48d4d4b8a60637d65db97a4b 0.0s done
+#8 exporting attestation manifest sha256:2a67a775d10c56fb6a67d074647630c397cac41f24a019f553ae41389f2ab83f 0.0s done
+#8 exporting manifest list sha256:5078249a2b1b5586356bab6f7b9a36eb54ecb6d370f5ab85e19005260297f6b5 0.0s done
+#8 naming to docker.io/tb4off/environment:react-lead-form done
+#8 unpacking to docker.io/tb4off/environment:react-lead-form
+#8 unpacking to docker.io/tb4off/environment:react-lead-form 0.2s done
+#8 DONE 1.7s
+
+ 1 warning found (use docker --debug to expand):
+ - InvalidDefaultArgInFrom: Default value for ARG ${BASE_IMAGE} results in empty or invalid base image name (line 4
+)
+
+View build details: docker-desktop://dashboard/build/desktop-linux/desktop-linux/fa94sc0ds961112q5hpgo0a2p
+OK react-lead-form
+=== nextjs-performance
+docker : #0 building with "desktop-linux" instance using docker driver
+At D:\ai\code\git\bench\offline\build_tb4_mcp_fix.ps1:11 char:5
++     docker build --pull=false --build-arg "BASE_IMAGE=$tag" -f "$BASE ...
++     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (#0 building wit...g docker driver:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+
+#1 [internal] load build definition from Dockerfile.agent-mcp-fix
+#1 transferring dockerfile: 513B done
+#1 WARN: InvalidDefaultArgInFrom: Default value for ARG ${BASE_IMAGE} results in empty or invalid base image name (line
+ 4)
+#1 DONE 0.0s
+
+#2 [internal] load metadata for docker.io/tb4off/environment:nextjs-performance
+#2 DONE 0.0s
+
+#3 [internal] load .dockerignore
+#3 transferring context: 2B done
+#3 DONE 0.0s
+
+#4 [1/3] FROM docker.io/tb4off/environment:nextjs-performance@sha256:38fcb57f08b81875c92f71d13882dc14f1f821b85b4cec4cc2
+c2dc7d8f852cd8
+#4 resolve docker.io/tb4off/environment:nextjs-performance@sha256:38fcb57f08b81875c92f71d13882dc14f1f821b85b4cec4cc2c2d
+c7d8f852cd8 0.0s done
+#4 ...
+
+#5 [internal] load build context
+#5 transferring context: 42B done
+#5 DONE 0.0s
+
+#4 [1/3] FROM docker.io/tb4off/environment:nextjs-performance@sha256:38fcb57f08b81875c92f71d13882dc14f1f821b85b4cec4cc2
+c2dc7d8f852cd8
+#4 DONE 0.2s
+
+#4 [1/3] FROM docker.io/tb4off/environment:nextjs-performance@sha256:38fcb57f08b81875c92f71d13882dc14f1f821b85b4cec4cc2
+c2dc7d8f852cd8
+#4 extracting sha256:cea7eb9bbe80eabf8356efb28b3796ab904f36a32049aeb6b435920ca93f9285 0.0s done
+#4 extracting sha256:51c53f95c2cae3d00dfc0350297c92dea913fe129ec38b8deb8313e5f3e0297d
+#4 extracting sha256:51c53f95c2cae3d00dfc0350297c92dea913fe129ec38b8deb8313e5f3e0297d 0.9s done
+#4 extracting sha256:3cddab114edadc7cf5a7b0b591e59f6312aade3dc4fb68e88aacca5eb1cc1c03
+#4 extracting sha256:3cddab114edadc7cf5a7b0b591e59f6312aade3dc4fb68e88aacca5eb1cc1c03 0.0s done
+#4 extracting sha256:0282d618b52cd2eb8fcf041e780cd66b15e7ebae519a4054c5d293eae6b6d34f 0.0s done
+#4 extracting sha256:a1012d06bd4b48f4eaa120893077b6f99ef87f7849c2e80e303b83802f2ead11 0.0s done
+#4 extracting sha256:14f47426882acbbfb5160e3268d621ff5b10d85b5da92c54fcc7ac117bf65664 0.0s done
+#4 extracting sha256:53d9883d543e9b976696758455a8ed4aa7e9cdd48140bd5ce8e3c17ad131208a
+#4 extracting sha256:53d9883d543e9b976696758455a8ed4aa7e9cdd48140bd5ce8e3c17ad131208a 3.0s done
+#4 DONE 4.2s
+
+#4 [1/3] FROM docker.io/tb4off/environment:nextjs-performance@sha256:38fcb57f08b81875c92f71d13882dc14f1f821b85b4cec4cc2
+c2dc7d8f852cd8
+#4 extracting sha256:b3e966d5debad0e86e34e2b00b6cf193c6664b98bce58e90b08e6c7c1924eaee 0.0s done
+#4 extracting sha256:0287ccc613584198a4cd8f676f18976592c1a95aa56e8742b7c1ce9a8466ee18
+#4 extracting sha256:0287ccc613584198a4cd8f676f18976592c1a95aa56e8742b7c1ce9a8466ee18 0.6s done
+#4 DONE 4.9s
+
+#4 [1/3] FROM docker.io/tb4off/environment:nextjs-performance@sha256:38fcb57f08b81875c92f71d13882dc14f1f821b85b4cec4cc2
+c2dc7d8f852cd8
+#4 extracting sha256:5acb1cadc1ae29559a9d1642c4a1fe318d94290707c0e1bc1d018fd8b2b5daa3
+#4 extracting sha256:5acb1cadc1ae29559a9d1642c4a1fe318d94290707c0e1bc1d018fd8b2b5daa3 0.2s done
+#4 DONE 5.1s
+
+#4 [1/3] FROM docker.io/tb4off/environment:nextjs-performance@sha256:38fcb57f08b81875c92f71d13882dc14f1f821b85b4cec4cc2
+c2dc7d8f852cd8
+#4 extracting sha256:93ef7bd1d6dbb327273136ac0ac094d16ee4b35a67f64c0549c96fcb5ea22322
+#4 extracting sha256:93ef7bd1d6dbb327273136ac0ac094d16ee4b35a67f64c0549c96fcb5ea22322 5.3s done
+#4 DONE 10.4s
+
+#6 [2/3] COPY agent-extra.tar.gz /tmp/agent-extra.tar.gz
+#6 DONE 1.0s
+
+#7 [3/3] RUN set -eux;     SP=/opt/tb4-agent/tools/mini-swe-agent/lib/python3.12/site-packages;     tar xzf /tmp/agent-
+extra.tar.gz -C "$SP";     rm -f /tmp/agent-extra.tar.gz;     chmod -R a+rX "$SP"
+#7 0.258 exec /bin/sh: exec format error
+#7 ERROR: process "/bin/sh -c set -eux;     SP=/opt/tb4-agent/tools/mini-swe-agent/lib/python3.12/site-packages;     ta
+r xzf /tmp/agent-extra.tar.gz -C \"$SP\";     rm -f /tmp/agent-extra.tar.gz;     chmod -R a+rX \"$SP\"" did not complet
+e successfully: exit code: 255
+------
+ > [3/3] RUN set -eux;     SP=/opt/tb4-agent/tools/mini-swe-agent/lib/python3.12/site-packages;     tar xzf /tmp/agent-
+extra.tar.gz -C "$SP";     rm -f /tmp/agent-extra.tar.gz;     chmod -R a+rX "$SP":
+0.258 exec /bin/sh: exec format error
+------
+
+ 1 warning found (use docker --debug to expand):
+ - InvalidDefaultArgInFrom: Default value for ARG ${BASE_IMAGE} results in empty or invalid base image name (line 4
+)
+Dockerfile.agent-mcp-fix:9
+--------------------
+   8 |     
+   9 | >>> RUN set -eux; \
+  10 | >>>     SP=/opt/tb4-agent/tools/mini-swe-agent/lib/python3.12/site-packages; \
+  11 | >>>     tar xzf /tmp/agent-extra.tar.gz -C "$SP"; \
+  12 | >>>     rm -f /tmp/agent-extra.tar.gz; \
+  13 | >>>     chmod -R a+rX "$SP"
+  14 |     
+--------------------
+ERROR: failed to build: failed to solve: process "/bin/sh -c set -eux;     SP=/opt/tb4-agent/tools/mini-swe-agent/lib/p
+ython3.12/site-packages;     tar xzf /tmp/agent-extra.tar.gz -C \"$SP\";     rm -f /tmp/agent-extra.tar.gz;     chmod -
+R a+rX \"$SP\"" did not complete successfully: exit code: 255
+
+View build details: docker-desktop://dashboard/build/desktop-linux/desktop-linux/uef1cu65qh3w0bqiytn8gqjdz
+FAIL nextjs-performance
+=== vf2-speedup-networkx
+docker : #0 building with "desktop-linux" instance using docker driver
+At D:\ai\code\git\bench\offline\build_tb4_mcp_fix.ps1:11 char:5
++     docker build --pull=false --build-arg "BASE_IMAGE=$tag" -f "$BASE ...
++     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (#0 building wit...g docker driver:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+
+#1 [internal] load build definition from Dockerfile.agent-mcp-fix
+#1 transferring dockerfile: 513B done
+#1 WARN: InvalidDefaultArgInFrom: Default value for ARG ${BASE_IMAGE} results in empty or invalid base image name (line
+ 4)
+#1 DONE 0.0s
+
+#2 [internal] load metadata for docker.io/tb4off/environment:vf2-speedup-networkx
+#2 DONE 0.0s
+
+#3 [internal] load .dockerignore
+#3 transferring context: 2B done
+#3 DONE 0.0s
+
+#4 [internal] load build context
+#4 transferring context: 42B done
+#4 DONE 0.0s
+
+#5 [1/3] FROM docker.io/tb4off/environment:vf2-speedup-networkx@sha256:61e4c52e42a107e1d76c0294b5b0693afa8fc53598502eac
+0bdc4af9b141bfb7
+#5 resolve docker.io/tb4off/environment:vf2-speedup-networkx@sha256:61e4c52e42a107e1d76c0294b5b0693afa8fc53598502eac0bd
+c4af9b141bfb7 0.0s done
+#5 extracting sha256:e5164f63bade974273fd1aff1a518da3b8b9e313892b022066a76a7f2fef73f6
+#5 extracting sha256:e5164f63bade974273fd1aff1a518da3b8b9e313892b022066a76a7f2fef73f6 3.2s done
+#5 DONE 3.4s
+
+#5 [1/3] FROM docker.io/tb4off/environment:vf2-speedup-networkx@sha256:61e4c52e42a107e1d76c0294b5b0693afa8fc53598502eac
+0bdc4af9b141bfb7
+#5 extracting sha256:bcfb27e7360accdc6bef465d10ced2e2482620d247d2da6a854374bb420ccd9f 0.0s done
+#5 extracting sha256:2a75ae7a668c223c9cce1ec02cca7c5cd2b3f9849a436847e220c1d089992602 0.0s done
+#5 extracting sha256:7f2c2239180ceab368b43a424aadff0547f90f5c43c2d30e32ebc4fad8955921
+#5 extracting sha256:7f2c2239180ceab368b43a424aadff0547f90f5c43c2d30e32ebc4fad8955921 10.1s done
+#5 DONE 13.5s
+
+#5 [1/3] FROM docker.io/tb4off/environment:vf2-speedup-networkx@sha256:61e4c52e42a107e1d76c0294b5b0693afa8fc53598502eac
+0bdc4af9b141bfb7
+#5 extracting sha256:ceb8831a1010a740d858de579e9da6f9a67133f164bbf8dd5f462b44194aabcb 0.0s done
+#5 extracting sha256:9d2e34b2f477f3328ae0cee91b2e7b69c6e3402b0b18a8207f9f3b9e38a0d5de
+#5 extracting sha256:9d2e34b2f477f3328ae0cee91b2e7b69c6e3402b0b18a8207f9f3b9e38a0d5de 0.8s done
+#5 extracting sha256:b362e698b4401981cc74c0e7a4425c2e41201ae1043a18d3ae0e64c76066f570
+#5 extracting sha256:b362e698b4401981cc74c0e7a4425c2e41201ae1043a18d3ae0e64c76066f570 0.2s done
+#5 DONE 14.5s
+
+#5 [1/3] FROM docker.io/tb4off/environment:vf2-speedup-networkx@sha256:61e4c52e42a107e1d76c0294b5b0693afa8fc53598502eac
+0bdc4af9b141bfb7
+#5 extracting sha256:d6798f0fa891427eaa0a54eef555d4200a97f47eefdccfeb2e59737657fc98b6
+#5 extracting sha256:d6798f0fa891427eaa0a54eef555d4200a97f47eefdccfeb2e59737657fc98b6 5.5s done
+#5 DONE 20.0s
+
+#6 [2/3] COPY agent-extra.tar.gz /tmp/agent-extra.tar.gz
+#6 DONE 1.1s
+
+#7 [3/3] RUN set -eux;     SP=/opt/tb4-agent/tools/mini-swe-agent/lib/python3.12/site-packages;     tar xzf /tmp/agent-
+extra.tar.gz -C "$SP";     rm -f /tmp/agent-extra.tar.gz;     chmod -R a+rX "$SP"
+#7 0.235 + SP=/opt/tb4-agent/tools/mini-swe-agent/lib/python3.12/site-packages
+#7 0.235 + tar xzf /tmp/agent-extra.tar.gz -C /opt/tb4-agent/tools/mini-swe-agent/lib/python3.12/site-packages
+#7 0.348 + rm -f /tmp/agent-extra.tar.gz
+#7 0.349 + chmod -R a+rX /opt/tb4-agent/tools/mini-swe-agent/lib/python3.12/site-packages
+#7 DONE 26.4s
+
+#8 exporting to image
+#8 exporting layers
+#8 exporting layers 1.5s done
+#8 exporting manifest sha256:90d5ccd3a296a8f504929272b4fd68d912f84cd67e8ebcac3736681512eda80e 0.0s done
+#8 exporting config sha256:f2061e0e0edb3e04ac8156cb874478115a7525887123913cbafe44d61c3518ab 0.0s done
+#8 exporting attestation manifest sha256:cd25c0dc8a35eb4234e23147badf603d6863df86caa700520f3bacc30b1e75ea 0.0s done
+#8 exporting manifest list sha256:a7f1bbd2ef57106518cb72391fc6b4903df6820b3815c0d4da062a377e4d1338 0.0s done
+#8 naming to docker.io/tb4off/environment:vf2-speedup-networkx done
+#8 unpacking to docker.io/tb4off/environment:vf2-speedup-networkx
+#8 unpacking to docker.io/tb4off/environment:vf2-speedup-networkx 0.2s done
+#8 DONE 1.8s
+
+ 1 warning found (use docker --debug to expand):
+ - InvalidDefaultArgInFrom: Default value for ARG ${BASE_IMAGE} results in empty or invalid base image name (line 4
+)
+
+View build details: docker-desktop://dashboard/build/desktop-linux/desktop-linux/8ivfngov5qe49gut54qfkdhnn
+OK vf2-speedup-networkx
+=== html-js-filter
+docker : #0 building with "desktop-linux" instance using docker driver
+At D:\ai\code\git\bench\offline\build_tb4_mcp_fix.ps1:11 char:5
++     docker build --pull=false --build-arg "BASE_IMAGE=$tag" -f "$BASE ...
++     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (#0 building wit...g docker driver:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+
+#1 [internal] load build definition from Dockerfile.agent-mcp-fix
+#1 transferring dockerfile: 513B done
+#1 WARN: InvalidDefaultArgInFrom: Default value for ARG ${BASE_IMAGE} results in empty or invalid base image name (line
+ 4)
+#1 DONE 0.0s
+
+#2 [internal] load metadata for docker.io/tb4off/environment:html-js-filter
+#2 DONE 0.2s
+
+#3 [internal] load .dockerignore
+#3 transferring context: 2B done
+#3 DONE 0.0s
+
+#4 [internal] load build context
+#4 transferring context: 42B done
+#4 DONE 0.0s
+
+#5 [1/3] FROM docker.io/tb4off/environment:html-js-filter@sha256:964aa2541cf62bcf1d9f970de640d0a6a811454340a2835dccdf2e
+b7ef63d1c2
+#5 resolve docker.io/tb4off/environment:html-js-filter@sha256:964aa2541cf62bcf1d9f970de640d0a6a811454340a2835dccdf2eb7e
+f63d1c2 0.0s done
+#5 DONE 0.1s
+
+#5 [1/3] FROM docker.io/tb4off/environment:html-js-filter@sha256:964aa2541cf62bcf1d9f970de640d0a6a811454340a2835dccdf2e
+b7ef63d1c2
+#5 extracting sha256:b2491589cba862953546b6910c8f5e39ccbc611b8c7988316558961ce071fc4a
+#5 extracting sha256:b2491589cba862953546b6910c8f5e39ccbc611b8c7988316558961ce071fc4a 0.2s done
+#5 DONE 0.3s
+
+#5 [1/3] FROM docker.io/tb4off/environment:html-js-filter@sha256:964aa2541cf62bcf1d9f970de640d0a6a811454340a2835dccdf2e
+b7ef63d1c2
+#5 extracting sha256:d226b504368295c0941e9d85aab39357502edde23a3c25b97d3d72ccd03bee7b 0.0s done
+#5 extracting sha256:b8b11fce0663399abeb854652650390c163e103301e5001e2ee6816ef45dfcc5
+#5 extracting sha256:b8b11fce0663399abeb854652650390c163e103301e5001e2ee6816ef45dfcc5 0.7s done
+#5 DONE 0.9s
+
+#5 [1/3] FROM docker.io/tb4off/environment:html-js-filter@sha256:964aa2541cf62bcf1d9f970de640d0a6a811454340a2835dccdf2e
+b7ef63d1c2
+#5 extracting sha256:78a66504c02952c33e337ce834ea153134c42447b38abd21a56c8717bdc72f37
+#5 extracting sha256:78a66504c02952c33e337ce834ea153134c42447b38abd21a56c8717bdc72f37 0.2s done
+#5 DONE 1.2s
+
+#5 [1/3] FROM docker.io/tb4off/environment:html-js-filter@sha256:964aa2541cf62bcf1d9f970de640d0a6a811454340a2835dccdf2e
+b7ef63d1c2
+#5 extracting sha256:678bdcbf05de0ad159ff9d8d6f917dc8e85f428dcd1ab39a80f7d76939d87708
+#5 extracting sha256:678bdcbf05de0ad159ff9d8d6f917dc8e85f428dcd1ab39a80f7d76939d87708 5.3s done
+#5 DONE 6.5s
+
+#6 [2/3] COPY agent-extra.tar.gz /tmp/agent-extra.tar.gz
+#6 DONE 2.6s
+
+#7 [3/3] RUN set -eux;     SP=/opt/tb4-agent/tools/mini-swe-agent/lib/python3.12/site-packages;     tar xzf /tmp/agent-
+extra.tar.gz -C "$SP";     rm -f /tmp/agent-extra.tar.gz;     chmod -R a+rX "$SP"
+#7 0.265 exec /bin/sh: exec format error
+#7 ERROR: process "/bin/sh -c set -eux;     SP=/opt/tb4-agent/tools/mini-swe-agent/lib/python3.12/site-packages;     ta
+r xzf /tmp/agent-extra.tar.gz -C \"$SP\";     rm -f /tmp/agent-extra.tar.gz;     chmod -R a+rX \"$SP\"" did not complet
+e successfully: exit code: 255
+------
+ > [3/3] RUN set -eux;     SP=/opt/tb4-agent/tools/mini-swe-agent/lib/python3.12/site-packages;     tar xzf /tmp/agent-
+extra.tar.gz -C "$SP";     rm -f /tmp/agent-extra.tar.gz;     chmod -R a+rX "$SP":
+0.265 exec /bin/sh: exec format error
+------
+
+ 1 warning found (use docker --debug to expand):
+ - InvalidDefaultArgInFrom: Default value for ARG ${BASE_IMAGE} results in empty or invalid base image name (line 4
+)
+Dockerfile.agent-mcp-fix:9
+--------------------
+   8 |     
+   9 | >>> RUN set -eux; \
+  10 | >>>     SP=/opt/tb4-agent/tools/mini-swe-agent/lib/python3.12/site-packages; \
+  11 | >>>     tar xzf /tmp/agent-extra.tar.gz -C "$SP"; \
+  12 | >>>     rm -f /tmp/agent-extra.tar.gz; \
+  13 | >>>     chmod -R a+rX "$SP"
+  14 |     
+--------------------
+ERROR: failed to build: failed to solve: process "/bin/sh -c set -eux;     SP=/opt/tb4-agent/tools/mini-swe-agent/lib/p
+ython3.12/site-packages;     tar xzf /tmp/agent-extra.tar.gz -C \"$SP\";     rm -f /tmp/agent-extra.tar.gz;     chmod -
+R a+rX \"$SP\"" did not complete successfully: exit code: 255
+
+View build details: docker-desktop://dashboard/build/desktop-linux/desktop-linux/y2yroprgfrriprgq33dhyf4hz
+FAIL html-js-filter
+=== shadow-relay
+docker : #0 building with "desktop-linux" instance using docker driver
+At D:\ai\code\git\bench\offline\build_tb4_mcp_fix.ps1:11 char:5
++     docker build --pull=false --build-arg "BASE_IMAGE=$tag" -f "$BASE ...
++     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (#0 building wit...g docker driver:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+
+#1 [internal] load build definition from Dockerfile.agent-mcp-fix
+#1 transferring dockerfile: 513B 0.0s done
+#1 WARN: InvalidDefaultArgInFrom: Default value for ARG ${BASE_IMAGE} results in empty or invalid base image name (line
+ 4)
+#1 DONE 0.0s
+
+#2 [internal] load metadata for docker.io/tb4off/environment:shadow-relay
+#2 DONE 0.0s
+
+#3 [internal] load .dockerignore
+#3 transferring context: 2B done
+#3 DONE 0.0s
+
+#4 [internal] load build context
+#4 transferring context: 42B done
+#4 DONE 0.0s
+
+#5 [1/3] FROM docker.io/tb4off/environment:shadow-relay@sha256:d4bcc098a9a7189364551718c4d073470cb8f15a96f1f7918d876edc
+0a4b4466
+#5 resolve docker.io/tb4off/environment:shadow-relay@sha256:d4bcc098a9a7189364551718c4d073470cb8f15a96f1f7918d876edc0a4
+b4466 0.0s done
+#5 DONE 0.2s
+
+#5 [1/3] FROM docker.io/tb4off/environment:shadow-relay@sha256:d4bcc098a9a7189364551718c4d073470cb8f15a96f1f7918d876edc
+0a4b4466
+#5 extracting sha256:e6e5be122feb7a16f455b4d540970806362cc1389948d360311cdf567c4595d0
+#5 extracting sha256:e6e5be122feb7a16f455b4d540970806362cc1389948d360311cdf567c4595d0 0.5s done
+#5 extracting sha256:f7289eab108b7c308ce606562f7c1193a13e5e2642c3719dafa0968ffdb1a737
+#5 extracting sha256:f7289eab108b7c308ce606562f7c1193a13e5e2642c3719dafa0968ffdb1a737 0.2s done
+#5 DONE 0.9s
+
+#5 [1/3] FROM docker.io/tb4off/environment:shadow-relay@sha256:d4bcc098a9a7189364551718c4d073470cb8f15a96f1f7918d876edc
+0a4b4466
+#5 extracting sha256:711bd31540012e6d43485842f3ed21ef986508dad6287250fc5724c823ec7450 0.0s done
+#5 extracting sha256:8c927f36569005f877edd18d6c2991e6efa9bf1535083035c959142440eadec9 0.0s done
+#5 extracting sha256:e8c1f712a4758ecb6b8d3269da2bb1d1427d3dd6362b974d2c5d690e35f560c5 0.1s done
+#5 extracting sha256:ed14193ca9897ceb2865ec0048c63131e77f88c507a41f475d3c53a141295116 0.0s done
+#5 DONE 1.0s
+
+#5 [1/3] FROM docker.io/tb4off/environment:shadow-relay@sha256:d4bcc098a9a7189364551718c4d073470cb8f15a96f1f7918d876edc
+0a4b4466
+#5 extracting sha256:be778c90b793815647bd55fdaa178b823d4dd21c3ecad4fc7ce71295e2ed9e5e
+#5 extracting sha256:be778c90b793815647bd55fdaa178b823d4dd21c3ecad4fc7ce71295e2ed9e5e 0.8s done
+#5 DONE 1.8s
+
+#5 [1/3] FROM docker.io/tb4off/environment:shadow-relay@sha256:d4bcc098a9a7189364551718c4d073470cb8f15a96f1f7918d876edc
+0a4b4466
+#5 extracting sha256:09725789fea09489ce5f52cd245930f88cb55aaee6fdd6f2d4ae713adff842f9
+#5 extracting sha256:09725789fea09489ce5f52cd245930f88cb55aaee6fdd6f2d4ae713adff842f9 0.2s done
+#5 DONE 2.0s
+
+#5 [1/3] FROM docker.io/tb4off/environment:shadow-relay@sha256:d4bcc098a9a7189364551718c4d073470cb8f15a96f1f7918d876edc
+0a4b4466
+#5 extracting sha256:9392a80b952d188f360103a0737804544e9a717d7be2b6cfe49e86e51c463d1b
+#5 extracting sha256:9392a80b952d188f360103a0737804544e9a717d7be2b6cfe49e86e51c463d1b 6.0s done
+#5 DONE 8.0s
+
+#6 [2/3] COPY agent-extra.tar.gz /tmp/agent-extra.tar.gz
+#6 DONE 0.7s
+
+#7 [3/3] RUN set -eux;     SP=/opt/tb4-agent/tools/mini-swe-agent/lib/python3.12/site-packages;     tar xzf /tmp/agent-
+extra.tar.gz -C "$SP";     rm -f /tmp/agent-extra.tar.gz;     chmod -R a+rX "$SP"
+#7 0.280 + SP=/opt/tb4-agent/tools/mini-swe-agent/lib/python3.12/site-packages
+#7 0.280 + tar xzf /tmp/agent-extra.tar.gz -C /opt/tb4-agent/tools/mini-swe-agent/lib/python3.12/site-packages
+#7 0.406 + rm -f /tmp/agent-extra.tar.gz
+#7 0.408 + chmod -R a+rX /opt/tb4-agent/tools/mini-swe-agent/lib/python3.12/site-packages
+#7 DONE 36.1s
+
+#8 exporting to image
+#8 exporting layers
+#8 exporting layers 1.6s done
+#8 exporting manifest sha256:f21720bab73530a5325cd6b77e8c120ee1b7a673c06bea8137164169d69647f0 0.1s done
+#8 exporting config sha256:4ed5275c3d8160e37d3b4cef4f4405b669ae1abae40a0033009c4d4298e6eef7 0.0s done
+#8 exporting attestation manifest sha256:fca2ea7dc7bb24c233ec97c1cfb5134e9309cea1b0c9be9401fa67cccb128465
+#8 exporting attestation manifest sha256:fca2ea7dc7bb24c233ec97c1cfb5134e9309cea1b0c9be9401fa67cccb128465 0.1s done
+#8 exporting manifest list sha256:13fde2a0c320d992e5ebd93b484c33a71631ad6fc83ade284049256303cd3518 0.0s done
+#8 naming to docker.io/tb4off/environment:shadow-relay
+#8 naming to docker.io/tb4off/environment:shadow-relay done
+#8 unpacking to docker.io/tb4off/environment:shadow-relay
+#8 unpacking to docker.io/tb4off/environment:shadow-relay 0.2s done
+#8 DONE 2.1s
+
+ 1 warning found (use docker --debug to expand):
+ - InvalidDefaultArgInFrom: Default value for ARG ${BASE_IMAGE} results in empty or invalid base image name (line 4
+)
+
+View build details: docker-desktop://dashboard/build/desktop-linux/desktop-linux/wradagmramxcf785j1o3432pb
+OK shadow-relay
+=== vba-userform-port
+docker : #0 building with "desktop-linux" instance using docker driver
+At D:\ai\code\git\bench\offline\build_tb4_mcp_fix.ps1:11 char:5
++     docker build --pull=false --build-arg "BASE_IMAGE=$tag" -f "$BASE ...
++     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (#0 building wit...g docker driver:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+
+#1 [internal] load build definition from Dockerfile.agent-mcp-fix
+#1 transferring dockerfile: 513B done
+#1 WARN: InvalidDefaultArgInFrom: Default value for ARG ${BASE_IMAGE} results in empty or invalid base image name (line
+ 4)
+#1 DONE 0.0s
+
+#2 [internal] load metadata for docker.io/tb4off/environment:vba-userform-port
+#2 DONE 0.0s
+
+#3 [internal] load .dockerignore
+#3 transferring context: 2B done
+#3 DONE 0.0s
+
+#4 [internal] load build context
+#4 DONE 0.0s
+
+#4 [internal] load build context
+#4 transferring context: 42B done
+#4 DONE 0.0s
+
+#5 [1/3] FROM docker.io/tb4off/environment:vba-userform-port@sha256:8c574a16133ef1df2e576156aaef4f630bda089ff26103c38b3
+60d94f55a45c8
+#5 resolve docker.io/tb4off/environment:vba-userform-port@sha256:8c574a16133ef1df2e576156aaef4f630bda089ff26103c38b360d
+94f55a45c8 0.0s done
+#5 DONE 0.5s
+
+#5 [1/3] FROM docker.io/tb4off/environment:vba-userform-port@sha256:8c574a16133ef1df2e576156aaef4f630bda089ff26103c38b3
+60d94f55a45c8
+#5 extracting sha256:6310eb16bf4251731feab01e8f633bf5e2d75a657ccad97f420b1f83cce457be
+#5 extracting sha256:6310eb16bf4251731feab01e8f633bf5e2d75a657ccad97f420b1f83cce457be 0.6s done
+#5 DONE 1.0s
+
+#5 [1/3] FROM docker.io/tb4off/environment:vba-userform-port@sha256:8c574a16133ef1df2e576156aaef4f630bda089ff26103c38b3
+60d94f55a45c8
+#5 extracting sha256:a0d8783128af79059fe015e6313ce9e8fd7856b194e57f2d3c909b12a593bd2f 0.1s done
+#5 extracting sha256:b79f58b3eb945fe861ace4fc38504483c5b100c794aa095b6c9f112ed9807aad
+#5 extracting sha256:b79f58b3eb945fe861ace4fc38504483c5b100c794aa095b6c9f112ed9807aad 0.3s done
+#5 DONE 1.4s
+
+#5 [1/3] FROM docker.io/tb4off/environment:vba-userform-port@sha256:8c574a16133ef1df2e576156aaef4f630bda089ff26103c38b3
+60d94f55a45c8
+#5 extracting sha256:48579d87405c21ba2599e244fcf3a02e900dbf9b9103e4afd030fbe0c7f43b33 0.0s done
+#5 extracting sha256:20b7398104d0fb114b5a0c2c60d8798ec7bad40fcfb145fc35b85ea76c1f6b4a
+#5 extracting sha256:20b7398104d0fb114b5a0c2c60d8798ec7bad40fcfb145fc35b85ea76c1f6b4a 3.2s done
+#5 DONE 4.6s
+
+#5 [1/3] FROM docker.io/tb4off/environment:vba-userform-port@sha256:8c574a16133ef1df2e576156aaef4f630bda089ff26103c38b3
+60d94f55a45c8
+#5 extracting sha256:3aa9c79059e1ee600b51dea247fa3ec6295a0a771481a67596600bb630914f48 0.0s done
+#5 extracting sha256:f2475ef3b2a412d44c14cd34ca152ede478628b3d21b2faacac4e0c04c353734 0.0s done
+#5 extracting sha256:4f4fb700ef54461cfa02571ae0db9a0dc1e0cdb5577484a6d75e68dc38e8acc1 0.0s done
+#5 DONE 4.7s
+
+#5 [1/3] FROM docker.io/tb4off/environment:vba-userform-port@sha256:8c574a16133ef1df2e576156aaef4f630bda089ff26103c38b3
+60d94f55a45c8
+#5 extracting sha256:7bbb79d73db47dcaef6d95c627650c9aaf20f45c63381795931e73175b36d8a5
+#5 extracting sha256:7bbb79d73db47dcaef6d95c627650c9aaf20f45c63381795931e73175b36d8a5 0.8s done
+#5 extracting sha256:7236b2b7945a716a6a47a196c366c98ee450493a9041696cedb70cf781e46810
+#5 extracting sha256:7236b2b7945a716a6a47a196c366c98ee450493a9041696cedb70cf781e46810 0.2s done
+#5 extracting sha256:b40d809cb66fd273d43217e8813a645affb7589edfa7efd0c76d4d46437e2633
+#5 extracting sha256:b40d809cb66fd273d43217e8813a645affb7589edfa7efd0c76d4d46437e2633 6.1s done
+#5 DONE 11.9s
+
+#6 [2/3] COPY agent-extra.tar.gz /tmp/agent-extra.tar.gz
+#6 DONE 4.6s
+
+#7 [3/3] RUN set -eux;     SP=/opt/tb4-agent/tools/mini-swe-agent/lib/python3.12/site-packages;     tar xzf /tmp/agent-
+extra.tar.gz -C "$SP";     rm -f /tmp/agent-extra.tar.gz;     chmod -R a+rX "$SP"
+#7 0.293 + SP=/opt/tb4-agent/tools/mini-swe-agent/lib/python3.12/site-packages
+#7 0.293 + tar xzf /tmp/agent-extra.tar.gz -C /opt/tb4-agent/tools/mini-swe-agent/lib/python3.12/site-packages
+#7 0.428 + rm -f /tmp/agent-extra.tar.gz
+#7 0.429 + chmod -R a+rX /opt/tb4-agent/tools/mini-swe-agent/lib/python3.12/site-packages
+#7 DONE 123.7s
+
+#8 exporting to image
+#8 exporting layers
+#8 exporting layers 1.4s done
+#8 exporting manifest sha256:c6613f0405bd02c3a7edb0f964ed6faab9f0ccde8a6813a5c1d4a9e03fcb42e8 0.0s done
+#8 exporting config sha256:ceb3ebeb8db38d607d41e7caa064019afeee41250aeff7da49f603400bd083f4 0.0s done
+#8 exporting attestation manifest sha256:57e8cc6eed98aac96bfff5601c6919924fc53f9c4cabe64d8832dc49c7cf10dd
+#8 exporting attestation manifest sha256:57e8cc6eed98aac96bfff5601c6919924fc53f9c4cabe64d8832dc49c7cf10dd 0.1s done
+#8 exporting manifest list sha256:a82ee9ab872bdc1cb665be522ae256a6b199966c59f16ea4404e89d0bbf883fc 0.0s done
+#8 naming to docker.io/tb4off/environment:vba-userform-port
+#8 naming to docker.io/tb4off/environment:vba-userform-port done
+#8 unpacking to docker.io/tb4off/environment:vba-userform-port
+#8 unpacking to docker.io/tb4off/environment:vba-userform-port 0.2s done
+#8 DONE 2.0s
+
+ 1 warning found (use docker --debug to expand):
+ - InvalidDefaultArgInFrom: Default value for ARG ${BASE_IMAGE} results in empty or invalid base image name (line 4
+)
+
+View build details: docker-desktop://dashboard/build/desktop-linux/desktop-linux/x4awp27w4huz0qjhovzex2xvk
+OK vba-userform-port
+=== legacy-utility-triage
+docker : #0 building with "desktop-linux" instance using docker driver
+At D:\ai\code\git\bench\offline\build_tb4_mcp_fix.ps1:11 char:5
++     docker build --pull=false --build-arg "BASE_IMAGE=$tag" -f "$BASE ...
++     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (#0 building wit...g docker driver:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+
+#1 [internal] load build definition from Dockerfile.agent-mcp-fix
+#1 transferring dockerfile: 513B done
+#1 WARN: InvalidDefaultArgInFrom: Default value for ARG ${BASE_IMAGE} results in empty or invalid base image name (line
+ 4)
+#1 DONE 0.0s
+
+#2 [internal] load metadata for docker.io/tb4off/environment:legacy-utility-triage
+#2 DONE 0.1s
+
+#3 [internal] load .dockerignore
+#3 transferring context: 2B done
+#3 DONE 0.0s
+
+#4 [internal] load build context
+#4 DONE 0.0s
+
+#5 [1/3] FROM docker.io/tb4off/environment:legacy-utility-triage@sha256:6b992cb4b6fe022459fa993f550f0ca8e83a92d9f5db0a3
+e9247ac24ace2a0a5
+#5 resolve docker.io/tb4off/environment:legacy-utility-triage@sha256:6b992cb4b6fe022459fa993f550f0ca8e83a92d9f5db0a3e92
+47ac24ace2a0a5 0.1s done
+#5 ...
+
+#4 [internal] load build context
+#4 transferring context: 42B done
+#4 DONE 0.1s
+
+#5 [1/3] FROM docker.io/tb4off/environment:legacy-utility-triage@sha256:6b992cb4b6fe022459fa993f550f0ca8e83a92d9f5db0a3
+e9247ac24ace2a0a5
+#5 DONE 1.0s
+
+#5 [1/3] FROM docker.io/tb4off/environment:legacy-utility-triage@sha256:6b992cb4b6fe022459fa993f550f0ca8e83a92d9f5db0a3
+e9247ac24ace2a0a5
+#5 extracting sha256:64c7e6efa7cdf2e4ca8b184acdeb2ac8a50054774b24e677384daa6adec3908d 0.1s done
+#5 DONE 1.1s
+
+#5 [1/3] FROM docker.io/tb4off/environment:legacy-utility-triage@sha256:6b992cb4b6fe022459fa993f550f0ca8e83a92d9f5db0a3
+e9247ac24ace2a0a5
+#5 extracting sha256:357a462820893bc488292501d0bc24d92ed7e0cb9db576a5ca32bc7f4bbbaabd
+#5 extracting sha256:357a462820893bc488292501d0bc24d92ed7e0cb9db576a5ca32bc7f4bbbaabd 0.3s done
+#5 DONE 1.4s
+
+#5 [1/3] FROM docker.io/tb4off/environment:legacy-utility-triage@sha256:6b992cb4b6fe022459fa993f550f0ca8e83a92d9f5db0a3
+e9247ac24ace2a0a5
+#5 extracting sha256:d64904dff413e1ae0509813d7950992bd6e57a752d6607f7f5a3f5ea67492c98 0.1s done
+#5 extracting sha256:e7e746fd418bfed9c9be28f572ad070f4e6753080197b1feab821175f485282c
+#5 extracting sha256:e7e746fd418bfed9c9be28f572ad070f4e6753080197b1feab821175f485282c 0.7s done
+#5 DONE 2.2s
+
+#5 [1/3] FROM docker.io/tb4off/environment:legacy-utility-triage@sha256:6b992cb4b6fe022459fa993f550f0ca8e83a92d9f5db0a3
+e9247ac24ace2a0a5
+#5 extracting sha256:7680b759a4b5099a1250a6d9fbf7068bb2dc251995f0de07647152d0bc306561
+#5 extracting sha256:7680b759a4b5099a1250a6d9fbf7068bb2dc251995f0de07647152d0bc306561 0.6s done
+#5 DONE 2.8s
+
+#5 [1/3] FROM docker.io/tb4off/environment:legacy-utility-triage@sha256:6b992cb4b6fe022459fa993f550f0ca8e83a92d9f5db0a3
+e9247ac24ace2a0a5
+#5 extracting sha256:1c5d0dc38e7e18a1970839e549a416f5ce191113c0961cb7427118eaf2636984 0.0s done
+#5 extracting sha256:6234ead54074379d75e1a159768ca1e8afc8b9da99207b227ae5cced54fe6667 0.0s done
+#5 extracting sha256:399dddea5b9921c06b6b92ca6054ed2fc44b0437a1e1609e6f8d3214275998ff 0.0s done
+#5 DONE 2.9s
+
+#5 [1/3] FROM docker.io/tb4off/environment:legacy-utility-triage@sha256:6b992cb4b6fe022459fa993f550f0ca8e83a92d9f5db0a3
+e9247ac24ace2a0a5
+#5 extracting sha256:9fb203a6fc48bf0f50adc85c6bd7e54f17111305c2a4177c7f962eff59c05916 0.0s done
+#5 extracting sha256:4f4fb700ef54461cfa02571ae0db9a0dc1e0cdb5577484a6d75e68dc38e8acc1 0.0s done
+#5 extracting sha256:a44ec6107ac56807b4d93fc5c121f42cada96f370a846b494fa15a0f993f18cd
+#5 extracting sha256:a44ec6107ac56807b4d93fc5c121f42cada96f370a846b494fa15a0f993f18cd 1.0s done
+#5 DONE 4.0s
+
+#5 [1/3] FROM docker.io/tb4off/environment:legacy-utility-triage@sha256:6b992cb4b6fe022459fa993f550f0ca8e83a92d9f5db0a3
+e9247ac24ace2a0a5
+#5 extracting sha256:826b1ea5bb280bac371afc626be178b59d8628b37df2dcca49fbe8e55e1bba36
+#5 extracting sha256:826b1ea5bb280bac371afc626be178b59d8628b37df2dcca49fbe8e55e1bba36 0.2s done
+#5 DONE 4.3s
+
+#5 [1/3] FROM docker.io/tb4off/environment:legacy-utility-triage@sha256:6b992cb4b6fe022459fa993f550f0ca8e83a92d9f5db0a3
+e9247ac24ace2a0a5
+#5 extracting sha256:c2745e4a359ffad65879956a4cdfbbc8c2b4ad73e583d4a3d93c3f7d19de9f9e
+#5 extracting sha256:c2745e4a359ffad65879956a4cdfbbc8c2b4ad73e583d4a3d93c3f7d19de9f9e 6.7s done
+#5 DONE 10.9s
+
+#6 [2/3] COPY agent-extra.tar.gz /tmp/agent-extra.tar.gz
+#6 DONE 1.2s
+
+#7 [3/3] RUN set -eux;     SP=/opt/tb4-agent/tools/mini-swe-agent/lib/python3.12/site-packages;     tar xzf /tmp/agent-
+extra.tar.gz -C "$SP";     rm -f /tmp/agent-extra.tar.gz;     chmod -R a+rX "$SP"
+#7 0.339 + SP=/opt/tb4-agent/tools/mini-swe-agent/lib/python3.12/site-packages
+#7 0.339 + tar xzf /tmp/agent-extra.tar.gz -C /opt/tb4-agent/tools/mini-swe-agent/lib/python3.12/site-packages
+#7 0.449 + rm -f /tmp/agent-extra.tar.gz
+#7 0.449 + chmod -R a+rX /opt/tb4-agent/tools/mini-swe-agent/lib/python3.12/site-packages
+#7 DONE 71.3s
+
+#8 exporting to image
+#8 exporting layers
+#8 exporting layers 1.3s done
+#8 exporting manifest sha256:0c1301b284a5f6aecbdff7da2e47f1be86becb2d8f31d89b7a721ddfcc0bc5c6 0.0s done
+#8 exporting config sha256:81c623366554255c4e60a486dacfc7cae541636e5643efc734a02aa1e81a8fbd 0.0s done
+#8 exporting attestation manifest sha256:d2ae1bfbbd153cdf8db168fc1216a436bd7c1037d8a673e073cbcfae14cd45a2 0.0s done
+#8 exporting manifest list sha256:7a88c6de851a925238ec973b988bdc6febb3887456c10e1765d7073d4521ed01
+#8 exporting manifest list sha256:7a88c6de851a925238ec973b988bdc6febb3887456c10e1765d7073d4521ed01 0.0s done
+#8 naming to docker.io/tb4off/environment:legacy-utility-triage done
+#8 unpacking to docker.io/tb4off/environment:legacy-utility-triage
+#8 unpacking to docker.io/tb4off/environment:legacy-utility-triage 0.2s done
+#8 DONE 1.7s
+
+ 1 warning found (use docker --debug to expand):
+ - InvalidDefaultArgInFrom: Default value for ARG ${BASE_IMAGE} results in empty or invalid base image name (line 4
+)
+
+View build details: docker-desktop://dashboard/build/desktop-linux/desktop-linux/hppw1905fg75r0iut1ebf5cs7
+OK legacy-utility-triage
+=== payments-pipeline-fix
+docker : #0 building with "desktop-linux" instance using docker driver
+At D:\ai\code\git\bench\offline\build_tb4_mcp_fix.ps1:11 char:5
++     docker build --pull=false --build-arg "BASE_IMAGE=$tag" -f "$BASE ...
++     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (#0 building wit...g docker driver:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+
+#1 [internal] load build definition from Dockerfile.agent-mcp-fix
+#1 transferring dockerfile: 647B done
+#1 WARN: InvalidDefaultArgInFrom: Default value for ARG ${BASE_IMAGE} results in empty or invalid base image name (line
+ 4)
+#1 DONE 0.0s
+
+#2 [internal] load metadata for docker.io/tb4off/environment:payments-pipeline-fix
+#2 DONE 0.1s
+
+#3 [internal] load .dockerignore
+#3 transferring context: 2B done
+#3 DONE 0.0s
+
+#4 [internal] load build context
+#4 transferring context: 42B done
+#4 DONE 0.0s
+
+#5 [1/3] FROM docker.io/tb4off/environment:payments-pipeline-fix@sha256:3d0e6191330577eecaef2fe80c0ad3792f3802d5edb9d20
+58239b0e928558eaf
+#5 resolve docker.io/tb4off/environment:payments-pipeline-fix@sha256:3d0e6191330577eecaef2fe80c0ad3792f3802d5edb9d20582
+39b0e928558eaf 0.0s done
+#5 DONE 0.5s
+
+#5 [1/3] FROM docker.io/tb4off/environment:payments-pipeline-fix@sha256:3d0e6191330577eecaef2fe80c0ad3792f3802d5edb9d20
+58239b0e928558eaf
+#5 extracting sha256:8377dbe89ae15b93d78b019e2f74d9405adeade67c472b1eed4cad429138b6da
+#5 extracting sha256:8377dbe89ae15b93d78b019e2f74d9405adeade67c472b1eed4cad429138b6da 0.3s done
+#5 DONE 0.8s
+
+#5 [1/3] FROM docker.io/tb4off/environment:payments-pipeline-fix@sha256:3d0e6191330577eecaef2fe80c0ad3792f3802d5edb9d20
+58239b0e928558eaf
+#5 extracting sha256:5c045f0ba7fac0d9d7ad56c4c3b024116a51621227ed4b49cb5be89875549fb7 0.0s done
+#5 extracting sha256:2b020cbb37f834b573ff656cf11bcb782f10c1783c00f35f810b84314b05da8e 0.0s done
+#5 extracting sha256:68980e327edc095d8fda9089b7303a517c404be6789f5fc657577dc2986d944d
+#5 extracting sha256:68980e327edc095d8fda9089b7303a517c404be6789f5fc657577dc2986d944d 0.2s done
+#5 DONE 1.0s
+
+#5 [1/3] FROM docker.io/tb4off/environment:payments-pipeline-fix@sha256:3d0e6191330577eecaef2fe80c0ad3792f3802d5edb9d20
+58239b0e928558eaf
+#5 extracting sha256:9d1d6333d0b87e44405b7a48fe0ff89ca5d36aa3b26f803f03f985701bae9afb 0.0s done
+#5 extracting sha256:3b17c17adb7c946aade7787039b5ad9362fb4806fae477174e6ad72f3f8b725f 0.0s done
+#5 extracting sha256:03af7ecb03e7a64dbb99c6fca02fc06851e03b8edcc7b894cedaa012aad235f9 0.0s done
+#5 DONE 1.1s
+
+#5 [1/3] FROM docker.io/tb4off/environment:payments-pipeline-fix@sha256:3d0e6191330577eecaef2fe80c0ad3792f3802d5edb9d20
+58239b0e928558eaf
+#5 extracting sha256:44539211d387748700f6b997583fe60b694bbdb04f99862501cdbb7c11562c73 0.0s done
+#5 extracting sha256:29f1bcd0eea9fb02445537f85c082a6d4e2e79074a897b82f01b96d12bd5a2d1
+#5 extracting sha256:29f1bcd0eea9fb02445537f85c082a6d4e2e79074a897b82f01b96d12bd5a2d1 0.7s done
+#5 DONE 1.9s
+
+#5 [1/3] FROM docker.io/tb4off/environment:payments-pipeline-fix@sha256:3d0e6191330577eecaef2fe80c0ad3792f3802d5edb9d20
+58239b0e928558eaf
+#5 extracting sha256:b077adb2eaacfb1e7630018a694a1c4d97a034876995dcc8ad46ac0501e49063
+#5 extracting sha256:b077adb2eaacfb1e7630018a694a1c4d97a034876995dcc8ad46ac0501e49063 0.2s done
+#5 extracting sha256:95c91234b42e4d4382c75c08270c2c7e5819af0c895b7dfe1d83f3628710c802
+#5 extracting sha256:95c91234b42e4d4382c75c08270c2c7e5819af0c895b7dfe1d83f3628710c802 5.5s done
+#5 DONE 7.6s
+
+#6 [2/3] COPY agent-extra.tar.gz /tmp/agent-extra.tar.gz
+#6 DONE 2.2s
+
+#7 [3/3] RUN set -eux;     SP=/opt/tb4-agent/tools/mini-swe-agent/lib/python3.12/site-packages;     tar xzf /tmp/agent-
+extra.tar.gz -C "$SP";     rm -f /tmp/agent-extra.tar.gz;     chmod -R a+rX "$SP"
+#7 0.303 + SP=/opt/tb4-agent/tools/mini-swe-agent/lib/python3.12/site-packages
+#7 0.303 + tar xzf /tmp/agent-extra.tar.gz -C /opt/tb4-agent/tools/mini-swe-agent/lib/python3.12/site-packages
+#7 0.406 + rm -f /tmp/agent-extra.tar.gz
+#7 0.407 + chmod -R a+rX /opt/tb4-agent/tools/mini-swe-agent/lib/python3.12/site-packages
+#7 DONE 68.0s
+
+#8 exporting to image
+#8 exporting layers
+#8 exporting layers 1.3s done
+#8 exporting manifest sha256:9d2cf88441518b1216a81959d30629e2cc8342e5cb7373c405480864e66c1200 0.0s done
+#8 exporting config sha256:32ae8f1aee80a188e6284bbbb1fc857c6a5fb08164e7c8f25159fed249da1b8b 0.0s done
+#8 exporting attestation manifest sha256:caea89561787d9d3ab5f3d698da49a62113fb1b8d73e8fea2182f2c5bdc1115e
+#8 exporting attestation manifest sha256:caea89561787d9d3ab5f3d698da49a62113fb1b8d73e8fea2182f2c5bdc1115e 0.0s done
+#8 exporting manifest list sha256:127e852caf99d64788514c54ea2996a6a313fea4a73cae1500396eae10888d00 0.0s done
+#8 naming to docker.io/tb4off/environment:payments-pipeline-fix done
+#8 unpacking to docker.io/tb4off/environment:payments-pipeline-fix
+#8 unpacking to docker.io/tb4off/environment:payments-pipeline-fix 0.2s done
+#8 DONE 1.8s
+
+ 1 warning found (use docker --debug to expand):
+ - InvalidDefaultArgInFrom: Default value for ARG ${BASE_IMAGE} results in empty or invalid base image name (line 4
+)
+
+View build details: docker-desktop://dashboard/build/desktop-linux/desktop-linux/ikcbio4889mxfe393dk56hl4s
+OK payments-pipeline-fix
+ALL DONE
