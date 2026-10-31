@@ -1,0 +1,44 @@
+﻿{
+    "started_at":  "2026-10-31 20:29:42.774",
+    "ended_at":  "2026-10-31 20:30:03.354",
+    "duration_sec":  20.6,
+    "python_exit_code":  0,
+    "config":  {
+                   "startPro":  [
+                                    {
+                                        "moduleName":  "openai/mock-model",
+                                        "baseUrl":  "http://host.docker.internal:8765/v1",
+                                        "sk":  "mock-key-not-a-real-secret",
+                                        "proNameList":  [
+                                                            "aiofiles",
+                                                            "humanize"
+                                                        ]
+                                    }
+                                ],
+                   "max_pool_size":  2,
+                   "port_base":  3100,
+                   "cleanup":  true
+               },
+    "result_files":  [
+                         {
+                             "name":  "aiofiles_bo1.json",
+                             "size":  25081,
+                             "sha256":  "072CA8AEE1C459018EF71FD429ED0657A943F6BAB0ECF986DAF032C680542AF7",
+                             "saved_at":  "2026-10-31 20:30:03"
+                         },
+                         {
+                             "name":  "humanize_bo1.json",
+                             "size":  8685,
+                             "sha256":  "3715400A7DC6862B383B379170C100842D1B87AA41346774ED0DD985197500E2",
+                             "saved_at":  "2026-10-31 20:30:03"
+                         }
+                     ],
+    "workspaces":  [
+                       "aiofiles_bo1",
+                       "humanize_bo1"
+                   ],
+    "state_dirs":  [
+                       ".openhands-3100",
+                       ".openhands-3101"
+                   ]
+}
