@@ -1,0 +1,53 @@
+# DeepSWE 单题/小样本 Pier job 配置模板
+# 用法：pier run -c deepswe-pier-job.example.yaml
+# 前置：
+#   - runner 镜像内已装 docker compose 插件（本仓库 batch1 Dockerfile 已含）
+#   - 宿主 docker.sock 挂载
+#   - 环境变量 OPENAI_API_KEY / OPENAI_API_BASE 在 pier 进程里可见
+job_name: deepswe-example
+jobs_dir: /workspace/jobs
+n_attempts: 1
+n_concurrent_trials: 1
+
+# 单题冒烟：0.2 ≈ 36 分钟（官方 3 小时 × 0.2）；正式跑请按需调大
+agent_timeout_multiplier: 0.2
+verifier_timeout_multiplier: 0.5
+
+environment:
+  type: docker
+  # ProgramBench/DeepSWE 默认资源要求可能超过本机；冒烟时忽略
+  cpu_enforcement_policy: ignore
+  memory_enforcement_policy: ignore
+  delete: false            # 失败时保留环境便于排查
+
+agents:
+  - name: mini-swe-agent
+    model_name: openai/deepseek-v4-flash     # 用 openai/ 前缀以便 Pier 传 OPENAI_API_KEY
+    kwargs:
+      # 关键：Ark 没有 Responses API，必须显式用 litellm(Chat Completions)
+      model_class: litellm
+      # 关键：Pier 现场安装 mini-swe-agent 时不带 mcp，LiteLLM 会 ModuleNotFoundError
+      extra_python_packages:
+        - mcp
+      # 关键：推理模型输出截断会导致 RepeatedFormatError
+      model_kwargs:
+        api_base: https://ark.cn-beijing.volces.com/api/plan/v1
+        max_tokens: 16384
+        drop_params: true
+      # 可选：给 mini-swe 加步数/墙钟上限（超时也会保存轨迹并提交）
+      config_yaml: |
+        agent:
+          step_limit: 60
+          wall_time_limit_seconds: 1500
+
+datasets:
+  - path: /workspace/data/deep-swe/tasks
+    task_names:
+      - abs-module-cache-flags
+    n_tasks: 1
+
+# 小样本（10 题确定性抽样）示例：
+# datasets:
+#   - path: /workspace/data/deep-swe/tasks
+#     n_tasks: 10
+#     sample_seed: 0

@@ -120,3 +120,24 @@ Evaluation Summary
 > 注意：Score=56 是**测试通过比例**，任务未 resolved（ProgramBench 主指标 Resolved 要求全部测试通过）。当前 agent 在 40 步/900 秒上限处被截断（LimitsExceeded），提高 `step_limit`/`wall_time_limit_seconds` 有望更高。
 
 **本次运行消耗**（同一 trajectory 统计）：92 次模型调用，prompt 1,654,554 tokens，completion 51,123 tokens（其中 reasoning 36,463），墙钟 12 分 57 秒；无缓存外网成本可忽略。
+
+## 9. DeepSWE 单题冒烟（2026-10-31）
+
+**目标**：用 Pier + mini-swe-agent 跑 1 道 DeepSWE 题（`abs-module-cache-flags`，Go），验证任务环境、模型调用、agent 执行、verifier 链路。
+
+**冒烟中修复的 4 个问题**：
+
+| # | 现象 | 根因 | 修复 |
+| :-: | :-- | :-- | :-- |
+| 1 | `unknown flag: --project-name` | runner 镜像缺 `docker compose` 插件（Pier 用 compose 起任务环境） | Dockerfile apt 加 `docker-compose-v2` |
+| 2 | `NonZeroAgentExitCodeError`（agent 无输出） | Pier 对 `openai/` 前缀自动选 `litellm_response`（Responses API），Ark 不支持 | agent kwargs `model_class: litellm` |
+| 3 | `ModuleNotFoundError: No module named 'mcp'` | Pier 在任务镜像里现场装 mini-swe-agent 不带 `mcp`，LiteLLM 懒加载失败 | agent kwargs `extra_python_packages: [mcp]` |
+| 4 | CLI 多层引号导致 `model_kwargs` 被转义破坏 | PowerShell→bash→pier 的 `--ak` 参数 | 改用 **Pier YAML job 配置**（`offline/deepswe-pier-job.example.yaml`） |
+
+**验证结果**：
+- ✅ 任务环境：Pier 通过 docker compose 构建并启动 DeepSWE 任务镜像（2 CPU / 8GB 任务限制已被 `cpu/memory_enforcement_policy: ignore` 覆盖）
+- ✅ 模型调用：Agent 在沙箱内实际执行 8–14 分钟（多次 ReAct 步骤、工具调用），无凭据/格式错误
+- ⚠️ 未拿到 verifier 分数：官方单题 agent 预算 3 小时；冒烟设 14–36 分钟时限，到点被截断（`AgentTimeoutError`），或被 mini-swe 的 `step_limit` 提前结束导致空 patch → `RewardFileNotFoundError`
+- 结论：**链路可用，DeepSWE 单题真实耗时在 30 分钟–数小时量级**；正式评估建议 `agent_timeout_multiplier: 0.5–1.0`，10 题可 `n_concurrent_trials: 2–4` 并行（注意本机资源）
+
+**模板**：[`offline/deepswe-pier-job.example.yaml`](deepswe-pier-job.example.yaml)
