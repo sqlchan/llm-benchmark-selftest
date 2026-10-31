@@ -96,3 +96,27 @@ docker compose -f offline/docker-compose.yml exec runner bash /workspace/offline
 - 离线包与容器链路**没有阻塞问题**；卡点在「推理模型的 tool-call 输出格式」与 scaffold 的适配。
 - 到公司用内网模型时，建议先跑 `run_stage1.sh` 的 Automation simple 1 题；若模型也有 reasoning/tool-call 格式问题，需要按 `report/api-only-5bench-plan.md` 的做法调 `format_error_template` / 换非推理模型 / 用支持原生 tool-calling 的模型。
 - DeepSWE（Pier + mini-swe-agent）同样会受此影响，建议先用 1 题验证模型格式兼容性再放量。
+
+## 8. 后续：ProgramBench 端到端跑通并拿到真实分数（2026-10-31）
+
+在修复以下 5 项后，Ark `deepseek-v4-flash` 在 `ajeetdsouza__zoxide.67ca1bc` 上完成「agent → 提交 → eval」全链路：
+
+| # | 问题 | 修复 |
+| :-: | :-- | :-- |
+| 1 | 任务容器 20 CPU/60GB 超限 | 覆盖 `environment.run_args`（去掉 `--cpus/--memory`） |
+| 2 | `No module named 'programbench'` | runner 镜像 `uv tool install mini-swe-agent --with programbench==1.2.5` |
+| 3 | `No module named 'mcp'` | 同环境 `--with mcp` |
+| 4 | 凭据/模型名 | 容器加 `-e OPENAI_API_KEY`，模型名 `openai/<model>`，`max_tokens=16384`（否则推理内容截断 → RepeatedFormatError） |
+| 5 | **eval 报 `results_read_failed`** | 官方 `eval/run.sh` 会 `pip install pytest-timeout`；断网时失败。给任务镜像做派生修复（预装 pytest-timeout + 本地 wheelhouse + `/etc/pip.conf` 禁网），见 `offline/programbench-eval-fix/` |
+
+**结果**：
+
+```
+Evaluation Summary
+ ajeetdsouza__zoxide.67ca1bc   Score 56   (531 tests)
+ Average                       56   1 instances
+```
+
+> 注意：Score=56 是**测试通过比例**，任务未 resolved（ProgramBench 主指标 Resolved 要求全部测试通过）。当前 agent 在 40 步/900 秒上限处被截断（LimitsExceeded），提高 `step_limit`/`wall_time_limit_seconds` 有望更高。
+
+**本次运行消耗**（同一 trajectory 统计）：92 次模型调用，prompt 1,654,554 tokens，completion 51,123 tokens（其中 reasoning 36,463），墙钟 12 分 57 秒；无缓存外网成本可忽略。
