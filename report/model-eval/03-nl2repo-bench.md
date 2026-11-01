@@ -114,7 +114,7 @@ test_score = pytest_results['passed'] if pytest_results['total'] > 0 else 0
 
 ## 5. 真实题例
 
-### 5.1 `aiofiles`（Easy，211 个测试）
+### 5.1 `aiofiles`（Medium，211 个测试）
 
 `start.md` 的开头（原文 + 翻译）：
 
@@ -138,12 +138,98 @@ test_score = pytest_results['passed'] if pytest_results['total'] > 0 else 0
 
 规格还给环境版本（Python 3.11.7、pytest 8.4.1、pytest-asyncio 1.1.0 等）和目录树。模型要照着这份规格把整个包写出来，最后跑 **211 个上游测试**。
 
-### 5.2 其他题例（测试规模对比）
+### 5.2 `jsonlines`（Easy，27 个测试）——最小的题之一
 
-| 任务 | 测试数 | 难度（官方 CSV） | 说明 |
+**规格原文**（节选）：
+
+> jsonlines is a Python library **designed for processing data in the JSON Lines (line-by-line JSON) format**, aiming to simplify the reading and writing operations of .jsonl/ndjson files. This tool supports efficient line-by-line reading and writing of large-scale JSON data...
+>
+> Please create a Python project named 'jsonlines' to implement an efficient JSON Lines format data processing library. The project should include the following functions:
+>
+> 1. **JSON Lines file read and write**
+> 2. **Streaming processing**: supports efficient streaming processing of large files
+> 3. **Data type support**: fully supports all JSON standard data types
+> 4. **Error handling**: Provide robust error handling mechanisms
+> 5. **Encoding processing**: supports multiple character encodings
+> 6. **Iterator Interface**
+> 7. **Context Manager**: Supports with statement
+> ...
+> In jsonlines.py, a Reader class is required to support reading JSON Lines data from a file object or an iterable object, providing a read() method ... and supporting typed reading (type parameter), null value handling (allow_none), empty line skipping (skip_empty), and invalid line skipping (skip_invalid). A Writer class is required ... supporting compact output (compact), key sorting (sort_keys), buffer flushing (flush), and custom serialization (dumps). An open() function is required ... automatically handling file encoding (UTF-8) and UTF-8 BOM detection ... A SKIPPABLE_SINGLE_INITIAL_CHARS constant is required ... supporting the RFC7464 text sequence format ... Multiple JSON libraries need to be supported ... prioritizing orjson (if available), then ujson, and finally falling back to the standard library json.
+
+**中文翻译**（要点）：
+
+> jsonlines 是处理 JSON Lines（逐行 JSON）格式的 Python 库，简化 `.jsonl`/`.ndjson` 的读写，支持大文件流式处理。
+>
+> 要实现的库包含：读写、流式处理、全 JSON 类型、健壮错误处理、多编码、迭代器接口、上下文管理器；核心文件要提供 `Reader`（支持 `read()`/`iter()`、`type`、`allow_none`、`skip_empty`、`skip_invalid`）、`Writer`（`write()`/`write_all()`、`compact`、`sort_keys`、`flush`、`dumps`）、`open()`（按 `'r'/'w'/'a'/'x'` 返回 Reader/Writer，处理 UTF-8 与 BOM）、`Error`/`InvalidLineError`（错误信息带行号和原始行）、`SKIPPABLE_SINGLE_INITIAL_CHARS`（`\x1e` 与 BOM，支持 RFC7464）、`ReaderWriterBase`、`DumpsResultConversion`、`repr_for_fp()`；JSON 库优先 orjson，其次 ujson，最后标准库 json；要完整的类型注解（泛型、Union、Literal、`@overload`，能过 mypy）。
+
+**它怎么判**：`test_case_count.txt` = **27**。这属于 104 题里测试最少的一档（有 5 题的测试数比它还少），适合验证链路；但要求并不少——27 个测试覆盖读写、类型化读取、空行/非法行、BOM、三种 JSON 库后端、上下文管理器、类型注解。
+
+### 5.3 `tinydb`（Medium，204 个测试）——规格自己写明了测试规模
+
+**规格原文**（节选）：
+
+> TinyDB is a **lightweight document-oriented database** designed specifically for small applications. It aims to provide a local storage solution implemented purely in Python without external dependencies...
+>
+> - **Document-based storage**: Each piece of data is stored in a dict format...
+> - **Pure Python implementation**: No third-party dependencies...
+> - **Simple and easy to use**: It includes 7 test files, a total of **141 test functions** and **204 test cases**, covering multiple aspects such as data insertion, querying, updating, multi-table management, storage backends, operation functions, and type tools.
+> - **Powerful extensibility**: custom storage backends and middleware
+> - **High-quality assurance**: 100% unit test coverage
+
+**中文翻译**：
+
+> TinyDB 是面向小应用的轻量文档数据库，纯 Python、无外部依赖；数据以 dict 存储；**7 个测试文件、141 个测试函数、204 个测试用例**，覆盖插入、查询、更新、多表管理、存储后端、操作函数、类型工具；支持自定义存储后端和中间件；100% 单元测试覆盖。
+
+**它怎么判**：`test_case_count.txt` = **204**（与规格里写的 204 一致——这是少数「规格直接告诉你测试规模」的题）。模型要复刻数据库核心、表管理、`doc_id` 语义、查询/更新/删除、存储后端与中间件；测试跑的是上游 TinyDB 的完整测试集。
+
+### 5.4 `flask-restful`（Medium，362 个测试）——完整 Web 框架
+
+**规格原文**（节选）：
+
+> Flask-RESTful is an extension library based on Flask, designed to help developers quickly and concisely build REST APIs. It provides one-stop capabilities such as resource abstraction, parameter parsing, data serialization, error handling, content negotiation, CORS, and encryption tools...
+>
+> 1. Resource and Route Management: Support defining RESTful resources by inheriting from the `Resource` class. Support multiple routes, path parameters, endpoint naming, and Blueprint integration.
+> 2. Parameter Parsing and Validation: Support `reqparse.RequestParser` ... type conversion, default values, required fields, choices, actions, trimming, nullability, and file uploads.
+> 3. Data Serialization and Field Definition: Support `fields` ... `String`, `Integer`, `Float`, `Boolean`, `DateTime`, `Url`, `Nested`, `List`, `Raw`, `Fixed`, `Arbitrary`, `FormattedString`.
+> 4. Response Format and Content Negotiation: JSON and XML; automatic negotiation based on `Accept`; custom JSON serialization.
+> 5. Error Handling ... `abort`, custom error responses, signal chains.
+> 6. CORS Support via `crossdomain`.
+> 7. Encryption Tools: AES.
+> 8. Input Types and Validation: regex, ranges, booleans, dates, natural numbers, positive numbers.
+> ...
+> - `flask_restful/__init__.py` ... **must export** `Api`, `Resource`, `fields`, `reqparse`, `inputs`, `marshal`, `marshal_with`, `abort`, `utils` ...
+
+**中文翻译**（要点）：
+
+> Flask-RESTful 是基于 Flask 的扩展库，用于快速构建 REST API，提供资源抽象、参数解析、序列化、错误处理、内容协商、CORS、加密等能力。
+>
+> 要实现：Resource/路由（多路由、路径参数、endpoint、Blueprint）；`reqparse`（类型转换、默认值、必填、choices、actions、trim、可空、文件上传）；`fields`（String/Integer/Float/Boolean/DateTime/Url/Nested/List/Raw/Fixed/Arbitrary/FormattedString）；JSON/XML 响应与 `Accept` 协商；`abort`/自定义错误/信号链；`crossdomain` CORS；AES 加密；inputs 校验；`flask_restful/__init__.py` 必须导出 `Api`、`Resource`、`fields`、`reqparse`、`inputs`、`marshal`、`marshal_with`、`abort`、`utils`，并在 `__version__.py` 提供版本号。
+
+**它怎么判**：`test_case_count.txt` = **362**，`test_commands.json` 是 `pytest --continue-on-collection-errors`（不带 `tests` 路径，跑仓库默认收集）。这题要复刻一个完整的 Web 框架层：路由、解析、序列化、协商、错误、CORS、加密，API 覆盖面在 16 题里位居前列。
+
+### 5.5 `python-slugify`（Easy，82 个测试）——Unicode → URL slug
+
+**规格原文**（节选）：
+
+> Python-Slugify is a Python library **for slugifying Unicode strings**, capable of intelligently converting text in various languages (including Chinese, Russian, French, etc.) into URL-friendly slug formats... (for example, converting "影師嗎" to "ying-shi-ma" and "C'est déjà l'été." to "c-est-deja-l-ete" through the slugify() function).
+
+**中文翻译**：
+
+> Python-Slugify 是把 Unicode 字符串转成 URL slug 的库，能把中文、俄语、法语等文本智能转成 ASCII slug，例如 `"影師嗎"` → `"ying-shi-ma"`、`"C'est déjà l'été."` → `"c-est-deja-l-ete"`。
+
+规格还要求：HTML 实体/十进制/十六进制编码解析；`slugify()` 支持自定义分隔符、最大长度、词边界截断、停用词过滤；引号/数字/标点处理；自定义替换规则（如 `[['|', 'or'], ['%', 'percent']]`）与正则过滤；完整 CLI（`--separator`、`--max-length`、`--word-boundary`、`--stopwords`、`--replacements`、`--allow-unicode`）；`slugify/__init__.py` 导出 `slugify`、`DEFAULT_SEPARATOR`、`smart_truncate`；`special.py` 里要有 `PRE_TRANSLATIONS`、`CYRILLIC`、`GERMAN`、`GREEK` 等常量。
+
+**它怎么判**：`test_case_count.txt` = **82**，`test_commands.json` 是 `pytest --continue-on-collection-errors test.py`（注意目标是 `test.py` 而不是 `tests/`）。这题小，但「Unicode 转换表 + 边界规则 + CLI」都得对，适合作为 NL2Repo 的第一道冒烟题。
+
+### 5.6 题例速览（测试数来自各任务 `test_case_count.txt`）
+
+| 任务 | 测试数 | 难度（官方 CSV） | 一句话 |
 | :-- | --: | :-- | :-- |
-| `jsonlines` | 27 | Easy | 最小的题之一，适合冒烟 |
-| `aiofiles` | 211 | Easy | 异步文件库，规格 49 KB |
+| `jsonlines` | 27 | Easy | JSON Lines 读写库，最小 |
+| `python-slugify` | 82 | Easy | Unicode → URL slug + CLI |
+| `tinydb` | 204 | Medium | 纯 Python 文档数据库 |
+| `aiofiles` | 211 | Medium | 异步文件库 |
+| `flask-restful` | 362 | Medium | 完整 REST 框架层 |
 | `fastapi-users` | 556 | Hard | Web/用户认证 |
 | `stable-baselines3` | 798 | Hard | 强化学习库 |
 | `python-pytest-cases` | 1372 | Hard | 测试框架 |

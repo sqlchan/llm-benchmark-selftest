@@ -149,6 +149,172 @@ def test_query_returns_best_match(self):
 
 这次运行是 Ark `deepseek-v4-flash` + mini-swe-agent 2.4.6，`step_limit=40`、墙钟 900 秒，到步数上限自动提交——**不是模型能力上限**，提高 `step_limit` 后分数会更高。
 
+### 5.5 机制补充：一个任务有多套独立测试分支
+
+ProgramBench 不是「一个任务一套测试」，而是**一个任务多套独立测试分支**。我们离线包里每个实例的 `tests/` 下都有多个 `*.tar.gz`，每个 tar 是一套独立的 `eval/run.sh` + `eval/tests/`：
+
+| 实例 | 测试分支数 |
+| :-- | --: |
+| `ajeetdsouza__zoxide` | 2 |
+| `jqlang__jq` | 12 |
+| `burntsushi__ripgrep` | 13 |
+| `abishekvashok__cmatrix` | 14 |
+| `agourlay__zip-password-finder` | 16 |
+
+`eval.json` 里对应 `test_branches` 列表（zoxide 那次是 `a9c8e0729570` + `aa89e180e290`），逐条结果带 `branch` 字段。多分支的意义是**避免单一测试套件的盲区**：同一程序被十几套独立生成的测试从不同角度考，某一套漏掉的错误行为，另一套可能抓到。
+
+### 5.6 例 2：`jqlang__jq.b33a763`（12 个分支）
+
+**测试原文**（`test_cli_basics.py`）：
+
+```python
+def test_help_exact(golden_dir: Path):
+    expected = read_text(golden_dir / "help.txt")
+    r = run_jq(["--help"], stdin=None)
+    assert r.returncode == 0
+    assert r.stderr == ""
+    assert r.stdout == expected          # 帮助文本必须逐字节一致
+
+def test_version_exact(golden_dir: Path):
+    expected = read_text(golden_dir / "version.txt")
+    r = run_jq(["--version"], stdin=None)
+    assert r.returncode == 0
+    assert r.stderr == ""
+    assert r.stdout == expected
+
+def test_invalid_option_errors():
+    r = run_jq(["--definitely-not-a-real-flag"], stdin=None)
+    assert r.returncode != 0
+    assert r.stdout == ""
+    assert "--definitely-not-a-real-flag" in r.stderr
+```
+
+**中文说明**：`--help` 和 `--version` 的输出必须与 golden 文件**逐字节相同**（连空格/换行都算）；未知参数必须非零退出、stdout 为空、stderr 回显该参数。
+
+另一套分支（`test_filters_and_io.py`）用参数化测 jq 的核心语义：
+
+```python
+@pytest.mark.parametrize("stdin,filter_expr,expected", [
+    ("1\n",       ".",   "1\n"),
+    ("\"a\"\n",   ".",   "\"a\"\n"),
+    ("{\"a\":1}\n", ".a", "1\n"),
+    ("[1,2,3]\n", ".[]", "1\n2\n3\n"),
+])
+def test_basic_filters(stdin, filter_expr, expected):
+    r = run_jq([filter_expr], stdin=stdin)
+    assert r.returncode == 0
+    assert r.stderr == ""
+    assert r.stdout == expected
+```
+
+还有 `-n null`、空 stdin、多个 JSON 值分别处理等边界。官方任务页显示 jq 的历史最好成绩 **98%**——接近可解，但仍未 Resolved。
+
+### 5.7 例 3：`burntsushi__ripgrep.3b7fd44`（13 个分支）
+
+**测试原文**（`test_basic.py`）：
+
+```python
+def test_no_arguments_shows_usage():
+    result = run()
+    assert result.returncode == 2
+    assert b"ripgrep requires at least one pattern" in result.stderr or b"pattern" in result.stderr.lower()
+
+def test_simple_pattern_match_in_file():
+    with TempDir() as tmp:
+        test_file = tmp.create_file("test.txt", "hello world\nfoo bar\nhello again\n")
+        result = run("hello", str(test_file))
+        assert result.returncode == 0
+        assert b"hello world" in result.stdout
+        assert b"hello again" in result.stdout
+        assert b"foo bar" not in result.stdout
+
+def test_help_flag_long():
+    result = run("--help")
+    assert result.returncode == 0
+    assert b"ripgrep" in result.stdout
+    assert b"USAGE:" in result.stdout
+    assert len(result.stdout) > 5000        # 长帮助至少 5KB
+
+def test_version_flag():
+    result = run("--version")
+    assert result.returncode == 0
+    assert b"ripgrep" in result.stdout
+    assert re.search(rb'\d+\.\d+\.\d+', result.stdout)
+    assert b"features:" in result.stdout or b"simd" in result.stdout
+
+def test_simple_pattern_no_match():
+    with TempDir() as tmp:
+        test_file = tmp.create_file("test.txt", "hello world\n")
+        result = run("xyz", str(test_file))
+        assert result.returncode == 1       # 无匹配是 1，不是 0
+        assert result.stdout == b""
+```
+
+**中文说明**：ripgrep 的**退出码语义**（0 有匹配、1 无匹配、2 用法错误）、帮助文本长度、版本号格式、feature/SIMD 字样都被钉死；还有递归目录搜索、`--help` 与 `-h` 长短差异等。官方任务页显示 ripgrep 历史最好 **100%**——这是 200 题里少数被完全解出的。
+
+### 5.8 例 4：`abishekvashok__cmatrix.5c082c6`（14 个分支）——TUI 怎么测
+
+cmatrix 是「终端矩阵雨」程序，没有 stdin/stdout 式的常规输出，测试用 **tmux 伪终端**：
+
+```python
+def run_in_tmux(args, duration=0.5):
+    session_name = f"cmatrix_test_{os.getpid()}"
+    tmux_cmd = ["tmux", "new-session", "-d", "-s", session_name, "-x", "80", "-y", "24"]
+    tmux_cmd.extend(["./executable"] + list(args))
+    subprocess.run(tmux_cmd, capture_output=True, timeout=2)
+    time.sleep(duration)                       # 跑 0.5 秒
+    capture = subprocess.run(["tmux", "capture-pane", "-t", session_name, "-p"],
+                             capture_output=True, timeout=2)
+    subprocess.run(["tmux", "send-keys", "-t", session_name, "q"], ...)   # 按 q 退出
+    return start, capture
+
+class TestActualExecution:
+    def test_default_execution(self):
+        start, capture = run_in_tmux([])
+        assert start.returncode == 0
+        assert len(capture.stdout) > 0          # 屏幕上确实有矩阵字符
+        assert b"error" not in start.stderr.lower()
+
+    def test_screensaver_mode(self):  run_in_tmux(["-s"]) ...
+    def test_async_mode(self):        run_in_tmux(["-a"]) ...
+    def test_bold_mode(self):         run_in_tmux(["-b"]) ...
+```
+
+**中文说明**：模型重建的 cmatrix 必须在 tmux 里跑起来、0.5 秒内画出东西、按 `q` 能退出、各模式（`-s` 屏保、`-a` 异步、`-o` 旧式滚动、`-b`/`-B` 加粗）都可用。**TUI 程序也要能被黑盒行为测试覆盖**。
+
+### 5.9 例 5：`agourlay__zip-password-finder.704700d`（16 个分支）
+
+**测试原文**（`test_zip_password_finder.py`）：
+
+```python
+def test_help_output(self):
+    result = run_executable(["--help"])
+    assert result.returncode == 0
+    assert "Find the password of protected ZIP files" in result.stdout
+    assert "--inputFile" in result.stdout
+    assert "--passwordDictionary" in result.stdout
+    assert "--charset" in result.stdout
+
+def test_version_output(self):
+    result = run_executable(["--version"])
+    assert result.returncode == 0
+    assert "zip-password-finder" in result.stdout
+    assert "0.10.3" in result.stdout
+
+def test_missing_input_file(self):
+    result = run_executable(["-w", "1"])
+    assert result.returncode == 2
+    assert "the following required arguments were not provided" in result.stderr
+    assert "--inputFile" in result.stderr
+
+def test_dictionary_finds_password(self):
+    result = run_executable(["-i", ZIP_FILE_2, "--passwordDictionary", PASSWORD_DICT, "-w", "1"])
+    assert result.returncode == 0
+    assert "Password found:ab" in result.stdout
+```
+
+**中文说明**：程序要能真的**破解 ZIP 密码**（字典模式和字符集暴力模式），输出格式 `Password found:<密码>` 必须一致；同时帮助文本、版本号（`0.10.3`）、参数缺失/文件不存在的退出码（2/1）和错误文案都要复刻。测试自带的 `test-files/` 里有已知密码的 zip、charset 文件、密码字典，输出可直接验证。
+
 ## 6. 常见问题（中文问答）
 
 **Q1：模型能反编译二进制吗？**

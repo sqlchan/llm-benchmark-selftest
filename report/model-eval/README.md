@@ -1,6 +1,6 @@
 # 五个基准是怎么评测模型的（逐基准详解）
 
-> 本目录面向「要拿这 5 个基准去测模型」的人：每个基准一个文件，讲清楚**题目长什么样、模型要做什么、谁来判分、分数怎么算、有哪些坑**，并给出真实的题目例子（英文原文 + 中文翻译 + 判分点）。
+> 本目录面向「要拿这 5 个基准去测模型」的人：每个基准一个文件，讲清楚**题目长什么样、模型要做什么、谁来判分、分数怎么算、有哪些坑**，并给出 **4–9 道真实题目例子**（英文原文 + 中文翻译 + 判分点）。
 > 这里的 5 个基准 = 本仓库离线包 `E:\bench-bundle` 实际打包的 5 个：Terminal-Bench 4.0、DeepSWE v1.1、NL2Repo-Bench、ProgramBench、Automation-Bench v1.0.6。
 > 所有引文都来自离线包内真实任务文件（`data/`）或官方页面，逐条可在文末「来源」核对；标注 `# TODO verify` 的表示尚未实测或未核实。
 
@@ -41,11 +41,11 @@
 
 | 文件 | 内容 | 适合 |
 | :-- | :-- | :-- |
-| [01-terminal-bench-4.md](01-terminal-bench-4.md) | 真终端任务：Harbor 流程、verifier、8 小时预算、XSS/SATB/支付管道等题例 | 最接近真实工程，但最贵、评分争议最大 |
-| [02-deepswe-v1-1.md](02-deepswe-v1-1.md) | 仓库改动：commit 收集、F2P/P2P、binary reward、Go/TS/Python 题例 | 代码 Agent 的首选自测 |
-| [03-nl2repo-bench.md](03-nl2repo-bench.md) | 规格生成整仓：OpenHands 流程、上游 pytest 通过率、aiofiles 题例 | 看「从 0 到 1」的上限 |
-| [04-programbench.md](04-programbench.md) | 二进制重建：cleanroom、黑盒测试、Score/Resolved、zoxide 题例 | 看模型最硬核的编程能力 |
-| [05-automation-bench.md](05-automation-bench.md) | 业务流程：模拟 SaaS、断言引擎、正负断言、发票题例 | 最便宜、最接近公司内部自动化 |
+| [01-terminal-bench-4.md](01-terminal-bench-4.md) | 真终端任务：Harbor 流程、verifier、8 小时预算；9 道题例（html-js-filter / payments-pipeline-fix / satb-audio-transcription / bun-sourcemap-leak / live-database-cutover / vba-userform-port / distributed-dedup / nextjs-performance / shadow-relay） | 最接近真实工程，但最贵、评分争议最大 |
+| [02-deepswe-v1-1.md](02-deepswe-v1-1.md) | 仓库改动：commit 收集、F2P/P2P、binary reward；7 道题例（abs / happy-dom / fastapi / prometheus / httpx / drizzle / oxvg） | 代码 Agent 的首选自测 |
+| [03-nl2repo-bench.md](03-nl2repo-bench.md) | 规格生成整仓：OpenHands 流程、上游 pytest 通过率；5 道题例（aiofiles / jsonlines / tinydb / flask-restful / python-slugify） | 看「从 0 到 1」的上限 |
+| [04-programbench.md](04-programbench.md) | 二进制重建：cleanroom、多测试分支、黑盒测试、Score/Resolved；5 道题例（zoxide / jq / ripgrep / cmatrix / zip） | 看模型最硬核的编程能力 |
+| [05-automation-bench.md](05-automation-bench.md) | 业务流程：模拟 SaaS、断言引擎、正负断言；7 道题例（发票 / 工单 / 离职 / 社媒 / 消防演习 / 销售筛选 / simple） | 最便宜、最接近公司内部自动化 |
 
 ## 3. 六个跨基准的常见问题（先读这一节，能少踩一半坑）
 
