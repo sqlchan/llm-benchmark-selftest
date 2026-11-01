@@ -4,6 +4,8 @@
 > 适用离线包：`bench-bundle`（4 个镜像 tar 合计 **46.5 GiB**；TB4 36 题 + NL2Repo 10 题 + DeepSWE 10 题 + ProgramBench 3 题 + Automation-Bench）。
 > 配套文件：[`offline/config/32c64g.env`](../offline/config/32c64g.env)（并发预设）、[`offline/run_batch2_32c64g.sh`](../offline/run_batch2_32c64g.sh)（入口 wrapper）、[`offline/deepswe-pier-32c64g.yaml`](../offline/deepswe-pier-32c64g.yaml)（DeepSWE Pier 模板）；NL2Repo 并行补丁随 `offline/nl2repo-harness/` 交付（README + apply 脚本）。
 > 口径：本文数字均为**估算或按仓库现有实测数据推算**，每项标注依据；未实测项显式写 "未实测"。token 量级的价格日期/假设沿用报告现有口径（DeepSeek 官方价，2026-10-30）；金额请按实际模型单价折算。
+>
+> **2026-11-01 补充包（第三批）**：离线包新增 DeepSWE +10 题（10→20）、NL2Repo +6 题（10→16）、ProgramBench +2 题（3→5）；TB4 仍 36 题但新增 `TB4_K` 重复参数。本文 §2/§3/§4 的容量与工期按**基线包**（DeepSWE 10 / NL2Repo 10 / ProgramBench 3）计算；补充包增量与工期换算见 [`report/third-batch-bundle.md`](third-batch-bundle.md)。混跑限制不变（基准之间顺序跑）。
 
 ---
 

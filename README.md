@@ -17,12 +17,13 @@ DeepSeek-V4.1-Flash-1017 模型卡上 **11 个基准**的自测资料包：每�
 | [`report/offline-airgap-plan.md`](report/offline-airgap-plan.md) | **断网环境方案**：把镜像/数据/harness 打成离线包带到公司跑内网模型 |
 | [`report/first-batch-bundle.md`](report/first-batch-bundle.md) | **第一批打包实录**：镜像清单、5.06GB 整包、离线验证结果与经验 |
 | [`report/second-batch-bundle.md`](report/second-batch-bundle.md) | **第二批打包实录**：TB4 v4.0.0 36 题（15 + 扩 21）+ NL2Repo 10 题，离线 agent 安装与 ghcr 镜像源迁移 |
+| [`report/third-batch-bundle.md`](report/third-batch-bundle.md) | **第三批补充包实录（2026-11-01）**：DeepSWE 10→20、NL2Repo 10→16、ProgramBench 3→5；3 个 gzip tar、构建/验证记录、加载与工期增量 |
 | [`report/company-day1-checklist.md`](report/company-day1-checklist.md) | **到公司后 30 分钟操作清单（第一批）**：加载→验通→首题判分→启动长任务 |
 | [`report/company-day1-checklist-batch2.md`](report/company-day1-checklist-batch2.md) | **到公司后第二批操作清单**：TB4 mcp 补丁自检 / oracle / agent 冒烟 / NL2Repo 端到端 / 正式跑与收尾 |
 | [`report/company-32c64g-concurrency.md`](report/company-32c64g-concurrency.md) | **公司 32C/64G 并发预设**：容量/工期/降级规则；入口 `offline/config/32c64g.env` + `./offline/run_batch2_32c64g.sh tb4\|oracle\|nl2repo` |
 | [`report/centos7-docker-offline.md`](report/centos7-docker-offline.md) | **CentOS 7 离线 Docker 安装包**：Docker CE 20.10.24 + 23 个依赖 RPM + 安装/自检脚本（`docker-el7/`），含旧 daemon API 兼容实测 |
 | [`report/opencompass-offline-bundle.md`](report/opencompass-offline-bundle.md) | **OpenCompass 离线模型对比包**：15 个数据集族（含 LiveCodeBench、HLE LLM-Judge）、5 档套件、约 808 MB 离线目录，Docker 20.10.24 实测（辅助工具，不属于 11 基准） |
-| [`report/eval-toolchain-offline.md`](report/eval-toolchain-offline.md) | **评测/观测工具链离线对比**：AgentCompass、OpenCompass、SWE-bench、DeepEval、Langfuse 的类别定位、离线成本与复用建议（辅助文，不属于 11 基准） |
+| [`report/eval-toolchain-offline.md`](report/eval-toolchain-offline.md) | **评测/观测工具链离线可行性对比**：AgentCompass、OpenCompass、SWE-bench、DeepEval、Langfuse 的类别定位、离线成本与复用建议（辅助文，不属于 11 基准） |
 | [`report/results/`](report/results/) | **实测证据归档**：两批基准的原始结果、轨迹与冒烟日志（第二批含 TB4 oracle/agent 现场与 NL2Repo 端到端） |
 | [`report/benchmarks.xlsx`](report/benchmarks.xlsx) | 对比表：总览（11 行×24 列）、Harness 工具链、三档自测方案、数据来源 |
 | [`report/runbook.md`](report/runbook.md) | 每个基准的复现命令清单（可直接复制） |
