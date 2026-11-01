@@ -4,7 +4,7 @@
 > 结论先行：**五者官方都没有「离线安装包」**，但都能通过「预装 wheel + 预拉/预构建镜像 + 预热数据」离线化；
 > 相对成本：**Langfuse ≈ DeepEval < OpenCompass < AgentCompass < SWE-bench**（估算，依据见 §2/§3）。
 > 体积/工期均为估算，未实测项已标 `# TODO verify`；禁止把本文数字当作已实测结论引用。
-> 相关：本仓库已单独交付 **OpenCompass 离线对比包**（`E:\opencompass-offline`，约 808 MB，见 [`opencompass-offline-bundle.md`](opencompass-offline-bundle.md)），本文只做横向定位，不重复其细节。
+> 相关：本仓库已单独交付 **OpenCompass 离线对比包**（`E:\opencompass-offline`，约 808 MB，见 [`opencompass-offline-bundle.md`](opencompass-offline-bundle.md)）与 **DeepEval + Langfuse 离线工具包**（`E:\bench-bundle\tools\eval-tools`，约 1.3 GB，见 [`eval-tools-offline-bundle.md`](eval-tools-offline-bundle.md)），本文只做横向定位，不重复其细节。
 
 ## 1. 五者是什么（先分清类别）
 
@@ -23,8 +23,8 @@
 | AgentCompass | ❌ | 部分有（依赖管理/网络/胶囊章节） | `uv` wheelhouse 安装（含 `[extras]`）+ 预拉 Docker 基线镜像 + 预置 benchmark 数据/任务镜像 | Python wheels、Docker 镜像、HF/上游数据、任务环境内工具链 | 框架 ~百 MB 级；数据/镜像取决于所选 benchmark | 中（只跑本地 Harbor 任务时可复用现有镜像 → 低） |
 | OpenCompass | ❌（本仓库已自建 808 MB 离线包） | ✅（数据集缓存/离线运行文档） | pip wheelhouse + 按数据集预热 `COMPASS_DATA_CACHE`/`HF_DATASETS_CACHE` | Python wheels、各数据集（来源分散：OSS/HF/ModelScope/本地） | 本仓库离线包 808 MB（实测）；官方全量视数据集 | 本仓库已解决（中） |
 | SWE-bench | ❌ | ❌（但 CLI 支持本地数据） | pip + 本地数据集（HF 缓存/JSONL）+ 联网机 `swebench images build` 或预拉实例镜像 + `docker save` | Docker 实例镜像（每实例一个）、HF 数据集 | **官方建议 120 GB 空闲**；镜像总量数十–上百 GB | **高** |
-| DeepEval | ❌ | ❌（但支持本地存储/自定义 judge） | pip wheelhouse；judge 换内网 OpenAI 兼容端点；如用本地 NLP 指标/内置 benchmark 再预热模型与数据 | Python wheels、本地模型缓存、benchmark 数据 | wheels ~百 MB 级 | 低 |
-| Langfuse | ❌ | ❌（只有自托管 compose 文档） | 联网机 `docker compose pull` → `docker save` → 内网 `docker load` → `docker compose up` | 6 个 Docker 镜像（见 §3.5）；SDK 为 pip 包 | 约几 GB（估算） | 低–中 |
+| DeepEval | ❌（本仓库已自建 1.3 GB 包，含 Langfuse） | ❌（但支持本地存储/自定义 judge） | pip wheelhouse；judge 换内网 OpenAI 兼容端点；如用本地 NLP 指标/内置 benchmark 再预热模型与数据 | Python wheels、本地模型缓存、benchmark 数据 | wheels ~百 MB 级 | 低 |
+| Langfuse | ❌（本仓库已自建 1.3 GB 包，含 DeepEval） | ❌（只有自托管 compose 文档） | 联网机 `docker compose pull` → `docker save` → 内网 `docker load` → `docker compose up` | 6 个 Docker 镜像（见 §3.5）；SDK 为 pip 包 | 约几 GB（估算） | 低–中 |
 
 ## 3. 逐项说明
 
@@ -64,6 +64,7 @@
   2. 部分指标依赖本地 NLP/embedding 模型，首次使用会下载 → 需预热缓存。
   3. 内置 benchmark（MMLU/HellaSwag/GSM8K/HumanEval 等）首次运行需拉数据 → 需预热；`# TODO verify` 具体缓存位置与是否有官方离线开关（以实测为准）。
 - **定位**：适合公司上线后对自己应用/agent 做回归（CI 里跑），**不用于选型基准**。
+- **本仓库现状**：已打成离线包 `E:\bench-bundle\tools\eval-tools`（DeepEval **4.3.2** + cp312 wheelhouse + 预装镜像，遥测关闭），实测见 [`eval-tools-offline-bundle.md`](eval-tools-offline-bundle.md)。容器内 `--network none` 跑确定性指标用例 2/2 通过；语义类指标需内网 judge 端点。**内置 benchmark 数据仍未预热**。
 
 ### 3.5 Langfuse
 
@@ -71,22 +72,24 @@
 - **自托管 compose（v4）包含 6 个镜像**：`langfuse-web:4`、`langfuse-worker:4`（来自 `docker.langfuse.com`）、`clickhouse/clickhouse-server:26.3.62.3`、`cgr.dev/chainguard/minio`、`redis:7`、`postgres:17`。
 - **离线做法**：在能访问上述 registry 的联网机 `docker compose pull` → `docker save` 全部镜像 → 内网 `docker load` → 修改 compose 密钥后 `docker compose up`；SDK 是 pip 包。
 - **注意**：官方文档没有「离线/air-gap」模式说明，属于标准 Docker 自托管；它不产出基准分数，需自己配置 dataset/评估器。
+- **本仓库现状**：已打成离线包（6 镜像合并 tar **1157 MB** + compose + 启停/自检脚本），2026-11-01 实测：6 容器 healthy、首次初始化自动建 org/project、SDK 5.1.0 经 OTLP 写入 ClickHouse 成功。**v4 默认 `events_only`**，老 SDK（v3-）需给 web/worker 加 `LANGFUSE_MIGRATION_V4_WRITE_MODE=dual`。见 [`eval-tools-offline-bundle.md`](eval-tools-offline-bundle.md)。
 
 ## 4. 与现有离线包的关系与建议
 
-- **现状**：`E:\bench-bundle` 已扩至 **4 个镜像 tar / 约 50 GB**（TB4 36 题 + NL2Repo 10 题 + 第一批 DeepSWE/ProgramBench，另含 CentOS 7 Docker 安装包）；**五者均未加入主离线包**，但 **OpenCompass 已有单独实测离线包** `E:\opencompass-offline`（808 MB，见 §3.2）。5 个基准仍由各自官方 harness 覆盖（Harbor / Pier / mini-swe-agent / ProgramBench / AutomationBench / OpenHands）。
+- **现状**：`E:\bench-bundle` 主包为 **7 个镜像 tar / 约 50 GB**（TB4 36 题 + NL2Repo 16 题 + DeepSWE 20 题 + ProgramBench 5 题，另含 CentOS 7 Docker 安装包）；五家里 **OpenCompass**（808 MB 独立目录）与 **DeepEval + Langfuse**（`bench-bundle/tools/eval-tools`，1.3 GB）已有实测离线包，**AgentCompass 与 SWE-bench 仍未打包**。5 个基准仍由各自官方 harness 覆盖（Harbor / Pier / mini-swe-agent / ProgramBench / AutomationBench / OpenHands）。
 - **优先级建议（按性价比）**：
   1. **默认不加**：现有 5 基准已能完成选型，没必要为「工具好看」增加离线维护面。
-  2. **想要第二意见 → 只加 AgentCompass**：用现有 TB4 任务 + 现有镜像，仅打包框架 wheelhouse（估算百 MB 级）；先跑通 1 题再放量。需要 SWE-bench/TB2 时再单独备镜像/数据。
-  3. **上线后回归 → DeepEval + Langfuse**：两者最轻，DeepEval 打 wheelhouse，Langfuse 打 6 镜像 compose；不参与选型。
-  4. **通用能力面 → OpenCompass**：已落地，直接复用 `E:\opencompass-offline`；不足时再按需扩数据集（见 `opencompass-offline-bundle.md` §6）。
+  2. **想要第二意见 → 只加 AgentCompass**（未打包）：用现有 TB4 任务 + 现有镜像，仅打包框架 wheelhouse（估算百 MB 级）；先跑通 1 题再放量。需要 SWE-bench/TB2 时再单独备镜像/数据。
+  3. **上线后回归 → DeepEval + Langfuse**（✅ 已落地）：`bench-bundle/tools/eval-tools`，7 镜像 + 2 个 cp312 wheelhouse + 启停脚本；不参与选型。
+  4. **通用能力面 → OpenCompass**（✅ 已落地）：复用 `E:\opencompass-offline`；不足时再按需扩数据集（见 `opencompass-offline-bundle.md` §6）。
   5. **不建议 SWE-bench**：与 DeepSWE 重复，且是四家里离线成本最高的。
-- **第三批打包粗略范围（估算）**：AgentCompass-only 约百 MB 级；DeepEval+Langfuse 约几 GB（Langfuse 6 镜像）；OpenCompass 无需再打（已有 808 MB）；SWE-bench Lite 数十 GB 起。`# TODO verify` 以实际 `pip download` / `docker images` 体积为准。
+- **实测体积（覆盖原估算）**：DeepEval 镜像 109.5 MB + Langfuse 6 镜像 1157 MB + 2 个 wheelhouse 30.6 MB ≈ **1.3 GB**；OpenCompass 808 MB；SWE-bench Lite 仍为数十 GB 起（未打包）。
 
 ## 5. 未验证项与风险（引用前必读）
 
 - `# TODO verify` AgentCompass 在完全断网环境跑 Harbor 本地任务（含 separate verifier）尚未实测；理论上 wheelhouse + 现有镜像可行，需先在联网机验证 1 题。
-- `# TODO verify` DeepEval 内置 benchmark 的离线数据缓存细节未实测（是否可完全预热）。
+- `# TODO verify` DeepEval 内置 benchmark 的离线数据缓存细节未实测（本包**未预热**内置数据集，只验证了框架与确定性指标）。
+- `# TODO verify` Langfuse 老 SDK 的 `LANGFUSE_MIGRATION_V4_WRITE_MODE=dual` 兼容路径未实测（本包只验证了 v5 SDK 的 OTLP 写入）；生产备份/升级流程未演练。
 - `# TODO verify` OpenCompass 各数据集离线可跑率不一致，需逐数据集验证。
 - `# TODO verify` SWE-bench 镜像实际体积/构建时间未实测（官方只给 120 GB 磁盘建议）。
 - **版本口径**：AgentCompass 的 TB2 系列 ≠ 本仓库的 TB v4.0.0；DeepSWE v1.1 数据 commit 一致（`0b9fabbb`）。任何分数引用必须写明「基准版本 + harness + 数据集 commit」。

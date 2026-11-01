@@ -330,6 +330,7 @@ judge：          模型 + 版本 + prompt 版本（若用 judge）
 | :-- | :-- |
 | `report/benchmark-guide.md` | 本文（总报告） |
 | `report/benchmark-suite-analysis.md` | 6 模型 × 11 基准的测试集分析与分数解读（2026-11-01，含可信度分级、口径陷阱、名次热力图） |
+| `report/opencompass-offline-bundle.md` / `report/eval-toolchain-offline.md` / `report/eval-tools-offline-bundle.md` | 辅助工具（不属于 11 基准）：OpenCompass 离线对比包（808 MB）、五家评测/观测工具离线可行性对比、DeepEval + Langfuse 离线工具包（1.3 GB） |
 | `report/benchmarks.xlsx` | 11 个基准结构化对比表（含 Harness 清单、三档方案、来源页） |
 | `report/runbook.md` | 每个基准的复现命令清单（自动生成） |
 | `report/benchmarks.csv` / `report/all_benchmarks.json` | 机读数据 |
