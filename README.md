@@ -22,6 +22,7 @@ DeepSeek-V4.1-Flash-1017 模型卡上 **11 个基准**的自测资料包：每�
 | [`report/company-32c64g-concurrency.md`](report/company-32c64g-concurrency.md) | **公司 32C/64G 并发预设**：容量/工期/降级规则；入口 `offline/config/32c64g.env` + `./offline/run_batch2_32c64g.sh tb4\|oracle\|nl2repo` |
 | [`report/centos7-docker-offline.md`](report/centos7-docker-offline.md) | **CentOS 7 离线 Docker 安装包**：Docker CE 20.10.24 + 23 个依赖 RPM + 安装/自检脚本（`docker-el7/`），含旧 daemon API 兼容实测 |
 | [`report/opencompass-offline-bundle.md`](report/opencompass-offline-bundle.md) | **OpenCompass 离线模型对比包**：15 个数据集族（含 LiveCodeBench、HLE LLM-Judge）、5 档套件、约 808 MB 离线目录，Docker 20.10.24 实测（辅助工具，不属于 11 基准） |
+| [`report/eval-toolchain-offline.md`](report/eval-toolchain-offline.md) | **评测/观测工具链离线对比**：AgentCompass、OpenCompass、SWE-bench、DeepEval、Langfuse 的类别定位、离线成本与复用建议（辅助文，不属于 11 基准） |
 | [`report/results/`](report/results/) | **实测证据归档**：两批基准的原始结果、轨迹与冒烟日志（第二批含 TB4 oracle/agent 现场与 NL2Repo 端到端） |
 | [`report/benchmarks.xlsx`](report/benchmarks.xlsx) | 对比表：总览（11 行×24 列）、Harness 工具链、三档自测方案、数据来源 |
 | [`report/runbook.md`](report/runbook.md) | 每个基准的复现命令清单（可直接复制） |
