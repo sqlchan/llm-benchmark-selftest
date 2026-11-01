@@ -97,7 +97,7 @@
 
 ## 6. 来源（访问日期均为 2026-11-01）
 
-**本仓库相关**：[`opencompass-offline-bundle.md`](opencompass-offline-bundle.md)（OpenCompass 离线包实测）、[`second-batch-bundle.md`](second-batch-bundle.md)（TB4/NL2Repo 离线包）、[`company-day1-checklist-batch2.md`](company-day1-checklist-batch2.md)（公司端操作）。
+**本仓库相关**：[`opencompass-offline-bundle.md`](opencompass-offline-bundle.md)（OpenCompass 离线包实测）、[`second-batch-bundle.md`](second-batch-bundle.md)（TB4/NL2Repo 离线包）、[`company-day1-checklist-batch2.md`](company-day1-checklist-batch2.md)（公司端操作）、[`../study/README.md`](../study/README.md)（四框架学习路径与源码解析）。
 
 **上游官方**：
 - AgentCompass：<https://github.com/open-compass/AgentCompass>（README、`pyproject.toml`、`docs/zh/`）；依赖管理 <https://agent-compass.mintlify.app/en/user_guide/using_agentcompass/dependencies>；Harbor benchmark <https://agent-compass.mintlify.app/en/user_guide/modules/benchmarks/harbor>；DeepSWE <https://agent-compass.mintlify.app/en/user_guide/modules/benchmarks/deepswe>；Terminal-Bench 2 <https://agent-compass.mintlify.app/en/user_guide/modules/benchmarks/terminal_bench_2>；SWE-bench Verified <https://agent-compass.mintlify.app/en/user_guide/modules/benchmarks/swebench_verified>；环境网络策略 <https://agent-compass.mintlify.app/en/user_guide/modules/environments/configuration/network>；Runtime Capsule <https://agent-compass.mintlify.app/en/developer_guide/architecture/runtime_capsules>

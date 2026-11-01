@@ -103,7 +103,7 @@ bash scripts/selfcheck.sh       # 汇总自检
 
 ## 9. 来源
 
-**本仓库**：[`eval-toolchain-offline.md`](eval-toolchain-offline.md)、[`opencompass-offline-bundle.md`](opencompass-offline-bundle.md)、包内 `README.md` / `docs/build-info.md`。
+**本仓库**：[`eval-toolchain-offline.md`](eval-toolchain-offline.md)、[`opencompass-offline-bundle.md`](opencompass-offline-bundle.md)、[`../study/README.md`](../study/README.md)（DeepEval/Langfuse 学习手册与源码解析）、包内 `README.md` / `docs/build-info.md`。
 
 **上游**：
 - DeepEval <https://github.com/confident-ai/deepeval> ｜ 指标 <https://deepeval.com/docs/metrics-introduction>
