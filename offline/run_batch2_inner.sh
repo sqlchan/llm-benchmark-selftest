@@ -28,6 +28,7 @@ run_tb4() {
     "${include_args[@]}" \
     --agent-timeout-multiplier "${TB4_AGENT_TIMEOUT_MULTIPLIER:-0.05}" \
     --n-concurrent "${TB4_N_CONCURRENT:-2}" \
+    -k "${TB4_K:-1}" \
     -o "$BUNDLE_DIR/results/tb4" \
     -y
 }

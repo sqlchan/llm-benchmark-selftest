@@ -1,8 +1,8 @@
-# DeepSWE v1.1 × 32C/64GB 公司宿主机 Pier job 模板：10 题、3 并发、正式超时
+# DeepSWE v1.1 × 32C/64GB 公司宿主机 Pier job 模板：20 题（10 基线 + 10 补充）、3 并发、正式超时
 # ---------------------------------------------------------------------------
 # 字段结构沿用 offline/deepswe-pier-job.example.yaml（2026-10-31 本机冒烟验证过）；
-# task_names 取自离线包 data/deepswe_selected.json（10 题：python/go/typescript/
-# javascript/rust 各 2 题，镜像已在 images/bench-images.tar 里）。
+# task_names 取自离线包 data/deepswe_selected.json（20 题 = 原 10 题 + 补充 10 题；
+# 补充镜像在 images/bench-images-supplement-deepswe.tar 里，随补充包一起 load）。
 #
 # 使用前替换占位符（不要把公司端点写死进仓库）：
 #   REPLACE_ME_MODEL             → 内网模型名（只填裸模型名，例如 company-model-x；
@@ -77,7 +77,7 @@ agents:
 
 datasets:
   - path: /workspace/data/deep-swe/tasks
-    n_tasks: 10
+    n_tasks: 20
     task_names:
       - adaptix-name-mapping-aliases
       - aiomonitor-task-snapshots-diff
@@ -89,3 +89,13 @@ datasets:
       - katex-multicolumn-array-spans
       - boa-hierarchical-evaluation-cancellation
       - fd-deterministic-multi-key-sorting
+      - happy-dom-abort-pending-body-reads
+      - prometheus-typed-label-sorting
+      - tengo-callable-instance-isolation
+      - opa-template-string-reconstruction
+      - dateutil-rfc5545-timezone-interop
+      - oxvg-structural-selector-preservation
+      - fastapi-deprecation-response-headers
+      - httpx-streaming-json-iteration
+      - drizzle-orm-window-function-builders
+      - helm-array-merge-strategies

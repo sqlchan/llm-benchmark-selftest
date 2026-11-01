@@ -37,7 +37,9 @@ fi
 
 echo "== 2. 加载镜像 =="
 count=0
-for tar in $(ls -1 "$IMAGES"/*.tar | sort); do
+shopt -s nullglob
+tars=("$IMAGES"/*.tar "$IMAGES"/*.tar.gz)
+for tar in "${tars[@]}"; do
   echo "[load] $(basename "$tar") ($(du -h "$tar" | cut -f1))"
   docker load -i "$tar"
   count=$((count + 1))
