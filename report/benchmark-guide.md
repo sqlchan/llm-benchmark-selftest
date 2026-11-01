@@ -329,6 +329,7 @@ judge：          模型 + 版本 + prompt 版本（若用 judge）
 | 文件 | 内容 |
 | :-- | :-- |
 | `report/benchmark-guide.md` | 本文（总报告） |
+| `report/benchmark-suite-analysis.md` | 6 模型 × 11 基准的测试集分析与分数解读（2026-11-01，含可信度分级、口径陷阱、名次热力图） |
 | `report/benchmarks.xlsx` | 11 个基准结构化对比表（含 Harness 清单、三档方案、来源页） |
 | `report/runbook.md` | 每个基准的复现命令清单（自动生成） |
 | `report/benchmarks.csv` / `report/all_benchmarks.json` | 机读数据 |
