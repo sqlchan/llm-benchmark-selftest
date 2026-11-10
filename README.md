@@ -13,6 +13,7 @@ DeepSeek-V4.1-Flash-1017 模型卡上 **11 个基准**的自测资料包：每�
 | [`AGENTS.md`](AGENTS.md) | 仓库协作说明：数据流、重建命令、事实与证据规则、完成标准（给 AI Agent 与维护者） |
 | [`report/benchmark-guide.md`](report/benchmark-guide.md) | **主报告**：11 项逐条详解、横向对比、口径警告、三档自测路线、成本与避坑 |
 | [`report/benchmark-suite-analysis.md`](report/benchmark-suite-analysis.md) | **测试集分析**：6 模型 × 11 基准的组合结构、可信度分级、六类口径陷阱与分数解读（含名次热力图） |
+| [`report/deep-dive-9-benchmarks/`](report/deep-dive-9-benchmarks/README.md) | **九评测集深读（2026-11-10）**：先溯源"9 个名字 = DeepSeek-V4-Flash-Vision-Exp 模型卡 9/11 行"，再逐项讲机制/判分/成本/坑，含跨卡可比性、内部基准（DSBench-Hard / ApexBench）定性与引用规则 |
 | [`report/api-only-5bench-plan.md`](report/api-only-5bench-plan.md) | **API-only 执行方案**：5 个基准的接入矩阵、配置模板、三阶段预算与公平性规则 |
 | [`report/offline-airgap-plan.md`](report/offline-airgap-plan.md) | **断网环境方案**：把镜像/数据/harness 打成离线包带到公司跑内网模型 |
 | [`report/first-batch-bundle.md`](report/first-batch-bundle.md) | **第一批打包实录**：镜像清单、5.06GB 整包、离线验证结果与经验 |
